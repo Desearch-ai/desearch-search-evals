@@ -48,8 +48,8 @@ export default function App() {
 
   if (meta === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-text-muted bg-page-glow">
-        <div className="animate-pulse">Loading…</div>
+      <div className="min-h-screen flex items-center justify-center bg-page-glow text-text-dim">
+        <Loader2 size={22} className="animate-spin" />
       </div>
     );
   }
