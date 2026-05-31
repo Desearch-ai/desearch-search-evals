@@ -160,16 +160,6 @@ export default function App() {
           </div>
         )}
 
-        <footer className="mt-12 mb-6 text-center text-xs text-text-dim">
-          Open-source search benchmark ·{" "}
-          <a href="https://github.com/Desearch-ai/desearch-search-evals" className="text-brand hover:underline">
-            Desearch-ai/desearch-search-evals
-          </a>
-          {" · "}
-          <a href="https://huggingface.co/datasets/desearch/desearch-search-evals" className="text-brand hover:underline">
-            dataset on HuggingFace
-          </a>
-        </footer>
       </main>
     </div>
   );
