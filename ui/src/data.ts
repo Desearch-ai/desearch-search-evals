@@ -6,15 +6,13 @@ import type {
   Scoreboard,
 } from "./types";
 
-// Live data on HuggingFace; ./data is the committed offline sample. Same layout for both.
-const HF_BASE =
-  "https://huggingface.co/datasets/desearch/desearch-search-evals/resolve/main";
+// Data is baked into ./data at build time (ui/scripts/fetch-data.mjs pulls the
+// latest run from HF). The browser only ever reads same-origin, never HF.
 const LOCAL_BASE = "./data";
 
 export interface BenchmarkMeta {
   date: string;
   scoreboard: Scoreboard | null;
-  source: "huggingface" | "local";
   isFallback: boolean;
   questionCount: number | null;
   base: string;
@@ -62,29 +60,16 @@ async function fetchText(url: string): Promise<string | null> {
   }
 }
 
-// Pointer is revalidated every load; the dated files it names are immutable, so cached.
-async function resolvePointer(): Promise<
-  { base: string; source: "huggingface" | "local"; latest: LatestPointer } | null
-> {
-  const hf = await fetchJson<LatestPointer>(`${HF_BASE}/latest.json`, { cache: "no-store" });
-  if (hf?.date) return { base: HF_BASE, source: "huggingface", latest: hf };
-  const local = await fetchJson<LatestPointer>(`${LOCAL_BASE}/latest.json`, { cache: "no-store" });
-  if (local?.date) return { base: LOCAL_BASE, source: "local", latest: local };
-  return null;
-}
-
 export async function loadBenchmarkMeta(): Promise<BenchmarkMeta | null> {
-  const resolved = await resolvePointer();
-  if (!resolved) return null;
-  const { base, source, latest } = resolved;
-  const scoreboard = await fetchJson<Scoreboard>(`${base}/scoreboards/${latest.date}.json`);
+  const latest = await fetchJson<LatestPointer>(`${LOCAL_BASE}/latest.json`);
+  if (!latest?.date) return null;
+  const scoreboard = await fetchJson<Scoreboard>(`${LOCAL_BASE}/scoreboards/${latest.date}.json`);
   return {
     date: latest.date,
     scoreboard,
-    source,
-    isFallback: source === "local" || latest.isFallback === true,
+    isFallback: latest.isFallback === true,
     questionCount: latest.questions ?? null,
-    base,
+    base: LOCAL_BASE,
   };
 }
 
@@ -140,13 +125,8 @@ function parseResults(text: string): BenchmarkResults {
   return { questions, answersByQuestion };
 }
 
-// ~5 MB, loaded after the leaderboard paints. Falls back to the local sample on failure.
+// ~5 MB, loaded after the leaderboard paints.
 export async function loadResults(meta: BenchmarkMeta): Promise<BenchmarkResults | null> {
-  const primary = await fetchText(`${meta.base}/results/${meta.date}.jsonl`);
-  if (primary) return parseResults(primary);
-  if (meta.base !== LOCAL_BASE) {
-    const fallback = await fetchText(`${LOCAL_BASE}/results/${meta.date}.jsonl`);
-    if (fallback) return parseResults(fallback);
-  }
-  return null;
+  const text = await fetchText(`${meta.base}/results/${meta.date}.jsonl`);
+  return text ? parseResults(text) : null;
 }
