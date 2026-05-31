@@ -6,7 +6,11 @@ import {
   type BenchmarkMeta,
   type BenchmarkResults,
 } from "./data";
-import { DesearchMark, DesearchWordmark } from "./components/Logo";
+import logo from "./assets/desearch-logo.png";
+import { GitHubIcon, HuggingFaceIcon } from "./components/BrandIcons";
+
+const GITHUB_URL = "https://github.com/Desearch-ai/desearch-search-evals";
+const HF_URL = "https://huggingface.co/datasets/desearch/desearch-search-evals";
 import { Scorecard } from "./components/Scorecard";
 import { Charts } from "./components/Charts";
 import { MethodologyCard } from "./components/MethodologyCard";
@@ -73,23 +77,37 @@ export default function App() {
       <header className="border-b border-border bg-surface/70 backdrop-blur-md sticky top-0 z-10">
         <div className="max-w-screen-2xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <DesearchMark className="text-text" size={20} />
-            <DesearchWordmark className="text-text" height={15} />
+            <img src={logo} alt="Desearch" className="h-6 w-auto" />
             <span className="h-5 w-px bg-border-strong mx-1.5" aria-hidden />
             <span className="text-sm font-medium text-text-muted tracking-tight">Search Benchmark</span>
           </div>
-          <div className="flex flex-col items-end leading-tight shrink-0">
-            <span className="text-[10px] font-semibold tracking-[0.16em] text-text-dim uppercase flex items-center gap-1.5">
-              {meta.isFallback ? (
-                <span className="text-warn" title="Showing the committed offline sample (HuggingFace was unreachable).">Offline sample</span>
-              ) : (
-                <span className="text-success" title="Live data from the HuggingFace dataset.">Live · HuggingFace</span>
-              )}
-            </span>
-            <span className="text-xs font-mono text-text-muted mt-0.5">
-              {meta.date}
-              {questionCount != null && <span className="text-text-dim"> · {questionCount} questions</span>}
-            </span>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex flex-col items-end leading-tight">
+              <span className="text-[10px] font-semibold tracking-[0.16em] text-text-dim uppercase">
+                {meta.isFallback ? (
+                  <span className="text-warn" title="Showing the committed offline sample (HuggingFace was unreachable).">Offline sample</span>
+                ) : (
+                  <span className="text-success" title="Live data from the HuggingFace dataset.">Live · HuggingFace</span>
+                )}
+              </span>
+              <span className="text-xs font-mono text-text-muted mt-0.5">
+                {meta.date}
+                {questionCount != null && <span className="text-text-dim"> · {questionCount} questions</span>}
+              </span>
+            </div>
+            <span className="h-5 w-px bg-border-strong" aria-hidden />
+            <div className="flex items-center gap-1">
+              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer"
+                 title="View source on GitHub" aria-label="View source on GitHub"
+                 className="text-text-muted hover:text-text transition p-1.5 rounded-md hover:bg-surface-2">
+                <GitHubIcon size={18} />
+              </a>
+              <a href={HF_URL} target="_blank" rel="noopener noreferrer"
+                 title="View dataset on HuggingFace" aria-label="View dataset on HuggingFace"
+                 className="text-text-muted hover:text-text transition p-1.5 rounded-md hover:bg-surface-2">
+                <HuggingFaceIcon size={18} />
+              </a>
+            </div>
           </div>
         </div>
       </header>
