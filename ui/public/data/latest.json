@@ -1,0 +1,33 @@
+{
+  "date": "2026-05-31",
+  "dates": [
+    "2026-05-31"
+  ],
+  "questions": 8,
+  "rows": 40,
+  "providers": [
+    "exa",
+    "desearch",
+    "gpt5mini",
+    "perplexity",
+    "tavily"
+  ],
+  "evaluators": [
+    "source_relevance",
+    "groundedness",
+    "answer_quality"
+  ],
+  "weights": {
+    "groundedness": 0.4,
+    "source_relevance": 0.35,
+    "answer_quality": 0.25
+  },
+  "files": {
+    "results": "results/2026-05-31.jsonl",
+    "questions": "questions/2026-05-31.jsonl",
+    "scoreboard": "scoreboards/2026-05-31.json"
+  },
+  "isFallback": true,
+  "schema_version": 1,
+  "generated_utc": "2026-05-31T18:58:45Z"
+}
