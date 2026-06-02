@@ -22,9 +22,9 @@ const tooltipStyle = {
 };
 
 const METRICS = [
-  ["groundedness", "Groundedness"],
   ["source_relevance", "Source Relevance"],
   ["answer_quality", "Answer Quality"],
+  ["groundedness", "Groundedness"],
 ] as const;
 
 function ChartCard({ title, children }: { title: string; children: ReactNode }) {

@@ -4,17 +4,9 @@ import { PROVIDER_BY_KEY } from "../providers";
 
 const COLS: Array<{ key: keyof Scoreboard["rows"][number]; label: string; weight: number; tooltip: string }> = [
   {
-    key: "groundedness",
-    label: "Groundedness",
-    weight: 0.40,
-    tooltip:
-      "For every claim in the answer, the judge fetches the cited page and verifies the page's actual " +
-      "content supports it. Catches hallucinated citations, the proof real-time search happened.",
-  },
-  {
     key: "source_relevance",
     label: "Source Relevance",
-    weight: 0.35,
+    weight: 0.45,
     tooltip:
       "For every URL the provider cited, the judge fetches the page and decides whether it is relevant " +
       "to the question (YES / MAYBE / NO). Mean across all cited URLs.",
@@ -26,6 +18,14 @@ const COLS: Array<{ key: keyof Scoreboard["rows"][number]; label: string; weight
     tooltip:
       "The judge reads the question and answer and picks one of RESPONSIVE / APPROPRIATE_DECLINE / EVASIVE / " +
       "WRONG_DECLINE / HALLUCINATED. Catches evasion, wrong refusals, and confident fabrication.",
+  },
+  {
+    key: "groundedness",
+    label: "Groundedness",
+    weight: 0.30,
+    tooltip:
+      "For every claim in the answer, the judge fetches the cited page and verifies the page's actual " +
+      "content supports it. Catches hallucinated citations, the proof real-time search happened.",
   },
 ];
 
@@ -81,7 +81,7 @@ export function Scorecard({ data }: { data: Scoreboard }) {
               </th>
             ))}
             <th className="text-right px-4 py-2.5 font-semibold text-text cursor-help"
-                title="Weighted mean: 0.40·groundedness + 0.35·source_relevance + 0.25·answer_quality. Missing evaluators are skipped and weights renormalized.">
+                title="Weighted mean: 0.45·source_relevance + 0.25·answer_quality + 0.30·groundedness. Missing evaluators are skipped and weights renormalized.">
               <span className="underline decoration-dotted decoration-text-dim/40 underline-offset-2">Composite</span>
             </th>
           </tr>

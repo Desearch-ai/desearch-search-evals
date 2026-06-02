@@ -6,11 +6,11 @@
   "questions": 8,
   "rows": 40,
   "providers": [
-    "exa",
     "desearch",
+    "exa",
     "gpt5mini",
-    "perplexity",
-    "tavily"
+    "tavily",
+    "perplexity"
   ],
   "evaluators": [
     "source_relevance",
@@ -18,8 +18,8 @@
     "answer_quality"
   ],
   "weights": {
-    "groundedness": 0.4,
-    "source_relevance": 0.35,
+    "groundedness": 0.3,
+    "source_relevance": 0.45,
     "answer_quality": 0.25
   },
   "files": {
@@ -29,5 +29,5 @@
   },
   "isFallback": true,
   "schema_version": 1,
-  "generated_utc": "2026-05-31T18:58:45Z"
+  "generated_utc": "2026-06-02T09:00:16Z"
 }

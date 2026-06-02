@@ -133,16 +133,16 @@ configs:
 
     if scoreboard:
         w = scoreboard.get("weights", {})
-        head = ("| Rank | Provider | Groundedness | Source relevance | Answer quality | Composite |\n"
+        head = ("| Rank | Provider | Source relevance | Answer quality | Groundedness | Composite |\n"
                 "|---|---|---|---|---|---|\n")
         body = ""
         for i, r in enumerate(scoreboard["rows"], 1):
             label = PROVIDER_LABELS.get(r["provider"], r["provider"])
-            body += (f"| {i} | {label} | {r['groundedness']:.3f} | {r['source_relevance']:.3f} "
-                     f"| {r['answer_quality']:.3f} | **{r['composite']:.3f}** |\n")
-        weights_line = (f"Composite = {w.get('groundedness', 0.4):.2f}*groundedness "
-                        f"+ {w.get('source_relevance', 0.35):.2f}*source_relevance "
-                        f"+ {w.get('answer_quality', 0.25):.2f}*answer_quality.")
+            body += (f"| {i} | {label} | {r['source_relevance']:.3f} | {r['answer_quality']:.3f} "
+                     f"| {r['groundedness']:.3f} | **{r['composite']:.3f}** |\n")
+        weights_line = (f"Composite = {w.get('source_relevance', 0.45):.2f}*source_relevance "
+                        f"+ {w.get('answer_quality', 0.25):.2f}*answer_quality "
+                        f"+ {w.get('groundedness', 0.30):.2f}*groundedness.")
         leaderboard = f"## Latest leaderboard ({date})\n\n{head}{body}\n{weights_line}\n"
     else:
         leaderboard = ""
@@ -200,9 +200,9 @@ ds = load_dataset("{repo_id}", "results", split="latest")
 
 ## Methodology (three judge-graded evaluators)
 
-1. **Groundedness (40%)**: for each claim, the judge reads the cited page and rules SUPPORTED / CONTRADICTED / UNSUPPORTED. Catches hallucinated citations; proves a real search happened.
-2. **Source relevance (35%)**: for each cited URL, the judge rules YES / MAYBE / NO (1 / 0.5 / 0). Catches on-topic-but-useless citations.
-3. **Answer quality (25%)**: the judge classifies the answer (RESPONSIVE, APPROPRIATE_DECLINE, EVASIVE, WRONG_DECLINE, HALLUCINATED). Catches evasion and confident fabrication.
+1. **Source relevance (45%)**: for each cited URL, the judge rules YES / MAYBE / NO (1 / 0.5 / 0). Catches on-topic-but-useless citations.
+2. **Answer quality (25%)**: the judge classifies the answer (RESPONSIVE, APPROPRIATE_DECLINE, EVASIVE, WRONG_DECLINE, HALLUCINATED). Catches evasion and confident fabrication.
+3. **Groundedness (30%)**: for each claim, the judge reads the cited page and rules SUPPORTED / CONTRADICTED / UNSUPPORTED. Catches hallucinated citations; proves a real search happened.
 
 Questions are phrased durably ("current", "latest") so each stays valid while its answer
 moves week to week, so there is no static answer key to memorize. Full methodology and the

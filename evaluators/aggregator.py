@@ -3,12 +3,12 @@
 Every signal comes from the judge LLM reading content, not from provider
 self-reports:
 
-  source_relevance  35%   for each cited URL, the judge reads the page
+  source_relevance  45%   for each cited URL, the judge reads the page
                             and says whether it's relevant to the question
   answer_quality    25%   the judge reads question + answer and says
                             whether the answer actually addresses the
                             question (or correctly declines an unanswerable)
-  groundedness      40%   for each factual claim, the judge checks that
+  groundedness      30%   for each factual claim, the judge checks that
                             the cited page's actual content supports it
 
 Missing evaluators are skipped and weights renormalized — partial runs
@@ -26,8 +26,8 @@ from pathlib import Path
 from typing import Any
 
 WEIGHTS = {
-    "groundedness": 0.40,
-    "source_relevance": 0.35,
+    "groundedness": 0.30,
+    "source_relevance": 0.45,
     "answer_quality": 0.25,
 }
 

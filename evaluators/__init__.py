@@ -14,6 +14,6 @@ it called search or which tools it used:
                     its cited page's actual content (SUPPORTED /
                     UNSUPPORTED / CONTRADICTED)
 
-aggregator: composite = 0.40·groundedness + 0.35·source_relevance
-                       + 0.25·answer_quality.
+aggregator: composite = 0.45·source_relevance + 0.25·answer_quality
+                       + 0.30·groundedness.
 """

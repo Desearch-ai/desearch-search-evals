@@ -13,26 +13,9 @@ interface EvaluatorInfo {
 
 const EVALUATORS: EvaluatorInfo[] = [
   {
-    key: "groundedness",
-    label: "Groundedness",
-    weight: 0.40,
-    short: "Do the cited pages actually support each claim in the answer?",
-    full:
-      "For every factual sentence in the answer, the judge LLM fetches the cited URL and asks: " +
-      "does this page's actual content back this exact claim? A claim with multiple citations passes if any one page supports it.",
-    verdicts: [
-      { label: "SUPPORTED", meaning: "Page content (or title + excerpt) clearly establishes the claim.", good: true },
-      { label: "UNSUPPORTED", meaning: "Page is on-topic but doesn't contain evidence for this exact claim.", good: false },
-      { label: "CONTRADICTED", meaning: "Page makes a different specific claim about the same fact.", good: false },
-    ],
-    catches:
-      "Hallucinated citations. A provider that invented an answer and bolted on a real-looking URL fails here. " +
-      "The judge reads the page and confirms or denies. This is the proof that real-time search actually happened.",
-  },
-  {
     key: "source_relevance",
     label: "Source Relevance",
-    weight: 0.35,
+    weight: 0.45,
     short: "Are the URLs you cited actually relevant to the question?",
     full:
       "For each cited URL, the judge LLM reads the page and asks: is this page relevant to the question? " +
@@ -65,6 +48,23 @@ const EVALUATORS: EvaluatorInfo[] = [
     catches:
       "Confident fabrication on unanswerable questions, the single most-criticized AI-search failure mode. " +
       "If the cited source happens to back the false claim (e.g. a prediction article), groundedness alone would miss it.",
+  },
+  {
+    key: "groundedness",
+    label: "Groundedness",
+    weight: 0.30,
+    short: "Do the cited pages actually support each claim in the answer?",
+    full:
+      "For every factual sentence in the answer, the judge LLM fetches the cited URL and asks: " +
+      "does this page's actual content back this exact claim? A claim with multiple citations passes if any one page supports it.",
+    verdicts: [
+      { label: "SUPPORTED", meaning: "Page content (or title + excerpt) clearly establishes the claim.", good: true },
+      { label: "UNSUPPORTED", meaning: "Page is on-topic but doesn't contain evidence for this exact claim.", good: false },
+      { label: "CONTRADICTED", meaning: "Page makes a different specific claim about the same fact.", good: false },
+    ],
+    catches:
+      "Hallucinated citations. A provider that invented an answer and bolted on a real-looking URL fails here. " +
+      "The judge reads the page and confirms or denies. This is the proof that real-time search actually happened.",
   },
 ];
 
@@ -148,7 +148,7 @@ export function MethodologyCard() {
           </div>
 
           <p className="text-[11px] text-text-dim leading-relaxed mt-4">
-            <span className="font-mono">composite = 0.40·groundedness + 0.35·source_relevance + 0.25·answer_quality</span>.
+            <span className="font-mono">composite = 0.45·source_relevance + 0.25·answer_quality + 0.30·groundedness</span>.
             Missing evaluators are skipped and weights renormalized.
           </p>
         </div>

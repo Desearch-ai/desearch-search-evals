@@ -11,13 +11,13 @@ It compares Desearch against GPT-5-mini, Perplexity sonar-pro, Tavily, and Exa o
 
 ## Latest results (2026-05-31)
 
-| #   | Provider             | Groundedness | Source relevance | Answer quality | Composite |
-| --- | -------------------- | ------------ | ---------------- | -------------- | --------- |
-| 1   | Exa                  | 76.9%        | 88.0%            | 96.0%          | **85.5%** |
-| 2   | Desearch             | 72.3%        | 92.3%            | 94.8%          | **84.9%** |
-| 3   | GPT-5-mini           | 62.2%        | 86.5%            | 88.4%          | **77.3%** |
-| 4   | Perplexity sonar-pro | 61.8%        | 76.2%            | 97.2%          | **75.7%** |
-| 5   | Tavily               | 59.1%        | 82.7%            | 90.4%          | **75.2%** |
+| #   | Provider             | Source relevance | Answer quality | Groundedness | Composite |
+| --- | -------------------- | ---------------- | -------------- | ------------ | --------- |
+| 1   | Desearch             | 92.3%            | 94.8%          | 72.3%        | **86.9%** |
+| 2   | Exa                  | 88.0%            | 96.0%          | 76.9%        | **86.6%** |
+| 3   | GPT-5-mini           | 86.5%            | 88.4%          | 62.2%        | **79.7%** |
+| 4   | Tavily               | 82.7%            | 90.4%          | 59.1%        | **77.5%** |
+| 5   | Perplexity sonar-pro | 76.2%            | 97.2%          | 61.8%        | **77.1%** |
 
 250 questions across easy / medium / hard. The [live leaderboard](https://22.desearch.ai) shows the current week and lets you expand any question to compare each provider's answer, sources, and the judge's verdicts side by side. These numbers move week to week as the question set refreshes.
 
@@ -35,14 +35,14 @@ This benchmark uses questions phrased to stay valid while their answers move. A 
 
 Each question is scored by three independent judge-graded evaluators. A provider has to do well on all three to rank well.
 
-**Groundedness (40%)**: for each factual claim in the answer, the judge fetches the cited page and decides whether the page actually supports the claim. This catches hallucinated citations: an invented answer with a real-looking link doesn't pass, because the judge reads the link.
-
-**Source relevance (35%)**: for each cited URL, the judge fetches the page and rates how relevant it is to the question. This catches lazy citations that are on-topic but useless.
+**Source relevance (45%)**: for each cited URL, the judge fetches the page and rates how relevant it is to the question. This catches lazy citations that are on-topic but useless.
 
 **Answer quality (25%)**: the judge reads the question and the answer and decides whether it actually responds: a direct answer to an answerable question, or an honest decline to a genuinely unanswerable one. Dodging, refusing answerable questions, or confidently making things up all score zero.
 
+**Groundedness (30%)**: for each factual claim in the answer, the judge fetches the cited page and decides whether the page actually supports the claim. This catches hallucinated citations: an invented answer with a real-looking link doesn't pass, because the judge reads the link.
+
 ```
-composite = 0.40 * groundedness + 0.35 * source_relevance + 0.25 * answer_quality
+composite = 0.45 * source_relevance + 0.25 * answer_quality + 0.30 * groundedness
 ```
 
 Full grading details, including the answer-quality verdict rubric, are in [`evaluators/`](./evaluators).
@@ -112,7 +112,7 @@ questions  ->  providers  ->  3 evaluators  ->  aggregator  ->  results + scoreb
 ```
 
 - [`providers/`](./providers): one module per provider, unified output shape
-- [`evaluators/`](./evaluators): groundedness, source relevance, answer quality, and the composite aggregator
+- [`evaluators/`](./evaluators): source relevance, answer quality, groundedness, and the composite aggregator
 - [`scripts/weekly_run.py`](./scripts/weekly_run.py): runs a full week end to end
 - [`scripts/upload_to_hf.py`](./scripts/upload_to_hf.py): publishes a run to HuggingFace
 - [`ui/`](./ui): the live leaderboard

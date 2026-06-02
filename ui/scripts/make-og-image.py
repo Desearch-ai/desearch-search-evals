@@ -53,7 +53,7 @@ providers = "Desearch · GPT-5-mini · Perplexity · Tavily · Exa"
 draw.text((PAD, 470), providers, font=tag_font, fill=TEXT)
 
 # three-metric chips
-chips = ["Groundedness", "Source relevance", "Answer quality"]
+chips = ["Source relevance", "Answer quality", "Groundedness"]
 x = PAD
 for c in chips:
     bbox = draw.textbbox((0, 0), c, font=sub_font)
