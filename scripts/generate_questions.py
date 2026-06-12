@@ -276,18 +276,25 @@ def _cos(a: list[float], b: list[float]) -> float:
 
 
 async def dedup(questions: list[dict]) -> list[dict]:
-    """Drop near-duplicate questions by embedding cosine (greedy, keep-first)."""
+    """Drop near-duplicate questions by embedding cosine (greedy, keep-first).
+    Vectorized with numpy: each candidate is scored against the kept matrix in
+    one matrix-vector product, so this stays fast at ~10k questions."""
     if not questions:
         return []
-    vecs = await embed([q["question"] for q in questions])
+    import numpy as np
+    vecs = np.asarray(await embed([q["question"] for q in questions]), dtype=np.float32)
+    vecs /= (np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-9)
+
     kept: list[dict] = []
-    kept_vecs: list[list[float]] = []
+    kept_mat = np.zeros((len(questions), vecs.shape[1]), dtype=np.float32)
+    n = 0
     for q, v in zip(questions, vecs):
-        if any(_cos(v, kv) >= DEDUP_COSINE for kv in kept_vecs):
+        if n and float((kept_mat[:n] @ v).max()) >= DEDUP_COSINE:
             continue
         kept.append(q)
-        kept_vecs.append(v)
-    print(f"[dedup] {len(questions)} -> {len(kept)} after near-duplicate removal")
+        kept_mat[n] = v
+        n += 1
+    print(f"[dedup] {len(questions)} -> {len(kept)} after near-duplicate removal", flush=True)
     return kept
 
 
