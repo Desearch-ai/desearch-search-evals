@@ -95,6 +95,8 @@ _BANNED_RE = re.compile(
     r"|\bis mentioned\b|\bare mentioned\b|\bis discussed\b|\bare discussed\b|\bbeing discussed\b"
     r"|\bnews app\b|\bdownload(ing)? the\b|\bsubscribe\b|\bnewsletter\b"
     r"|article (was )?published|publication date|on what date was .* published"
+    r"|\b(france|usa|italia|mexico|spain|germany|argentina|brazil|korea/?japan)\s*'?9\d\b"
+    r"|world cup (19\d\d|200\d|201\d|202[0-4])"
 )
 
 # A 4-digit year <= 2024 in the question signals a historical fact, not recent news.
@@ -156,36 +158,40 @@ async def collect_articles(lookback_days: int, want: int, concurrency: int,
         items = nc.merge_dedupe(feed_items, sm)
     random.shuffle(items)
     # round-robin across sources so no outlet dominates the fetch queue
-    ordered = nc._round_robin(items, cap=10**9)
-    # over-fetch ~2x the wanted article count to survive fetch failures
-    candidates = ordered[: want * 2]
+    candidates = nc._round_robin(items, cap=10**9)
 
     print(f"[collect] {len(items)} candidate URLs from {len({i['source'] for i in items})} sources; "
-          f"fetching text for up to {len(candidates)}")
+          f"fetching text for up to {want} (bounded, early-exit)", flush=True)
 
     out: list[dict] = []
     sem = asyncio.Semaphore(concurrency)
     async with aiohttp.ClientSession() as session:
         async def one(it: dict):
-            if len(out) >= want:
-                return
             async with sem:
-                if len(out) >= want:
-                    return
                 text = await nc.fetch_via_trafilatura(session, it["url"], fetch_timeout)
             if text:
                 text = _BOILERPLATE_RE.sub("", text).strip()
             if text and MIN_TEXT_CHARS <= len(text):
-                out.append({
-                    "url": it["url"],
-                    "title": it["title"],
+                return {
+                    "url": it["url"], "title": it["title"],
                     "text": text[:MAX_TEXT_CHARS],
-                    "published": it.get("feed_date") or "",
-                    "source": it["source"],
-                })
-        await asyncio.gather(*[one(it) for it in candidates])
-    print(f"[collect] fetched {len(out)} usable articles "
-          f"from {len({a['source'] for a in out})} sources")
+                    "published": it.get("feed_date") or "", "source": it["source"],
+                }
+            return None
+
+        # Fetch in bounded chunks so a tail of slow/timing-out sites can't stall
+        # the whole gather, and stop as soon as we have enough usable articles.
+        chunk = max(64, concurrency * 6)
+        for i in range(0, len(candidates), chunk):
+            if len(out) >= want:
+                break
+            results = await asyncio.gather(*[one(it) for it in candidates[i:i + chunk]])
+            out.extend(r for r in results if r)
+            print(f"[collect] {len(out)}/{want} usable after {min(i + chunk, len(candidates))} attempts",
+                  flush=True)
+    out = out[:want]
+    print(f"[collect] fetched {len(out)} usable articles from {len({a['source'] for a in out})} sources",
+          flush=True)
     return out
 
 
@@ -345,6 +351,28 @@ def _qid(question: str) -> str:
     return "q" + hashlib.sha1(question.strip().lower().encode()).hexdigest()[:12]
 
 
+def load_existing(out_dir: Path, date: str) -> list[dict]:
+    """Reconstruct internal question dicts from a previously-saved date (join
+    questions/<date>.jsonl for difficulty with golds/<date>.jsonl for the rest)."""
+    qpath = out_dir / "questions" / f"{date}.jsonl"
+    gpath = out_dir / "golds" / f"{date}.jsonl"
+    if not qpath.exists() or not gpath.exists():
+        return []
+    diffs = {}
+    for line in qpath.open():
+        r = json.loads(line)
+        diffs[r["id"]] = r["difficulty"]
+    out = []
+    for line in gpath.open():
+        g = json.loads(line)
+        out.append({
+            "question": g["question"], "gold_answer": g["gold_answer"],
+            "answer_span": g.get("answer_span", ""), "difficulty": diffs.get(g["id"], "medium"),
+            "qtype": g.get("qtype", ""), "source_url": g["source_url"], "source": g["source"],
+        })
+    return out
+
+
 def save_local(out_dir: Path, date: str, questions: list[dict], lane: str = "news") -> tuple[Path, Path]:
     qdir = out_dir / "questions"
     gdir = out_dir / "golds"
@@ -410,11 +438,27 @@ async def main_async(args) -> int:
              and 15 <= len(q["question"]) <= 300
              and not _BANNED_RE.search(q["question"])
              and not _STALE_YEAR_RE.search(q["question"])
+             and not _STALE_YEAR_RE.search(q["gold_answer"])
              and not _bad_gold(q["question"], q["gold_answer"])]
     print(f"[filter] {len(raw_qs)} -> {len(clean)} after leakage/length/self-contained filter")
 
     unique = await dedup(clean)
     graded = await quality_grade(unique)
+
+    # --append: re-screen the existing date's questions through the (current)
+    # mechanical filters and merge them into the pool, so a second run tops up
+    # the same day toward the target instead of overwriting it.
+    if args.append:
+        existing = load_existing(Path(args.out), date)
+        existing_clean = [q for q in existing
+                          if not _BANNED_RE.search(q["question"])
+                          and not _STALE_YEAR_RE.search(q["question"])
+                          and not _STALE_YEAR_RE.search(q["gold_answer"])
+                          and not _bad_gold(q["question"], q["gold_answer"])]
+        print(f"[append] merging {len(existing_clean)} kept existing "
+              f"(of {len(existing)}) with {len(graded)} new")
+        graded = await dedup(existing_clean + graded)
+
     final = balance(graded, args.target)
 
     qpath, gpath = save_local(Path(args.out), date, final)
@@ -441,6 +485,8 @@ def main() -> int:
     p.add_argument("--out", default=str(REPO / "output"))
     p.add_argument("--date", default=None, help="YYYY-MM-DD (default: today UTC)")
     p.add_argument("--seed", type=int, default=7)
+    p.add_argument("--append", action="store_true",
+                   help="merge with the existing date's questions (top up toward target)")
     p.add_argument("--hf", action="store_true", help="push questions to HF (needs HF_TOKEN)")
     p.add_argument("--repo", default="desearch/desearch-search-evals")
     args = p.parse_args()
