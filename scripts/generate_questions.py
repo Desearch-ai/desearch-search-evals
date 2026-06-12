@@ -47,7 +47,14 @@ from openai import AsyncOpenAI  # noqa: E402
 from evaluators.common import is_contaminated  # noqa: E402
 from lowtier import news_crawler as nc  # noqa: E402
 
-GEN_MODEL = "gpt-4.1-nano"
+GEN_MODEL = os.environ.get("GEN_MODEL", "gpt-4.1-nano")
+
+def _chat_kwargs(temperature: float = 0.5) -> dict:
+    """gpt-5* are reasoning models: no temperature, run reasoning at minimal.
+    Older nano/mini take temperature normally."""
+    if GEN_MODEL.startswith("gpt-5"):
+        return {"reasoning_effort": "minimal"}
+    return {"temperature": temperature}
 EMBED_MODEL = "text-embedding-3-small"
 QUESTIONS_PER_ARTICLE = 4
 MIN_TEXT_CHARS = 700
@@ -229,7 +236,8 @@ async def gen_for_article(article: dict, k: int) -> list[dict]:
         resp = await oai().chat.completions.create(
             model=GEN_MODEL,
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
+            max_completion_tokens=2500,
+            **_chat_kwargs(0.5),
         )
         raw = _parse_json_array(resp.choices[0].message.content or "")
     except Exception as e:
@@ -315,7 +323,8 @@ async def quality_grade(questions: list[dict], batch: int = 20) -> list[dict]:
             resp = await oai().chat.completions.create(
                 model=GEN_MODEL,
                 messages=[{"role": "user", "content": GRADE_PROMPT.format(listing=listing)}],
-                temperature=0,
+                max_completion_tokens=1500,
+                **_chat_kwargs(0),
             )
             verdicts = _parse_json_array(resp.choices[0].message.content or "")
             return {start + int(v["i"]) for v in verdicts
