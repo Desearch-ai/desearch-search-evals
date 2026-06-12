@@ -74,6 +74,7 @@ Given ONE news article, write a DIVERSE MIX of up to {k} questions whose answer 
 - "explanatory": a why / how question; gold_answer is a focused 1-3 sentence explanation built from the article's concrete facts (causes, mechanism, consequence).
 - "summary": asks for the key points / main developments / what changed / how someone responded; gold_answer is a faithful 3-6 sentence synthesis of the concrete facts (names, numbers, dates, outcomes).
 Aim for roughly half "short" and the rest a mix of "explanatory" and "summary".
+For "explanatory" and "summary", the SUBJECT must be a public event, decision, policy, deal, product launch, or widely-covered figure/organization. NEVER ask "why does X feel/believe/think/like ...", about a private individual's motivation or emotions, an author's or interviewee's personal biography, or a fictional character. The answer must be FACT-DENSE — named people/orgs, numbers, dates, concrete outcomes — not a characterization, a feeling, or a paraphrase of one source's framing.
 
 HARD RULES (apply to EVERY type):
 - SELF-CONTAINED: stands alone for someone who never saw the article. NEVER write "the article/report/study/episode", "according to the author", "is/are mentioned", "discussed". Name the specific people, organizations, places, dates, events.
@@ -121,6 +122,7 @@ GRADE_PROMPT = """You screen candidate questions for an AI WEB SEARCH benchmark.
 3. UNIQUE ANSWER: exactly one answer is correct across the open web; reject vague "which country/location/species/app" with many candidates.
 4. APPROPRIATE ANSWER (each Q is tagged [short]/[explanatory]/[summary]): [short] = one crisp fact <=6 words, absolute dates, no question-restating; [explanatory] = a focused 1-3 sentence reason from concrete facts; [summary] = a faithful 3-6 sentence synthesis of concrete facts (names/numbers/dates). Any type: specific, never vague, never opinion/value-judgment, never invented.
 5. RECENT: about a development from the last ~30 days, NOT a historical fact (birth year, old film, past election/World Cup) the article mentions in passing.
+5b. PUBLIC & FACT-DENSE (esp. explanatory/summary): the subject is a public event/decision/policy/deal/product or major public figure, and the answer states concrete facts (named people/orgs, numbers, dates, outcomes). REJECT "why does X feel/believe/think", a private person's motivations/emotions, an author/interviewee biography, a fictional character, or an answer that is a vague characterization or circular restatement.
 6. NOT META: not about an app/website/publication, downloads, subscriptions, or when an article was published.
 
 Return ONLY a JSON array, one object per question: {{"i": <index int>, "keep": true|false}}."""
