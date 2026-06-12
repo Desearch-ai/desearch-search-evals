@@ -55,6 +55,8 @@ MAX_TEXT_CHARS = 6000
 DEDUP_COSINE = 0.86
 PER_SOURCE_CAP_FRAC = 0.04  # no single source > 4% of the final set
 DIFFICULTY_MIX = {"easy": 0.40, "medium": 0.40, "hard": 0.20}
+ANSWER_TYPE_MIX = {"short": 0.55, "explanatory": 0.30, "summary": 0.15}
+_MAX_GOLD_WORDS = {"short": 8, "explanatory": 45, "summary": 90}
 
 _client: AsyncOpenAI | None = None
 
@@ -67,19 +69,22 @@ def oai() -> AsyncOpenAI:
 
 
 GEN_PROMPT = """You create benchmark questions for testing AI WEB SEARCH engines on RECENT events.
-You are given ONE news article. Write up to {k} short factual questions whose ANSWER is stated in this article. Quality matters far more than quantity — return fewer than {k} if the article only supports a couple of good ones.
+Given ONE news article, write a DIVERSE MIX of up to {k} questions whose answer the article supports. Quality over quantity. Vary the ANSWER SHAPE across the questions:
+- "short": a single factoid; gold_answer is one crisp fact <=6 words (who / what / when / how-many / where / which).
+- "explanatory": a why / how question; gold_answer is a focused 1-3 sentence explanation built from the article's concrete facts (causes, mechanism, consequence).
+- "summary": asks for the key points / main developments / what changed / how someone responded; gold_answer is a faithful 3-6 sentence synthesis of the concrete facts (names, numbers, dates, outcomes).
+Aim for roughly half "short" and the rest a mix of "explanatory" and "summary".
 
-HARD RULES (a question that breaks any one is useless — drop it):
-- SELF-CONTAINED: the question must stand alone for someone who never saw the article. NEVER write "the article/report/study/piece/episode", "according to the author/text", "is/are mentioned", "discussed". Name the specific people, organizations, places, dates, and events so it is unambiguous on its own.
-- PUBLIC & WEB-ANSWERABLE: ask only about a real, widely-reported RECENT development that MANY outlets would cover — named public figures, governments, companies, agencies, sports teams, named products/events. DO NOT ask about a private individual who only appears in this one human-interest story, and DO NOT ask quote-recall questions ("what did X say/explain/conclude") about a person who is NOT a widely-covered public figure (a clinician, a local expert quoted once) — the open web can't return that quote.
-- RECENT: ask ONLY about the new development this article reports (within the last ~30 days). NEVER ask about historical facts the article merely mentions in passing — no birth years, old films, past elections, prior World Cups, decades-old events.
-- UNIQUE ANSWER: a "which X" / "who" question must be specific enough that exactly ONE answer is correct across the open web. Add the org, place, date, or proper noun needed to disambiguate. Reject "which country/location/species/app" when many candidates fit.
-- SHORT FACT ANSWER: gold_answer is the single shortest checkable fact — a name, number, date, place, title, or outcome (e.g. "Pete Hegseth", "30%", "1.5mg", "Morocco"). ≤6 words. NEVER a full sentence, NEVER restate words from the question, NEVER a value judgment. For "when" questions give an ABSOLUTE date ("June 11, 2026"), never a bare weekday ("Thursday").
-- VARIETY: vary the type — favor a mix of who / what / how-many / when / where / why-cause / which; don't make them all who/what lookups.
-- GROUNDED: only ask what THIS article actually states; quote the exact supporting sentence in answer_span; gold_answer must appear in answer_span.
+HARD RULES (apply to EVERY type):
+- SELF-CONTAINED: stands alone for someone who never saw the article. NEVER write "the article/report/study/episode", "according to the author", "is/are mentioned", "discussed". Name the specific people, organizations, places, dates, events.
+- PUBLIC & WEB-ANSWERABLE: about a real, widely-reported RECENT development (last ~30 days) that MANY outlets cover. NOT a private individual in one human-interest story, NOT a personal biography, NOT a quote-recall of a non-famous person. NOT a historical fact (birth year, old film, past World Cup) mentioned in passing.
+- GROUNDED & FACT-DENSE: only what THIS article states; quote the supporting sentence(s) in answer_span. Explanatory/summary answers must be CONCRETE (names/numbers/dates), never vague or opinion.
+- UNIQUE FOCUS: the question targets one specific event/topic so a search engine knows exactly what to answer.
+
+ANSWER-LENGTH by type: short <=6 words (never a sentence, never restate the question, absolute dates not weekdays); explanatory 1-3 sentences; summary 3-6 sentences.
 
 Return ONLY a JSON array (0 to {k} objects), each:
-{{"question": str, "gold_answer": str, "answer_span": str, "difficulty": "easy"|"medium"|"hard", "qtype": str}}
+{{"question": str, "gold_answer": str, "answer_span": str, "difficulty": "easy"|"medium"|"hard", "answer_type": "short"|"explanatory"|"summary", "qtype": str}}
 
 Article title: {title}
 Published: {published}
@@ -114,29 +119,38 @@ GRADE_PROMPT = """You screen candidate questions for an AI WEB SEARCH benchmark.
 1. SELF-CONTAINED: stands alone, names the specific entities, never references "the article/report/study/episode/author" or uses "is/are mentioned"/"discussed".
 2. PUBLIC & WEB-ANSWERABLE: about a real, widely-reported recent event (named public figures, governments, companies, agencies, teams, named products/events). NOT a private person in one human-interest story, NOT a personal biography, NOT a quote-recall of what a non-famous person (clinician, local expert) said. A web search engine could answer it WITHOUT the original article.
 3. UNIQUE ANSWER: exactly one answer is correct across the open web; reject vague "which country/location/species/app" with many candidates.
-4. SHORT FACT ANSWER: one short checkable fact (<=6 words: name/number/date/place/title/outcome), not a full sentence, not a restatement of the question, not a value judgment; "when" answers are absolute dates, not bare weekdays.
+4. APPROPRIATE ANSWER (each Q is tagged [short]/[explanatory]/[summary]): [short] = one crisp fact <=6 words, absolute dates, no question-restating; [explanatory] = a focused 1-3 sentence reason from concrete facts; [summary] = a faithful 3-6 sentence synthesis of concrete facts (names/numbers/dates). Any type: specific, never vague, never opinion/value-judgment, never invented.
 5. RECENT: about a development from the last ~30 days, NOT a historical fact (birth year, old film, past election/World Cup) the article mentions in passing.
 6. NOT META: not about an app/website/publication, downloads, subscriptions, or when an article was published.
 
 Return ONLY a JSON array, one object per question: {{"i": <index int>, "keep": true|false}}."""
 
 
-def _bad_gold(question: str, gold: str) -> bool:
-    """Reject golds that are full sentences, restate the question, or are vague."""
+def _bad_gold(question: str, gold: str, answer_type: str = "short") -> bool:
+    """Reject golds whose length is wrong for their answer_type, that restate a
+    short question, or that are vague. Short = a crisp fact; explanatory/summary
+    may be 1-6 sentences but must still be concrete."""
     words = gold.split()
-    if len(words) > 8:
+    cap = _MAX_GOLD_WORDS.get(answer_type, 8)
+    if not words or len(words) > cap:
         return True
-    ql = [w.lower().strip(".,") for w in question.split()]
-    gl = [w.lower().strip(".,") for w in words]
-    for i in range(len(gl) - 2):
-        tri = gl[i:i + 3]
-        for j in range(len(ql) - 2):
-            if ql[j:j + 3] == tri:
-                return True
     import re as _re
-    if _re.fullmatch(r"(?i)(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\.?", gold.strip()):
-        return True
-    if _re.search(r"(?i)\b(maybe|roughly|approximately|various|several|some|unclear)\b", gold) and len(words) <= 3:
+    if answer_type == "short":
+        # a short answer must not restate the question or be a bare weekday
+        ql = [w.lower().strip(".,") for w in question.split()]
+        gl = [w.lower().strip(".,") for w in words]
+        for i in range(len(gl) - 2):
+            tri = gl[i:i + 3]
+            for j in range(len(ql) - 2):
+                if ql[j:j + 3] == tri:
+                    return True
+        if _re.fullmatch(r"(?i)(mon|tues|wednes|thurs|fri|satur|sun)day\.?", gold.strip()):
+            return True
+    else:
+        # explanatory/summary must be fact-dense, not a vague one-liner
+        if len(words) < 6:
+            return True
+    if _re.search(r"(?i)\b(maybe|roughly|various|unclear)\b", gold) and len(words) <= 3:
         return True
     return False
 
@@ -229,11 +243,15 @@ async def gen_for_article(article: dict, k: int) -> list[dict]:
         diff = str(o.get("difficulty", "medium")).lower()
         if diff not in ("easy", "medium", "hard"):
             diff = "medium"
+        atype = str(o.get("answer_type", "short")).lower()
+        if atype not in ("short", "explanatory", "summary"):
+            atype = "short"
         qs.append({
             "question": q,
             "gold_answer": gold,
-            "answer_span": str(o.get("answer_span", "")).strip()[:600],
+            "answer_span": str(o.get("answer_span", "")).strip()[:1200],
             "difficulty": diff,
+            "answer_type": atype,
             "qtype": str(o.get("qtype", "")).strip()[:40],
             "source_url": article["url"],
             "source": article["source"],
@@ -281,7 +299,7 @@ async def quality_grade(questions: list[dict], batch: int = 20) -> list[dict]:
 
     async def grade_batch(start: int, chunk: list[dict]) -> set[int]:
         listing = "\n".join(
-            f'{i}. Q: {q["question"]}  A: {q["gold_answer"]}'
+            f'{i}. [{q.get("answer_type","short")}] Q: {q["question"]}  A: {q["gold_answer"]}'
             for i, q in enumerate(chunk)
         )
         try:
@@ -313,7 +331,7 @@ async def quality_grade(questions: list[dict], batch: int = 20) -> list[dict]:
 
 
 def balance(questions: list[dict], target: int) -> list[dict]:
-    """Cap per-source, then sample toward the difficulty mix and source spread."""
+    """Cap per-source/family/article, then sample toward the answer-type mix."""
     random.shuffle(questions)
     fam_cap = max(8, int(target * 0.15))      # no publisher family > 15%
     art_cap = 2                                # no single article > 2 questions
@@ -330,11 +348,11 @@ def balance(questions: list[dict], target: int) -> list[dict]:
 
     buckets: dict[str, list[dict]] = defaultdict(list)
     for q in capped:
-        buckets[q["difficulty"]].append(q)
+        buckets[q["answer_type"]].append(q)
     out: list[dict] = []
-    for diff, frac in DIFFICULTY_MIX.items():
+    for atype, frac in ANSWER_TYPE_MIX.items():
         want = int(target * frac)
-        out.extend(buckets[diff][:want])
+        out.extend(buckets[atype][:want])
     # top up to target from whatever remains
     if len(out) < target:
         chosen = {id(q) for q in out}
@@ -368,6 +386,7 @@ def load_existing(out_dir: Path, date: str) -> list[dict]:
         out.append({
             "question": g["question"], "gold_answer": g["gold_answer"],
             "answer_span": g.get("answer_span", ""), "difficulty": diffs.get(g["id"], "medium"),
+            "answer_type": g.get("answer_type", "short"),
             "qtype": g.get("qtype", ""), "source_url": g["source_url"], "source": g["source"],
         })
     return out
@@ -384,12 +403,12 @@ def save_local(out_dir: Path, date: str, questions: list[dict], lane: str = "new
         for q in questions:
             qid = _qid(q["question"])
             qf.write(json.dumps({
-                "id": qid, "difficulty": q["difficulty"], "question": q["question"],
-                "source": q["source"], "date": date, "lane": lane,
+                "id": qid, "difficulty": q["difficulty"], "answer_type": q["answer_type"],
+                "question": q["question"], "source": q["source"], "date": date, "lane": lane,
             }, ensure_ascii=False) + "\n")
             gf.write(json.dumps({
                 "id": qid, "question": q["question"], "gold_answer": q["gold_answer"],
-                "answer_span": q["answer_span"], "qtype": q["qtype"],
+                "answer_span": q["answer_span"], "answer_type": q["answer_type"], "qtype": q["qtype"],
                 "source_url": q["source_url"], "source": q["source"], "date": date,
             }, ensure_ascii=False) + "\n")
     return qpath, gpath
@@ -439,7 +458,7 @@ async def main_async(args) -> int:
              and not _BANNED_RE.search(q["question"])
              and not _STALE_YEAR_RE.search(q["question"])
              and not _STALE_YEAR_RE.search(q["gold_answer"])
-             and not _bad_gold(q["question"], q["gold_answer"])]
+             and not _bad_gold(q["question"], q["gold_answer"], q.get("answer_type", "short"))]
     print(f"[filter] {len(raw_qs)} -> {len(clean)} after leakage/length/self-contained filter")
 
     unique = await dedup(clean)
@@ -454,7 +473,7 @@ async def main_async(args) -> int:
                           if not _BANNED_RE.search(q["question"])
                           and not _STALE_YEAR_RE.search(q["question"])
                           and not _STALE_YEAR_RE.search(q["gold_answer"])
-                          and not _bad_gold(q["question"], q["gold_answer"])]
+                          and not _bad_gold(q["question"], q["gold_answer"], q.get("answer_type", "short"))]
         print(f"[append] merging {len(existing_clean)} kept existing "
               f"(of {len(existing)}) with {len(graded)} new")
         graded = await dedup(existing_clean + graded)
