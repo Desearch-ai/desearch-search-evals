@@ -35,9 +35,16 @@ KEY="${KEY%\"}"; KEY="${KEY#\"}"; KEY="${KEY%\'}"; KEY="${KEY#\'}"
 export OPENAI_API_KEY="$KEY"
 
 echo "=== [daily] $(date -u) gathering questions for $DATE ===" >> "$LOG"
+# LOCAL-ONLY by default while iterating. To push to a (separate, private) HF
+# dataset later, set QUESTIONS_HF_REPO=<org/name> in the environment.
+HF_ARGS=""
+if [ -n "${QUESTIONS_HF_REPO:-}" ]; then
+  HF_ARGS="--hf --repo ${QUESTIONS_HF_REPO}"
+fi
+
 # lookback 2 (a 24h cron can miss a slow news day; 2d + dedup vs prior days keeps
 # it fresh) over the full expanded source list, via the geonode proxy from .env.
 "$PY" -u scripts/generate_questions.py \
   --lookback 2 --sitemaps --articles 5000 --target 1100 \
-  --hf --repo desearch/desearch-search-evals >> "$LOG" 2>&1
+  $HF_ARGS >> "$LOG" 2>&1
 echo "=== [daily] $(date -u) done (exit $?) ===" >> "$LOG"
