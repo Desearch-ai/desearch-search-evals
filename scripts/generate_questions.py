@@ -186,12 +186,15 @@ async def collect_articles(lookback_days: int, want: int, concurrency: int,
     print(f"[collect] {len(items)} candidate URLs from {len({i['source'] for i in items})} sources; "
           f"fetching text for up to {want} (bounded, early-exit)", flush=True)
 
+    proxy = os.environ.get("FETCH_PROXY") or None
+    if proxy:
+        print(f"[collect] fetching via proxy {proxy.split('@')[-1]}", flush=True)
     out: list[dict] = []
     sem = asyncio.Semaphore(concurrency)
     async with aiohttp.ClientSession() as session:
         async def one(it: dict):
             async with sem:
-                text = await nc.fetch_via_trafilatura(session, it["url"], fetch_timeout)
+                text = await nc.fetch_via_trafilatura(session, it["url"], fetch_timeout, proxy=proxy)
             if text:
                 text = _BOILERPLATE_RE.sub("", text).strip()
             if text and MIN_TEXT_CHARS <= len(text):
@@ -348,11 +351,11 @@ async def quality_grade(questions: list[dict], batch: int = 20) -> list[dict]:
     return kept
 
 
-def balance(questions: list[dict], target: int) -> list[dict]:
+def balance(questions: list[dict], target: int, per_family_frac: float = 0.15, per_article: int = 2) -> list[dict]:
     """Cap per-source/family/article, then sample toward the answer-type mix."""
     random.shuffle(questions)
-    fam_cap = max(8, int(target * 0.15))      # no publisher family > 15%
-    art_cap = 2                                # no single article > 2 questions
+    fam_cap = max(8, int(target * per_family_frac))   # publisher-family share cap
+    art_cap = per_article                             # max questions per article
     by_fam: dict[str, int] = defaultdict(int)
     by_art: dict[str, int] = defaultdict(int)
     capped = []
@@ -496,7 +499,7 @@ async def main_async(args) -> int:
               f"(of {len(existing)}) with {len(graded)} new")
         graded = await dedup(existing_clean + graded)
 
-    final = balance(graded, args.target)
+    final = balance(graded, args.target, args.per_family_frac, args.per_article)
 
     qpath, gpath = save_local(Path(args.out), date, final)
     by_src = len({q["source"] for q in final})
@@ -522,6 +525,10 @@ def main() -> int:
     p.add_argument("--out", default=str(REPO / "output"))
     p.add_argument("--date", default=None, help="YYYY-MM-DD (default: today UTC)")
     p.add_argument("--seed", type=int, default=7)
+    p.add_argument("--per-family-frac", type=float, default=0.15,
+                   help="max share of one publisher family (0.15=15%); raise for big corpus builds")
+    p.add_argument("--per-article", type=int, default=2,
+                   help="max questions kept per source article; raise for big corpus builds")
     p.add_argument("--append", action="store_true",
                    help="merge with the existing date's questions (top up toward target)")
     p.add_argument("--hf", action="store_true", help="push questions to HF (needs HF_TOKEN)")
