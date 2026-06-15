@@ -442,13 +442,17 @@ def upload_hf(repo: str, date: str, qpath: Path, dry_run: bool) -> None:
         print(f"[hf] dry-run (set --hf and HF_TOKEN to push): would add questions/{date}.jsonl to {repo}")
         return
     from huggingface_hub import CommitOperationAdd, HfApi
-    api = HfApi(token=token)
-    api.create_commit(
-        repo_id=repo, repo_type="dataset",
-        operations=[CommitOperationAdd(f"questions/{date}.jsonl", str(qpath))],
-        commit_message=f"Add generated questions for {date}",
-    )
-    print(f"[hf] pushed questions/{date}.jsonl to {repo}")
+    try:
+        api = HfApi(token=token)
+        api.create_commit(
+            repo_id=repo, repo_type="dataset",
+            operations=[CommitOperationAdd(f"questions/{date}.jsonl", str(qpath))],
+            commit_message=f"Add generated questions for {date}",
+        )
+        print(f"[hf] pushed questions/{date}.jsonl to {repo}")
+    except Exception as e:
+        # Push failure must never lose the local batch (already saved on disk).
+        print(f"[hf] push to {repo} FAILED (saved locally): {type(e).__name__}: {str(e)[:160]}")
 
 
 async def main_async(args) -> int:

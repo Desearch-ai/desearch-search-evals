@@ -35,12 +35,11 @@ KEY="${KEY%\"}"; KEY="${KEY#\"}"; KEY="${KEY%\'}"; KEY="${KEY#\'}"
 export OPENAI_API_KEY="$KEY"
 
 echo "=== [daily] $(date -u) gathering questions for $DATE ===" >> "$LOG"
-# LOCAL-ONLY by default while iterating. To push to a (separate, private) HF
-# dataset later, set QUESTIONS_HF_REPO=<org/name> in the environment.
-HF_ARGS=""
-if [ -n "${QUESTIONS_HF_REPO:-}" ]; then
-  HF_ARGS="--hf --repo ${QUESTIONS_HF_REPO}"
-fi
+# Push questions-only (golds stay local) to the private validator corpus
+# desearch/dataset. The HF token must be scoped to that repo or the push is
+# logged-and-skipped (local batch is always saved). Override via env.
+QUESTIONS_HF_REPO="${QUESTIONS_HF_REPO:-desearch/dataset}"
+HF_ARGS="--hf --repo ${QUESTIONS_HF_REPO}"
 
 # lookback 2 (a 24h cron can miss a slow news day; 2d + dedup vs prior days keeps
 # it fresh) over the full expanded source list, via the geonode proxy from .env.
