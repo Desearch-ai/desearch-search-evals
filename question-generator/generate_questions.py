@@ -49,6 +49,7 @@ from openai import (  # noqa: E402
 )
 
 GEN_MODEL = os.environ.get("GEN_MODEL", "gpt-4.1-nano")
+GRADE_MODEL = os.environ.get("GRADE_MODEL", GEN_MODEL)  # screen can use a faster model
 
 _OAI_ERRS = (RateLimitError, APITimeoutError, APIConnectionError, InternalServerError)
 
@@ -395,12 +396,12 @@ async def quality_grade(questions: list[dict], batch: int = 20) -> list[dict]:
             for i, q in enumerate(chunk)
         )
         try:
-            resp = await oai().chat.completions.create(
-                model=GEN_MODEL,
+            resp = await _retry(lambda: oai().chat.completions.create(
+                model=GRADE_MODEL,
                 messages=[{"role": "user", "content": GRADE_PROMPT.format(listing=listing)}],
                 max_completion_tokens=1500,
                 **_chat_kwargs(0),
-            )
+            ))
             verdicts = _parse_json_array(resp.choices[0].message.content or "")
             return {start + int(v["i"]) for v in verdicts
                     if isinstance(v, dict) and v.get("keep") is True and "i" in v}
