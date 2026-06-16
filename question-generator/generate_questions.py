@@ -44,9 +44,57 @@ from utils import is_contaminated, load_env  # noqa: E402
 load_env()
 
 import crawler as nc  # noqa: E402
-from openai import AsyncOpenAI  # noqa: E402
+from openai import (  # noqa: E402
+    APIConnectionError, APITimeoutError, AsyncOpenAI, InternalServerError, RateLimitError,
+)
 
 GEN_MODEL = os.environ.get("GEN_MODEL", "gpt-4.1-nano")
+
+_OAI_ERRS = (RateLimitError, APITimeoutError, APIConnectionError, InternalServerError)
+
+
+async def _retry(make_call, tries: int = 6):
+    """Retry an OpenAI call on transient errors with jittered backoff."""
+    for i in range(tries):
+        try:
+            return await make_call()
+        except _OAI_ERRS:
+            if i == tries - 1:
+                raise
+            await asyncio.sleep(min(2 ** i, 30) + random.random())
+
+
+# Resumable cache (enabled by --cache): per-article fetched text + generated
+# questions land on disk as they complete, so an OpenAI failure mid-run never
+# loses finished work and a re-run skips it instead of re-paying.
+_CACHE_ROOT: Path | None = None
+
+
+def _cache_path(kind: str, key: str) -> Path | None:
+    if _CACHE_ROOT is None:
+        return None
+    d = _CACHE_ROOT / kind
+    d.mkdir(parents=True, exist_ok=True)
+    return d / (hashlib.sha1(key.encode()).hexdigest()[:16] + ".json")
+
+
+def _cache_get(kind: str, key: str):
+    p = _cache_path(kind, key)
+    if p and p.exists():
+        try:
+            return json.loads(p.read_text())
+        except Exception:
+            pass
+    return None
+
+
+def _cache_put(kind: str, key: str, obj) -> None:
+    p = _cache_path(kind, key)
+    if p:
+        try:
+            p.write_text(json.dumps(obj, ensure_ascii=False))
+        except Exception:
+            pass
 
 
 def _chat_kwargs(temperature: float = 0.5) -> dict:
@@ -192,17 +240,22 @@ async def collect_articles(lookback_days: int, want: int, concurrency: int,
     sem = asyncio.Semaphore(concurrency)
     async with aiohttp.ClientSession() as session:
         async def one(it: dict):
+            cached = _cache_get("article", it["url"])
+            if cached is not None:
+                return cached or None  # {} == fetched-but-unusable
             async with sem:
                 text = await nc.fetch_text(session, it["url"], fetch_timeout, proxy=proxy)
             if text:
                 text = _BOILERPLATE_RE.sub("", text).strip()
+            rec = None
             if text and MIN_TEXT_CHARS <= len(text):
-                return {
+                rec = {
                     "url": it["url"], "title": it["title"],
                     "text": text[:MAX_TEXT_CHARS],
                     "published": it.get("feed_date") or "", "source": it["source"],
                 }
-            return None
+            _cache_put("article", it["url"], rec or {})
+            return rec
 
         # Fetch in bounded chunks so a tail of slow/timing-out sites can't stall
         # the whole gather, and stop as soon as we have enough usable articles.
@@ -235,12 +288,12 @@ async def gen_for_article(article: dict, k: int) -> list[dict]:
     prompt = GEN_PROMPT.format(k=k, title=article["title"],
                                published=article["published"], text=article["text"])
     try:
-        resp = await oai().chat.completions.create(
+        resp = await _retry(lambda: oai().chat.completions.create(
             model=GEN_MODEL,
             messages=[{"role": "user", "content": prompt}],
             max_completion_tokens=2500,
             **_chat_kwargs(0.5),
-        )
+        ))
         raw = _parse_json_array(resp.choices[0].message.content or "")
     except Exception as e:
         print(f"  [gen fallback] {type(e).__name__}: {e}")
@@ -275,7 +328,7 @@ async def embed(texts: list[str], batch: int = 256) -> list[list[float]]:
     out: list[list[float]] = []
     for i in range(0, len(texts), batch):
         chunk = texts[i:i + batch]
-        resp = await oai().embeddings.create(model=EMBED_MODEL, input=chunk)
+        resp = await _retry(lambda c=chunk: oai().embeddings.create(model=EMBED_MODEL, input=c))
         out.extend(d.embedding for d in resp.data)
     return out
 
@@ -448,8 +501,12 @@ def upload_hf(repo: str, date: str, qpath: Path, dry_run: bool) -> None:
 
 
 async def main_async(args) -> int:
+    global _CACHE_ROOT
     random.seed(args.seed)
     date = args.date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if args.cache:
+        _CACHE_ROOT = Path(args.out) / ".cache"
+        print(f"[cache] resumable fetch+gen cache at {_CACHE_ROOT}", flush=True)
 
     articles = await collect_articles(args.lookback, args.articles, args.concurrency,
                                       args.fetch_timeout, args.sitemaps)
@@ -461,12 +518,21 @@ async def main_async(args) -> int:
     sem = asyncio.Semaphore(args.gen_concurrency)
 
     async def gen(a):
+        cached = _cache_get("gen", a["url"])
+        if cached is not None:
+            return cached
         async with sem:
-            return await gen_for_article(a, QUESTIONS_PER_ARTICLE)
+            qs = await gen_for_article(a, QUESTIONS_PER_ARTICLE)
+        _cache_put("gen", a["url"], qs)  # checkpoint each article
+        return qs
 
-    batches = await asyncio.gather(*[gen(a) for a in articles])
-    raw_qs = [q for b in batches for q in b]
-    print(f"[gen] {len(raw_qs)} raw questions")
+    raw_qs: list[dict] = []
+    for i in range(0, len(articles), 1000):
+        chunk = articles[i:i + 1000]
+        for b in await asyncio.gather(*[gen(a) for a in chunk]):
+            raw_qs.extend(b)
+        print(f"[gen] {min(i + 1000, len(articles))}/{len(articles)} articles -> {len(raw_qs)} raw qs",
+              flush=True)
 
     # leakage guard + length + banned source-reference phrases
     clean = [q for q in raw_qs
@@ -528,6 +594,8 @@ def main() -> int:
                    help="max questions kept per source article; raise for big corpus builds")
     p.add_argument("--append", action="store_true",
                    help="merge with the existing date's questions (top up toward target)")
+    p.add_argument("--cache", action="store_true",
+                   help="resumable fetch+gen cache under output/.cache (crash-safe backfills)")
     p.add_argument("--hf", action="store_true", help="push questions to HF (needs HF_TOKEN)")
     p.add_argument("--repo", default=default_repo, help="HF dataset repo (env HF_DATASET_REPO)")
     args = p.parse_args()

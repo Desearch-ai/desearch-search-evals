@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import gzip
+import os
 import socket
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -32,11 +33,10 @@ SM_NS = {
     "n": "http://www.google.com/schemas/sitemap-news/0.9",
 }
 
-# How many child sitemaps to expand from each index (most-recent first as the
-# outlet orders them), and how many URLs to keep per source from sitemaps before
-# the global round-robin cap.
-MAX_CHILD_SITEMAPS = 8
-PER_SOURCE_SITEMAP_CAP = 1500
+# Sitemap depth: child sitemaps expanded per index, and URLs kept per source.
+# Raise (env) for a historical backfill that needs to reach weeks/months back.
+MAX_CHILD_SITEMAPS = int(os.environ.get("MAX_CHILD_SITEMAPS", "8"))
+PER_SOURCE_SITEMAP_CAP = int(os.environ.get("PER_SOURCE_SITEMAP_CAP", "1500"))
 
 
 def _canon_url(url: str) -> str:
