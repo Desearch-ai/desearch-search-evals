@@ -22,7 +22,7 @@ set accumulates one file per day.
 | `crawler.py` | Gather article URLs (RSS + sitemaps) and fetch text |
 | `sources.py` | The source registries: `FEEDS` (RSS) and `SITEMAPS` |
 | `utils.py` | `.env` loader + dataset-leakage guard |
-| `run.sh` | Daily wrapper pm2 fires (loads `.env`, idempotent, sets flags) |
+| `run.sh` | Daily wrapper pm2 fires (reads run-knobs from `.env`, idempotent) |
 | `ecosystem.config.js` | pm2 process file (daily cron) |
 | `.env.example` | Copy to `.env` and fill in |
 | `requirements.txt` | Python dependencies |
@@ -88,8 +88,8 @@ The schedule lives in `ecosystem.config.js` as `cron_restart` (default `0 6 * * 
 
 ### Logs
 
-pm2 captures stdout/stderr to `logs/pm2-out.log` and `logs/pm2-err.log`. To cap
-their size:
+pm2 captures stdout/stderr to its default location (`~/.pm2/logs/`); follow with
+`pm2 logs question-generator`. To cap log size:
 
 ```bash
 pm2 install pm2-logrotate
