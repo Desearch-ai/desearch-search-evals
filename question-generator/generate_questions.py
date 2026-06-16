@@ -109,10 +109,11 @@ def _chat_kwargs(temperature: float = 0.5) -> dict:
 
 
 EMBED_MODEL = "text-embedding-3-small"
+EMBED_BACKEND = os.environ.get("EMBED_BACKEND", "openai")  # "local" = bge-small, no API
 QUESTIONS_PER_ARTICLE = 4
 MIN_TEXT_CHARS = 700
 MAX_TEXT_CHARS = 6000
-DEDUP_COSINE = 0.86
+DEDUP_COSINE = float(os.environ.get("DEDUP_COSINE", "0.86"))  # raise for bge embeddings
 PER_SOURCE_CAP_FRAC = 0.04  # no single source > 4% of the final set
 DIFFICULTY_MIX = {"easy": 0.40, "medium": 0.40, "hard": 0.20}
 ANSWER_TYPE_MIX = {"short": 0.55, "explanatory": 0.30, "summary": 0.15}
@@ -327,7 +328,30 @@ async def gen_for_article(article: dict, k: int) -> list[dict]:
     return qs
 
 
+_st_embedder = None
+
+
+def _local_embedder():
+    global _st_embedder
+    if _st_embedder is None:
+        from sentence_transformers import SentenceTransformer
+        m = SentenceTransformer("BAAI/bge-small-en-v1.5")
+        try:
+            import torch
+            if torch.backends.mps.is_available():
+                m = m.to("mps")
+        except Exception:
+            pass
+        _st_embedder = m
+    return _st_embedder
+
+
 async def embed(texts: list[str], batch: int = 256) -> list[list[float]]:
+    if EMBED_BACKEND == "local":  # no API — local bge-small (e.g. when off OpenAI)
+        m = _local_embedder()
+        return await asyncio.to_thread(
+            lambda: m.encode(texts, batch_size=256, normalize_embeddings=True,
+                             convert_to_numpy=True, show_progress_bar=False).tolist())
     out: list[list[float]] = []
     for i in range(0, len(texts), batch):
         chunk = texts[i:i + batch]
