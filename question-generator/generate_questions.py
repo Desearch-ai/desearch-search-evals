@@ -54,11 +54,14 @@ _OAI_ERRS = (RateLimitError, APITimeoutError, APIConnectionError, InternalServer
 
 
 async def _retry(make_call, tries: int = 6):
-    """Retry an OpenAI call on transient errors with jittered backoff."""
+    """Retry an OpenAI call on transient errors with jittered backoff. Quota
+    exhaustion (insufficient_quota / billing) is permanent — fail fast on it."""
     for i in range(tries):
         try:
             return await make_call()
-        except _OAI_ERRS:
+        except _OAI_ERRS as e:
+            if getattr(e, "code", "") == "insufficient_quota":
+                raise
             if i == tries - 1:
                 raise
             await asyncio.sleep(min(2 ** i, 30) + random.random())
