@@ -1,0 +1,6 @@
+# Secrets and local run artifacts — never commit these.
+.env
+output/
+logs/
+__pycache__/
+*.pyc

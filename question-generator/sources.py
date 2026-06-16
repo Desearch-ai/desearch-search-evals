@@ -1,0 +1,167 @@
+"""News source registries the generator gathers from.
+
+Two complementary ways to discover recent article URLs:
+  FEEDS    — RSS/Atom feeds (~30 fresh URLs each), broad outlet x section mix.
+  SITEMAPS — news sitemaps / sitemap-index files (hundreds–thousands of last-48h
+             URLs each), the high-volume lever enabled with --sitemaps.
+
+Neither is derived from any benchmark answer key — we crawl whatever the outlets
+published. Add or remove entries freely; keys are just labels for diversity caps.
+"""
+
+from __future__ import annotations
+
+# Direct-outlet RSS/Atom feeds only — these yield REAL article URLs. Google News
+# RSS is excluded on purpose: its /rss/articles/ links are an undecodable
+# base64-protobuf redirect. The list spans many outlets x sections for breadth.
+FEEDS: dict[str, str] = {
+    # --- World / general / wire ---
+    "bbc_world": "http://feeds.bbci.co.uk/news/world/rss.xml",
+    "bbc_top": "http://feeds.bbci.co.uk/news/rss.xml",
+    "bbc_us_canada": "http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml",
+    "bbc_europe": "http://feeds.bbci.co.uk/news/world/europe/rss.xml",
+    "bbc_asia": "http://feeds.bbci.co.uk/news/world/asia/rss.xml",
+    "bbc_mideast": "http://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+    "bbc_africa": "http://feeds.bbci.co.uk/news/world/africa/rss.xml",
+    "guardian_world": "https://www.theguardian.com/world/rss",
+    "guardian_us": "https://www.theguardian.com/us-news/rss",
+    "guardian_europe": "https://www.theguardian.com/world/europe-news/rss",
+    "guardian_americas": "https://www.theguardian.com/world/americas/rss",
+    "guardian_asia": "https://www.theguardian.com/world/asia/rss",
+    "guardian_mideast": "https://www.theguardian.com/world/middleeast/rss",
+    "guardian_africa": "https://www.theguardian.com/world/africa/rss",
+    "guardian_global_dev": "https://www.theguardian.com/global-development/rss",
+    "aljazeera_all": "https://www.aljazeera.com/xml/rss/all.xml",
+    "npr_news": "https://feeds.npr.org/1001/rss.xml",
+    "npr_world": "https://feeds.npr.org/1004/rss.xml",
+    "skynews_world": "https://feeds.skynews.com/feeds/rss/world.xml",
+    "skynews_home": "https://feeds.skynews.com/feeds/rss/home.xml",
+    "dw_all": "https://rss.dw.com/rdf/rss-en-all",
+    "france24": "https://www.france24.com/en/rss",
+    "independent_world": "https://www.independent.co.uk/news/world/rss",
+    "nyt_world": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "nyt_home": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    "nyt_americas": "https://rss.nytimes.com/services/xml/rss/nyt/Americas.xml",
+    "nyt_europe": "https://rss.nytimes.com/services/xml/rss/nyt/Europe.xml",
+    "nyt_asia": "https://rss.nytimes.com/services/xml/rss/nyt/AsiaPacific.xml",
+    "nyt_mideast": "https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml",
+    "nyt_africa": "https://rss.nytimes.com/services/xml/rss/nyt/Africa.xml",
+    "nbc_world": "https://feeds.nbcnews.com/nbcnews/public/world",
+    "nbc_top": "https://feeds.nbcnews.com/nbcnews/public/news",
+    "cbsnews": "https://www.cbsnews.com/latest/rss/main",
+    "abc_intl": "https://abcnews.go.com/abcnews/internationalheadlines",
+    "abc_top": "https://feeds.abcnews.com/abcnews/topstories",
+    # --- Politics ---
+    "guardian_politics": "https://www.theguardian.com/politics/rss",
+    "thehill": "https://thehill.com/news/feed/",
+    "politico": "https://rss.politico.com/politics-news.xml",
+    "npr_politics": "https://feeds.npr.org/1014/rss.xml",
+    "nyt_politics": "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml",
+    "axios": "https://api.axios.com/feed/",
+    "vox": "https://www.vox.com/rss/index.xml",
+    "time": "https://time.com/feed/",
+    # --- Business / economy ---
+    "cnbc_top": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114",
+    "cnbc_econ": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=20910258",
+    "guardian_business": "https://www.theguardian.com/uk/business/rss",
+    "guardian_money": "https://www.theguardian.com/money/rss",
+    "bbc_business": "http://feeds.bbci.co.uk/news/business/rss.xml",
+    "marketwatch_top": "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+    "nyt_business": "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+    "nyt_economy": "https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml",
+    "npr_business": "https://feeds.npr.org/1006/rss.xml",
+    "ft_home": "https://www.ft.com/rss/home",
+    "economist_finance": "https://www.economist.com/finance-and-economics/rss.xml",
+    "economist_intl": "https://www.economist.com/international/rss.xml",
+    # --- Tech ---
+    "theverge": "https://www.theverge.com/rss/index.xml",
+    "techcrunch": "https://techcrunch.com/feed/",
+    "arstechnica": "https://feeds.arstechnica.com/arstechnica/index",
+    "wired": "https://www.wired.com/feed/rss",
+    "guardian_tech": "https://www.theguardian.com/uk/technology/rss",
+    "bbc_tech": "http://feeds.bbci.co.uk/news/technology/rss.xml",
+    "cnbc_tech": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19854910",
+    "nyt_tech": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+    "engadget": "https://www.engadget.com/rss.xml",
+    # --- Science / health / environment ---
+    "guardian_science": "https://www.theguardian.com/science/rss",
+    "guardian_environment": "https://www.theguardian.com/environment/rss",
+    "bbc_science": "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+    "bbc_health": "http://feeds.bbci.co.uk/news/health/rss.xml",
+    "npr_science": "https://feeds.npr.org/1007/rss.xml",
+    "npr_health": "https://feeds.npr.org/1128/rss.xml",
+    "sciencedaily": "https://www.sciencedaily.com/rss/top/science.xml",
+    "nature_news": "https://www.nature.com/nature.rss",
+    "phys_org": "https://phys.org/rss-feed/",
+    "scientificamerican": "http://rss.sciam.com/ScientificAmerican-Global",
+    "spacecom": "https://www.space.com/feeds/all",
+    "nyt_science": "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml",
+    "nyt_health": "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml",
+    "nyt_climate": "https://rss.nytimes.com/services/xml/rss/nyt/Climate.xml",
+    # --- Sport / culture (breadth) ---
+    "bbc_sport": "http://feeds.bbci.co.uk/sport/rss.xml",
+    "guardian_sport": "https://www.theguardian.com/uk/sport/rss",
+    "guardian_football": "https://www.theguardian.com/football/rss",
+    "espn_top": "https://www.espn.com/espn/rss/news",
+    "guardian_film": "https://www.theguardian.com/film/rss",
+    "guardian_music": "https://www.theguardian.com/music/rss",
+    "guardian_books": "https://www.theguardian.com/books/rss",
+    "bbc_entertainment": "http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+    "nyt_movies": "https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml",
+    # --- Distinct-publisher feeds (extra daily volume + diversity) ---
+    "semafor": "https://www.semafor.com/rss.xml",
+    "newscientist": "https://www.newscientist.com/feed/home/",
+    "mashable": "https://mashable.com/feeds/rss/all",
+    "ninetofivemac": "https://9to5mac.com/feed/",
+    "latimes_world": "https://www.latimes.com/world-nation/rss2.0.xml",
+    "latimes_biz": "https://www.latimes.com/business/rss2.0.xml",
+    "euronews": "https://www.euronews.com/rss",
+    "scmp_news": "https://www.scmp.com/rss/91/feed",
+    "theregister": "https://www.theregister.com/headlines.atom",
+    "livescience": "https://www.livescience.com/feeds/all",
+    "theconversation": "https://theconversation.com/global/articles.atom",
+    "straitstimes": "https://www.straitstimes.com/news/world/rss.xml",
+    "toi_top": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+    "cbssports": "https://www.cbssports.com/rss/headlines/",
+    "japantimes": "https://www.japantimes.co.jp/feed/",
+    "quartz": "https://qz.com/rss",
+    "theatlantic": "https://www.theatlantic.com/feed/all/",
+    "thedailybeast": "https://www.thedailybeast.com/arc/outboundfeeds/rss/",
+    "defenseone": "https://www.defenseone.com/rss/all/",
+    "cna": "https://www.channelnewsasia.com/rssfeeds/8395986",
+    "zdnet": "https://www.zdnet.com/news/rss.xml",
+    "businessinsider": "https://www.businessinsider.com/rss",
+    "propublica": "https://www.propublica.org/feeds/propublica/main",
+    "skysports": "https://www.skysports.com/rss/12040",
+    "gizmodo": "https://gizmodo.com/rss",
+    "newsweek": "https://www.newsweek.com/rss",
+    "sciencenews": "https://www.sciencenews.org/feed",
+    "toi_israel": "https://www.timesofisrael.com/feed/",
+    "fortune": "https://fortune.com/feed/",
+    "androidpolice": "https://www.androidpolice.com/feed/",
+    "variety": "https://variety.com/feed/",
+    "thr": "https://www.hollywoodreporter.com/feed/",
+    "billboard": "https://www.billboard.com/feed/",
+    "rollingstone": "https://www.rollingstone.com/feed/",
+    "politico_eu": "https://www.politico.eu/feed/",
+    "smithsonian": "https://www.smithsonianmag.com/rss/latest_articles/",
+    "wapo_world": "https://feeds.washingtonpost.com/rss/world",
+    "venturebeat": "https://venturebeat.com/feed/",
+}
+
+# News sitemaps (or sitemap-index files) confirmed reachable. An index is
+# expanded ONE level: pull its child sitemaps (capped) and read article URLs from
+# those. Each yields hundreds–thousands of last-48h article URLs. Used only with
+# the --sitemaps flag (more volume, slower discovery).
+SITEMAPS: dict[str, str] = {
+    "bbc": "https://www.bbc.com/sitemaps/https-index-com-news.xml",
+    "guardian": "https://www.theguardian.com/sitemaps/news.xml",
+    "nyt": "https://www.nytimes.com/sitemaps/new/news.xml.gz",
+    "reuters": "https://www.reuters.com/arc/outboundfeeds/news-sitemap-index/?outputType=xml",
+    "aljazeera": "https://www.aljazeera.com/news-sitemap.xml",
+    "cnbc": "https://www.cnbc.com/sitemapAll.xml",
+    "apnews": "https://apnews.com/news-sitemap-content.xml",
+    "thehill": "https://thehill.com/news-sitemap.xml",
+    "time": "https://time.com/news-sitemap.xml",
+    "techcrunch": "https://techcrunch.com/news-sitemap.xml",
+}

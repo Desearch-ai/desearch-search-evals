@@ -1,0 +1,7 @@
+aiohttp>=3.9
+openai>=2.0
+numpy>=1.26
+feedparser>=6.0
+trafilatura>=1.8
+lxml>=5.0
+huggingface_hub>=0.34

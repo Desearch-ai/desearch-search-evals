@@ -1,20 +1,21 @@
 """Daily question generator — invert fresh news articles into self-contained,
 web-answerable benchmark questions with private gold answers.
 
-Pipeline: collect recent articles (RSS + sitemaps, reusing lowtier/news_crawler)
--> fetch full text -> LLM inverts each article into K diverse Q+gold -> filter
-(leakage guard, length, embedding dedup, per-source quota) -> balance -> save.
+Pipeline: gather recent articles (RSS + sitemaps) -> fetch full text -> an LLM
+inverts each article into a few diverse Q+gold -> filter (leakage guard, length,
+embedding dedup, per-source quota) -> balance toward the answer-type mix -> save.
 
 Outputs (local, on disk):
-  <out>/questions/<date>.jsonl   reference-free: {id, difficulty, question, source, date, lane}
-  <out>/golds/<date>.jsonl       PRIVATE: {id, question, gold_answer, answer_span, source_url}
+  output/questions/<date>.jsonl   reference-free: {id, difficulty, answer_type, question, source, date, lane}
+  output/golds/<date>.jsonl       PRIVATE: {id, question, gold_answer, answer_span, ...}
 
-HF: --hf appends questions/<date>.jsonl to the dataset repo (needs HF_TOKEN); dry-run otherwise.
+HF: --hf appends questions/<date>.jsonl to the dataset repo (needs HF_TOKEN);
+the golds never leave the machine. Without a token it is a logged dry-run.
 
 Usage:
-  python3 scripts/generate_questions.py --articles 60 --target 150          # small experiment
-  python3 scripts/generate_questions.py --articles 500 --target 1000        # full run
-  python3 scripts/generate_questions.py --articles 500 --target 1000 --hf --repo desearch/desearch-search-evals
+  python generate_questions.py --articles 60 --target 150               # small experiment
+  python generate_questions.py --sitemaps --articles 5000 --target 1100 # full daily run
+  python generate_questions.py --sitemaps --articles 5000 --target 1100 --hf --repo you/your-dataset
 """
 
 from __future__ import annotations
@@ -29,25 +30,24 @@ import random
 import re
 import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import aiohttp
 
-REPO = Path(__file__).resolve().parent.parent
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 
-from providers.common import load_env  # noqa: E402
+from utils import is_contaminated, load_env  # noqa: E402
 
 load_env()
 
+import crawler as nc  # noqa: E402
 from openai import AsyncOpenAI  # noqa: E402
 
-from evaluators.common import is_contaminated  # noqa: E402
-from lowtier import news_crawler as nc  # noqa: E402
-
 GEN_MODEL = os.environ.get("GEN_MODEL", "gpt-4.1-nano")
+
 
 def _chat_kwargs(temperature: float = 0.5) -> dict:
     """gpt-5* are reasoning models: no temperature, run reasoning at minimal.
@@ -55,6 +55,8 @@ def _chat_kwargs(temperature: float = 0.5) -> dict:
     if GEN_MODEL.startswith("gpt-5"):
         return {"reasoning_effort": "minimal"}
     return {"temperature": temperature}
+
+
 EMBED_MODEL = "text-embedding-3-small"
 QUESTIONS_PER_ARTICLE = 4
 MIN_TEXT_CHARS = 700
@@ -143,7 +145,6 @@ def _bad_gold(question: str, gold: str, answer_type: str = "short") -> bool:
     cap = _MAX_GOLD_WORDS.get(answer_type, 8)
     if not words or len(words) > cap:
         return True
-    import re as _re
     if answer_type == "short":
         # a short answer must not restate the question or be a bare weekday
         ql = [w.lower().strip(".,") for w in question.split()]
@@ -153,13 +154,13 @@ def _bad_gold(question: str, gold: str, answer_type: str = "short") -> bool:
             for j in range(len(ql) - 2):
                 if ql[j:j + 3] == tri:
                     return True
-        if _re.fullmatch(r"(?i)(mon|tues|wednes|thurs|fri|satur|sun)day\.?", gold.strip()):
+        if re.fullmatch(r"(?i)(mon|tues|wednes|thurs|fri|satur|sun)day\.?", gold.strip()):
             return True
     else:
         # explanatory/summary must be fact-dense, not a vague one-liner
         if len(words) < 6:
             return True
-    if _re.search(r"(?i)\b(maybe|roughly|various|unclear)\b", gold) and len(words) <= 3:
+    if re.search(r"(?i)\b(maybe|roughly|various|unclear)\b", gold) and len(words) <= 3:
         return True
     return False
 
@@ -173,15 +174,13 @@ async def collect_articles(lookback_days: int, want: int, concurrency: int,
                            fetch_timeout: float, use_sitemaps: bool) -> list[dict]:
     """Gather recent article URLs (RSS + optional sitemaps), round-robin across
     sources for diversity, fetch full text, keep articles with enough body."""
-    cutoff = datetime.now(timezone.utc).timestamp() - lookback_days * 86400
     feed_items = nc.collect_feed_items()
     items = feed_items
     if use_sitemaps:
-        sm = nc.collect_sitemap_items(datetime.now(timezone.utc) - __import__("datetime").timedelta(days=lookback_days))
+        sm = nc.collect_sitemap_items(datetime.now(timezone.utc) - timedelta(days=lookback_days))
         items = nc.merge_dedupe(feed_items, sm)
     random.shuffle(items)
-    # round-robin across sources so no outlet dominates the fetch queue
-    candidates = nc._round_robin(items, cap=10**9)
+    candidates = nc.round_robin(items, cap=10**9)
 
     print(f"[collect] {len(items)} candidate URLs from {len({i['source'] for i in items})} sources; "
           f"fetching text for up to {want} (bounded, early-exit)", flush=True)
@@ -194,7 +193,7 @@ async def collect_articles(lookback_days: int, want: int, concurrency: int,
     async with aiohttp.ClientSession() as session:
         async def one(it: dict):
             async with sem:
-                text = await nc.fetch_via_trafilatura(session, it["url"], fetch_timeout, proxy=proxy)
+                text = await nc.fetch_text(session, it["url"], fetch_timeout, proxy=proxy)
             if text:
                 text = _BOILERPLATE_RE.sub("", text).strip()
             if text and MIN_TEXT_CHARS <= len(text):
@@ -279,13 +278,6 @@ async def embed(texts: list[str], batch: int = 256) -> list[list[float]]:
         resp = await oai().embeddings.create(model=EMBED_MODEL, input=chunk)
         out.extend(d.embedding for d in resp.data)
     return out
-
-
-def _cos(a: list[float], b: list[float]) -> float:
-    s = sum(x * y for x, y in zip(a, b))
-    na = math.sqrt(sum(x * x for x in a))
-    nb = math.sqrt(sum(y * y for y in b))
-    return s / (na * nb + 1e-9)
 
 
 async def dedup(questions: list[dict]) -> list[dict]:
@@ -518,7 +510,8 @@ async def main_async(args) -> int:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser()
+    default_repo = os.environ.get("HF_DATASET_REPO", "desearch/desearch-search-evals")
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--target", type=int, default=1000, help="final number of questions")
     p.add_argument("--articles", type=int, default=500, help="articles to fetch text for")
     p.add_argument("--lookback", type=int, default=3, help="days back for recency")
@@ -526,17 +519,17 @@ def main() -> int:
     p.add_argument("--concurrency", type=int, default=24, help="article-fetch concurrency")
     p.add_argument("--gen-concurrency", type=int, default=12, help="LLM gen concurrency")
     p.add_argument("--fetch-timeout", type=float, default=20.0)
-    p.add_argument("--out", default=str(REPO / "output"))
+    p.add_argument("--out", default=str(HERE / "output"))
     p.add_argument("--date", default=None, help="YYYY-MM-DD (default: today UTC)")
     p.add_argument("--seed", type=int, default=7)
     p.add_argument("--per-family-frac", type=float, default=0.15,
-                   help="max share of one publisher family (0.15=15%); raise for big corpus builds")
+                   help="max share of one publisher family (0.15 = 15%%); raise for big corpus builds")
     p.add_argument("--per-article", type=int, default=2,
                    help="max questions kept per source article; raise for big corpus builds")
     p.add_argument("--append", action="store_true",
                    help="merge with the existing date's questions (top up toward target)")
     p.add_argument("--hf", action="store_true", help="push questions to HF (needs HF_TOKEN)")
-    p.add_argument("--repo", default="desearch/desearch-search-evals")
+    p.add_argument("--repo", default=default_repo, help="HF dataset repo (env HF_DATASET_REPO)")
     args = p.parse_args()
     return asyncio.run(main_async(args))
 
