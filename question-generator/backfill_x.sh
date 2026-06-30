@@ -4,7 +4,8 @@
 set -uo pipefail
 cd "$(dirname "$0")"
 
-getenv() { [ -f ../.env ] && sed -n "s/^$1=//p" ../.env | tail -1 | sed -e 's/^["'\'']//' -e 's/["'\'']$//'; }
+ENVFILE=""; for e in ../.env .env; do [ -f "$e" ] && { ENVFILE="$e"; break; }; done
+getenv() { [ -n "$ENVFILE" ] && sed -n "s/^$1=//p" "$ENVFILE" | tail -1 | sed -e 's/^["'\'']//' -e 's/["'\'']$//'; }
 PYTHON="${PYTHON:-$(getenv PYTHON)}"; PYTHON="${PYTHON:-python3}"
 PROVIDER="${LLM_PROVIDER:-chutes}"
 DAYS="${1:-30}"

@@ -12,13 +12,13 @@ PATH_IN_REPO = "x"
 
 
 def _hf_token():
-    env = HERE.parent / ".env"
-    if env.exists():
-        for line in env.read_text().splitlines():
-            if "=" in line:
-                k, v = line.split("=", 1)
-                if k.strip() in ("HF_TOKEN", "HUGGING_FACE_HUB_TOKEN"):
-                    return v.strip().strip('"').strip("'")
+    for env in (HERE.parent / ".env", HERE / ".env"):
+        if env.exists():
+            for line in env.read_text().splitlines():
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    if k.strip() in ("HF_TOKEN", "HUGGING_FACE_HUB_TOKEN"):
+                        return v.strip().strip('"').strip("'")
     return None
 
 
