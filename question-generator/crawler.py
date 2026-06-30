@@ -8,7 +8,6 @@ HTTP proxy (FETCH_PROXY) for sites that rate-limit by IP.
 
 from __future__ import annotations
 
-import asyncio
 import gzip
 import os
 import socket
@@ -51,14 +50,27 @@ def _canon_url(url: str) -> str:
             continue
         key = kv.split("=", 1)[0].lower()
         if key.startswith("utm_") or key in {
-            "at_medium", "at_campaign", "at_custom1", "at_custom2",
-            "at_custom3", "at_custom4", "at_bbc_team", "ito", "cmp",
-            "ref", "fbclid", "gclid", "mc_cid", "mc_eid", "smid",
+            "at_medium",
+            "at_campaign",
+            "at_custom1",
+            "at_custom2",
+            "at_custom3",
+            "at_custom4",
+            "at_bbc_team",
+            "ito",
+            "cmp",
+            "ref",
+            "fbclid",
+            "gclid",
+            "mc_cid",
+            "mc_eid",
+            "smid",
         }:
             continue
         keep.append(kv)
-    return urlunsplit((s.scheme, s.netloc, s.path.rstrip("/") or "/",
-                       "&".join(keep), ""))
+    return urlunsplit(
+        (s.scheme, s.netloc, s.path.rstrip("/") or "/", "&".join(keep), "")
+    )
 
 
 def _parse_iso(raw: str | None) -> datetime | None:
@@ -96,8 +108,10 @@ def _entry_date(entry) -> str | None:
 # Sitemap discovery (sync — runs once up front, fast).
 # --------------------------------------------------------------------------
 
+
 def _http_get(url: str, timeout: float = 20.0) -> bytes:
     import urllib.request
+
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     raw = urllib.request.urlopen(req, timeout=timeout).read()
     if url.endswith(".gz") or raw[:2] == b"\x1f\x8b":
@@ -128,8 +142,9 @@ def _parse_sitemap(raw: bytes) -> tuple[str, list[tuple[str, str | None]]]:
             loc = u.findtext("s:loc", namespaces=SM_NS)
             if not loc:
                 continue
-            pd = (u.findtext(".//n:publication_date", namespaces=SM_NS)
-                  or u.findtext("s:lastmod", namespaces=SM_NS))
+            pd = u.findtext(".//n:publication_date", namespaces=SM_NS) or u.findtext(
+                "s:lastmod", namespaces=SM_NS
+            )
             out.append((loc.strip(), pd.strip() if pd else None))
         return "urlset", out
     return "?", []
@@ -178,10 +193,10 @@ def collect_sitemap_items(cutoff: datetime) -> list[dict]:
             if url in seen:
                 continue
             seen[url] = {
-                "url": url, "title": "",
+                "url": url,
+                "title": "",
                 "source": f"sm:{source}",
-                "feed_date": (dt.astimezone(timezone.utc).isoformat()
-                              if dt else None),
+                "feed_date": (dt.astimezone(timezone.utc).isoformat() if dt else None),
             }
             kept += 1
         print(f"  sitemap {source}: kind={kind} kept={kept}")
@@ -247,13 +262,16 @@ def round_robin(items: list[dict], cap: int) -> list[dict]:
     return ordered
 
 
-async def fetch_text(session: aiohttp.ClientSession, url: str,
-                     timeout: float, proxy: str | None = None) -> str:
+async def fetch_text(
+    session: aiohttp.ClientSession, url: str, timeout: float, proxy: str | None = None
+) -> str:
     """GET the page and extract readable article text with trafilatura."""
     try:
         async with session.get(
-            url, headers={"User-Agent": UA, "Accept": "text/html"},
-            timeout=aiohttp.ClientTimeout(total=timeout), allow_redirects=True,
+            url,
+            headers={"User-Agent": UA, "Accept": "text/html"},
+            timeout=aiohttp.ClientTimeout(total=timeout),
+            allow_redirects=True,
             proxy=proxy,
         ) as resp:
             ctype = resp.headers.get("content-type", "").lower()
@@ -264,7 +282,13 @@ async def fetch_text(session: aiohttp.ClientSession, url: str,
         return ""
     if not html:
         return ""
-    return (trafilatura.extract(
-        html, include_comments=False, include_tables=True,
-        favor_recall=True, url=url,
-    ) or "").strip()
+    return (
+        trafilatura.extract(
+            html,
+            include_comments=False,
+            include_tables=True,
+            favor_recall=True,
+            url=url,
+        )
+        or ""
+    ).strip()

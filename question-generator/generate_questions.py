@@ -1,22 +1,4 @@
-"""Daily question generator — invert fresh news articles into self-contained,
-web-answerable benchmark questions with private gold answers.
-
-Pipeline: gather recent articles (RSS + sitemaps) -> fetch full text -> an LLM
-inverts each article into a few diverse Q+gold -> filter (leakage guard, length,
-embedding dedup, per-source quota) -> balance toward the answer-type mix -> save.
-
-Outputs (local, on disk):
-  output/questions/<date>.jsonl   reference-free: {id, difficulty, answer_type, question, source, date, lane}
-  output/golds/<date>.jsonl       PRIVATE: {id, question, gold_answer, answer_span, ...}
-
-HF: --hf appends questions/<date>.jsonl to the dataset repo (needs HF_TOKEN);
-the golds never leave the machine. Without a token it is a logged dry-run.
-
-Usage:
-  python generate_questions.py --articles 60 --target 150               # small experiment
-  python generate_questions.py --sitemaps --articles 5000 --target 1100 # full daily run
-  python generate_questions.py --sitemaps --articles 5000 --target 1100 --hf --repo you/your-dataset
-"""
+"""Generate web-answerable benchmark questions from fresh news articles with private gold answers."""
 
 from __future__ import annotations
 
@@ -24,7 +6,6 @@ import argparse
 import asyncio
 import hashlib
 import json
-import math
 import os
 import random
 import re
@@ -41,22 +22,37 @@ if str(HERE) not in sys.path:
 
 from utils import is_contaminated, load_env  # noqa: E402
 
-load_env()
+_ROOT_ENV = HERE.parent / ".env"
+load_env(_ROOT_ENV if _ROOT_ENV.exists() else None)
 
 import crawler as nc  # noqa: E402
 from openai import (  # noqa: E402
-    APIConnectionError, APITimeoutError, AsyncOpenAI, InternalServerError, RateLimitError,
+    APIConnectionError,
+    APITimeoutError,
+    AsyncOpenAI,
+    InternalServerError,
+    RateLimitError,
 )
 
-GEN_MODEL = os.environ.get("GEN_MODEL", "gpt-4.1-nano")
-GRADE_MODEL = os.environ.get("GRADE_MODEL", GEN_MODEL)  # screen can use a faster model
+LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "openai").lower()
+_CHUTES = LLM_PROVIDER == "chutes"
+if _CHUTES:
+    GEN_MODEL = os.environ.get("GEN_MODEL", "Qwen/Qwen3.6-27B-TEE")
+    _LLM_BASE_URL = os.environ.get("CHUTES_BASE_URL", "https://llm.chutes.ai/v1")
+    _LLM_KEY = os.environ.get("CHUTES_API_TOKEN") or os.environ.get("CHUTES_API_KEY")
+    _EMBED_DEFAULT = "lexical"
+else:
+    GEN_MODEL = os.environ.get("GEN_MODEL", "gpt-4.1-nano")
+    _LLM_BASE_URL = os.environ.get("OPENAI_BASE_URL")
+    _LLM_KEY = os.environ.get("OPENAI_API_KEY")
+    _EMBED_DEFAULT = "openai"
+GRADE_MODEL = os.environ.get("GRADE_MODEL", GEN_MODEL)
 
 _OAI_ERRS = (RateLimitError, APITimeoutError, APIConnectionError, InternalServerError)
 
 
 async def _retry(make_call, tries: int = 6):
-    """Retry an OpenAI call on transient errors with jittered backoff. Quota
-    exhaustion (insufficient_quota / billing) is permanent — fail fast on it."""
+    """Retry an OpenAI call on transient errors with jittered backoff."""
     for i in range(tries):
         try:
             return await make_call()
@@ -65,12 +61,9 @@ async def _retry(make_call, tries: int = 6):
                 raise
             if i == tries - 1:
                 raise
-            await asyncio.sleep(min(2 ** i, 30) + random.random())
+            await asyncio.sleep(min(2**i, 30) + random.random())
 
 
-# Resumable cache (enabled by --cache): per-article fetched text + generated
-# questions land on disk as they complete, so an OpenAI failure mid-run never
-# loses finished work and a re-run skips it instead of re-paying.
 _CACHE_ROOT: Path | None = None
 
 
@@ -101,21 +94,33 @@ def _cache_put(kind: str, key: str, obj) -> None:
             pass
 
 
-def _chat_kwargs(temperature: float = 0.5) -> dict:
-    """gpt-5* are reasoning models: no temperature, run reasoning at minimal.
-    Older nano/mini take temperature normally."""
-    if GEN_MODEL.startswith("gpt-5"):
-        return {"reasoning_effort": "minimal"}
-    return {"temperature": temperature}
+async def _chat(
+    messages: list[dict], model: str, temperature: float, max_tokens: int
+) -> str:
+    """One retried chat call."""
+    kw: dict = {}
+    if _CHUTES:
+        kw["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+        kw["max_tokens"] = max_tokens
+    elif model.startswith("gpt-5"):
+        kw["reasoning_effort"] = "minimal"
+        kw["max_completion_tokens"] = max_tokens
+    else:
+        kw["temperature"] = temperature
+        kw["max_completion_tokens"] = max_tokens
+    resp = await _retry(
+        lambda: oai().chat.completions.create(model=model, messages=messages, **kw)
+    )
+    return resp.choices[0].message.content or ""
 
 
 EMBED_MODEL = "text-embedding-3-small"
-EMBED_BACKEND = os.environ.get("EMBED_BACKEND", "openai")  # "local" = bge-small, no API
+EMBED_BACKEND = os.environ.get("EMBED_BACKEND", _EMBED_DEFAULT)
 QUESTIONS_PER_ARTICLE = 4
 MIN_TEXT_CHARS = 700
 MAX_TEXT_CHARS = 6000
-DEDUP_COSINE = float(os.environ.get("DEDUP_COSINE", "0.86"))  # raise for bge embeddings
-PER_SOURCE_CAP_FRAC = 0.04  # no single source > 4% of the final set
+DEDUP_COSINE = float(os.environ.get("DEDUP_COSINE", "0.86"))
+PER_SOURCE_CAP_FRAC = 0.04
 DIFFICULTY_MIX = {"easy": 0.40, "medium": 0.40, "hard": 0.20}
 ANSWER_TYPE_MIX = {"short": 0.55, "explanatory": 0.30, "summary": 0.15}
 _MAX_GOLD_WORDS = {"short": 8, "explanatory": 45, "summary": 90}
@@ -126,7 +131,15 @@ _client: AsyncOpenAI | None = None
 def oai() -> AsyncOpenAI:
     global _client
     if _client is None:
-        _client = AsyncOpenAI(timeout=60.0)
+        kw: dict = {
+            "timeout": 30.0,
+            "max_retries": 0,
+        }
+        if _LLM_KEY:
+            kw["api_key"] = _LLM_KEY
+        if _LLM_BASE_URL:
+            kw["base_url"] = _LLM_BASE_URL
+        _client = AsyncOpenAI(**kw)
     return _client
 
 
@@ -154,8 +167,6 @@ Published: {published}
 Article text:
 {text}"""
 
-# Phrases that betray a non-self-contained or meta question (references its
-# source, the publication/app, or article metadata — not a newsworthy fact).
 _BANNED_RE = re.compile(
     r"(?i)\b(the|this)\s+(article|report|study|piece|story|author|text|passage|essay|interview|episode|podcast|column|op-?ed)\b"
     r"|according to (the|this)\b|as (mentioned|described|stated|reported|explained|noted) (in|by) (the|this)\b"
@@ -167,11 +178,8 @@ _BANNED_RE = re.compile(
     r"|world cup (19\d\d|200\d|201\d|202[0-4])"
 )
 
-# A 4-digit year <= 2024 in the question signals a historical fact, not recent news.
 _STALE_YEAR_RE = re.compile(r"\b(19\d\d|20[0-1]\d|202[0-4])\b")
 
-# Boilerplate lines to strip from article text before generation (app promos,
-# follow/subscribe footers) so questions aren't generated from navigation chrome.
 _BOILERPLATE_RE = re.compile(
     r"(?im)^.*(download the .* app|follow us on|sign up (for|to)|subscribe to|"
     r"newsletter|available on (the )?app store|get it on google play|"
@@ -187,30 +195,30 @@ GRADE_PROMPT = """You screen candidate questions for an AI WEB SEARCH benchmark.
 5b. PUBLIC & FACT-DENSE (esp. explanatory/summary): the subject is a public event/decision/policy/deal/product or major public figure, and the answer states concrete facts (named people/orgs, numbers, dates, outcomes). REJECT "why does X feel/believe/think", a private person's motivations/emotions, an author/interviewee biography, a fictional character, or an answer that is a vague characterization or circular restatement.
 6. NOT META: not about an app/website/publication, downloads, subscriptions, or when an article was published.
 
-Return ONLY a JSON array, one object per question: {{"i": <index int>, "keep": true|false}}."""
+Return ONLY a JSON array, one object per question: {{"i": <index int>, "keep": true|false}}.
+
+{listing}"""
 
 
 def _bad_gold(question: str, gold: str, answer_type: str = "short") -> bool:
-    """Reject golds whose length is wrong for their answer_type, that restate a
-    short question, or that are vague. Short = a crisp fact; explanatory/summary
-    may be 1-6 sentences but must still be concrete."""
+    """Reject golds whose length is wrong for their answer_type, that restate a short question, or that are vague."""
     words = gold.split()
     cap = _MAX_GOLD_WORDS.get(answer_type, 8)
     if not words or len(words) > cap:
         return True
     if answer_type == "short":
-        # a short answer must not restate the question or be a bare weekday
         ql = [w.lower().strip(".,") for w in question.split()]
         gl = [w.lower().strip(".,") for w in words]
         for i in range(len(gl) - 2):
-            tri = gl[i:i + 3]
+            tri = gl[i : i + 3]
             for j in range(len(ql) - 2):
-                if ql[j:j + 3] == tri:
+                if ql[j : j + 3] == tri:
                     return True
-        if re.fullmatch(r"(?i)(mon|tues|wednes|thurs|fri|satur|sun)day\.?", gold.strip()):
+        if re.fullmatch(
+            r"(?i)(mon|tues|wednes|thurs|fri|satur|sun)day\.?", gold.strip()
+        ):
             return True
     else:
-        # explanatory/summary must be fact-dense, not a vague one-liner
         if len(words) < 6:
             return True
     if re.search(r"(?i)\b(maybe|roughly|various|unclear)\b", gold) and len(words) <= 3:
@@ -223,20 +231,29 @@ def _publisher_family(source: str) -> str:
     return source.split(":", 1)[-1].split("_", 1)[0]
 
 
-async def collect_articles(lookback_days: int, want: int, concurrency: int,
-                           fetch_timeout: float, use_sitemaps: bool) -> list[dict]:
-    """Gather recent article URLs (RSS + optional sitemaps), round-robin across
-    sources for diversity, fetch full text, keep articles with enough body."""
+async def collect_articles(
+    lookback_days: int,
+    want: int,
+    concurrency: int,
+    fetch_timeout: float,
+    use_sitemaps: bool,
+) -> list[dict]:
+    """Gather recent article URLs, fetch full text, keep articles with enough body."""
     feed_items = nc.collect_feed_items()
     items = feed_items
     if use_sitemaps:
-        sm = nc.collect_sitemap_items(datetime.now(timezone.utc) - timedelta(days=lookback_days))
+        sm = nc.collect_sitemap_items(
+            datetime.now(timezone.utc) - timedelta(days=lookback_days)
+        )
         items = nc.merge_dedupe(feed_items, sm)
     random.shuffle(items)
     candidates = nc.round_robin(items, cap=10**9)
 
-    print(f"[collect] {len(items)} candidate URLs from {len({i['source'] for i in items})} sources; "
-          f"fetching text for up to {want} (bounded, early-exit)", flush=True)
+    print(
+        f"[collect] {len(items)} candidate URLs from {len({i['source'] for i in items})} sources; "
+        f"fetching text for up to {want} (bounded, early-exit)",
+        flush=True,
+    )
 
     proxy = os.environ.get("FETCH_PROXY") or None
     if proxy:
@@ -244,37 +261,46 @@ async def collect_articles(lookback_days: int, want: int, concurrency: int,
     out: list[dict] = []
     sem = asyncio.Semaphore(concurrency)
     async with aiohttp.ClientSession() as session:
+
         async def one(it: dict):
             cached = _cache_get("article", it["url"])
             if cached is not None:
-                return cached or None  # {} == fetched-but-unusable
+                return cached or None
             async with sem:
-                text = await nc.fetch_text(session, it["url"], fetch_timeout, proxy=proxy)
+                text = await nc.fetch_text(
+                    session, it["url"], fetch_timeout, proxy=proxy
+                )
             if text:
                 text = _BOILERPLATE_RE.sub("", text).strip()
             rec = None
             if text and MIN_TEXT_CHARS <= len(text):
                 rec = {
-                    "url": it["url"], "title": it["title"],
+                    "url": it["url"],
+                    "title": it["title"],
                     "text": text[:MAX_TEXT_CHARS],
-                    "published": it.get("feed_date") or "", "source": it["source"],
+                    "published": it.get("feed_date") or "",
+                    "source": it["source"],
                 }
             _cache_put("article", it["url"], rec or {})
             return rec
 
-        # Fetch in bounded chunks so a tail of slow/timing-out sites can't stall
-        # the whole gather, and stop as soon as we have enough usable articles.
         chunk = max(64, concurrency * 6)
         for i in range(0, len(candidates), chunk):
             if len(out) >= want:
                 break
-            results = await asyncio.gather(*[one(it) for it in candidates[i:i + chunk]])
+            results = await asyncio.gather(
+                *[one(it) for it in candidates[i : i + chunk]]
+            )
             out.extend(r for r in results if r)
-            print(f"[collect] {len(out)}/{want} usable after {min(i + chunk, len(candidates))} attempts",
-                  flush=True)
+            print(
+                f"[collect] {len(out)}/{want} usable after {min(i + chunk, len(candidates))} attempts",
+                flush=True,
+            )
     out = out[:want]
-    print(f"[collect] fetched {len(out)} usable articles from {len({a['source'] for a in out})} sources",
-          flush=True)
+    print(
+        f"[collect] fetched {len(out)} usable articles from {len({a['source'] for a in out})} sources",
+        flush=True,
+    )
     return out
 
 
@@ -290,16 +316,16 @@ def _parse_json_array(text: str) -> list[dict]:
 
 
 async def gen_for_article(article: dict, k: int) -> list[dict]:
-    prompt = GEN_PROMPT.format(k=k, title=article["title"],
-                               published=article["published"], text=article["text"])
+    prompt = GEN_PROMPT.format(
+        k=k,
+        title=article["title"],
+        published=article["published"],
+        text=article["text"],
+    )
     try:
-        resp = await _retry(lambda: oai().chat.completions.create(
-            model=GEN_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_completion_tokens=2500,
-            **_chat_kwargs(0.5),
-        ))
-        raw = _parse_json_array(resp.choices[0].message.content or "")
+        raw = _parse_json_array(
+            await _chat([{"role": "user", "content": prompt}], GEN_MODEL, 0.5, 2500)
+        )
     except Exception as e:
         print(f"  [gen fallback] {type(e).__name__}: {e}")
         return []
@@ -316,16 +342,18 @@ async def gen_for_article(article: dict, k: int) -> list[dict]:
         atype = str(o.get("answer_type", "short")).lower()
         if atype not in ("short", "explanatory", "summary"):
             atype = "short"
-        qs.append({
-            "question": q,
-            "gold_answer": gold,
-            "answer_span": str(o.get("answer_span", "")).strip()[:1200],
-            "difficulty": diff,
-            "answer_type": atype,
-            "qtype": str(o.get("qtype", "")).strip()[:40],
-            "source_url": article["url"],
-            "source": article["source"],
-        })
+        qs.append(
+            {
+                "question": q,
+                "gold_answer": gold,
+                "answer_span": str(o.get("answer_span", "")).strip()[:1200],
+                "difficulty": diff,
+                "answer_type": atype,
+                "qtype": str(o.get("qtype", "")).strip()[:40],
+                "source_url": article["url"],
+                "source": article["source"],
+            }
+        )
     return qs
 
 
@@ -336,9 +364,11 @@ def _local_embedder():
     global _st_embedder
     if _st_embedder is None:
         from sentence_transformers import SentenceTransformer
+
         m = SentenceTransformer("BAAI/bge-small-en-v1.5")
         try:
             import torch
+
             if torch.backends.mps.is_available():
                 m = m.to("mps")
         except Exception:
@@ -348,28 +378,64 @@ def _local_embedder():
 
 
 async def embed(texts: list[str], batch: int = 256) -> list[list[float]]:
-    if EMBED_BACKEND == "local":  # no API — local bge-small (e.g. when off OpenAI)
+    if EMBED_BACKEND == "local":
         m = _local_embedder()
         return await asyncio.to_thread(
-            lambda: m.encode(texts, batch_size=256, normalize_embeddings=True,
-                             convert_to_numpy=True, show_progress_bar=False).tolist())
+            lambda: m.encode(
+                texts,
+                batch_size=256,
+                normalize_embeddings=True,
+                convert_to_numpy=True,
+                show_progress_bar=False,
+            ).tolist()
+        )
     out: list[list[float]] = []
     for i in range(0, len(texts), batch):
-        chunk = texts[i:i + batch]
-        resp = await _retry(lambda c=chunk: oai().embeddings.create(model=EMBED_MODEL, input=c))
+        chunk = texts[i : i + batch]
+        resp = await _retry(
+            lambda c=chunk: oai().embeddings.create(model=EMBED_MODEL, input=c)
+        )
         out.extend(d.embedding for d in resp.data)
     return out
 
 
+def _lexical_dedup(questions: list[dict], jaccard: float = 0.8) -> list[dict]:
+    """Embedding-free near-dup removal (token-set Jaccard)."""
+    kept: list[dict] = []
+    sigs: list[set] = []
+    for q in questions:
+        toks = set(re.sub(r"[^a-z0-9 ]", "", q["question"].lower()).split())
+        if not toks:
+            continue
+        if any(len(toks & s) / (len(toks | s) or 1) >= jaccard for s in sigs):
+            continue
+        kept.append(q)
+        sigs.append(toks)
+    return kept
+
+
 async def dedup(questions: list[dict]) -> list[dict]:
-    """Drop near-duplicate questions by embedding cosine (greedy, keep-first).
-    Vectorized with numpy: each candidate is scored against the kept matrix in
-    one matrix-vector product, so this stays fast at ~10k questions."""
+    """Drop near-duplicate questions by embedding cosine (greedy, keep-first)."""
     if not questions:
         return []
+    if EMBED_BACKEND == "lexical":
+        kept = _lexical_dedup(questions)
+        print(f"[dedup] {len(questions)} -> {len(kept)} (lexical)", flush=True)
+        return kept
     import numpy as np
-    vecs = np.asarray(await embed([q["question"] for q in questions]), dtype=np.float32)
-    vecs /= (np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-9)
+
+    try:
+        embs = await embed([q["question"] for q in questions])
+    except Exception as e:
+        print(
+            f"[dedup] embedding failed ({type(e).__name__}); lexical fallback",
+            flush=True,
+        )
+        kept = _lexical_dedup(questions)
+        print(f"[dedup] {len(questions)} -> {len(kept)} (lexical)", flush=True)
+        return kept
+    vecs = np.asarray(embs, dtype=np.float32)
+    vecs /= np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-9
 
     kept: list[dict] = []
     kept_mat = np.zeros((len(questions), vecs.shape[1]), dtype=np.float32)
@@ -380,31 +446,37 @@ async def dedup(questions: list[dict]) -> list[dict]:
         kept.append(q)
         kept_mat[n] = v
         n += 1
-    print(f"[dedup] {len(questions)} -> {len(kept)} after near-duplicate removal", flush=True)
+    print(
+        f"[dedup] {len(questions)} -> {len(kept)} after near-duplicate removal",
+        flush=True,
+    )
     return kept
 
 
 async def quality_grade(questions: list[dict], batch: int = 20) -> list[dict]:
-    """Second-pass LLM screen: keep only self-contained, web-answerable, specific
-    questions. Runs in batches; a question survives only on an explicit keep=true."""
+    """Second-pass LLM screen for self-contained, web-answerable questions."""
     if not questions:
         return []
 
     async def grade_batch(start: int, chunk: list[dict]) -> set[int]:
         listing = "\n".join(
-            f'{i}. [{q.get("answer_type","short")}] Q: {q["question"]}  A: {q["gold_answer"]}'
+            f"{i}. [{q.get('answer_type', 'short')}] Q: {q['question']}  A: {q['gold_answer']}"
             for i, q in enumerate(chunk)
         )
         try:
-            resp = await _retry(lambda: oai().chat.completions.create(
-                model=GRADE_MODEL,
-                messages=[{"role": "user", "content": GRADE_PROMPT.format(listing=listing)}],
-                max_completion_tokens=1500,
-                **_chat_kwargs(0),
-            ))
-            verdicts = _parse_json_array(resp.choices[0].message.content or "")
-            return {start + int(v["i"]) for v in verdicts
-                    if isinstance(v, dict) and v.get("keep") is True and "i" in v}
+            verdicts = _parse_json_array(
+                await _chat(
+                    [{"role": "user", "content": GRADE_PROMPT.format(listing=listing)}],
+                    GRADE_MODEL,
+                    0.0,
+                    1500,
+                )
+            )
+            return {
+                start + int(v["i"])
+                for v in verdicts
+                if isinstance(v, dict) and v.get("keep") is True and "i" in v
+            }
         except Exception as e:
             print(f"  [grade fallback keep-all] {type(e).__name__}: {e}")
             return set(range(start, start + len(chunk)))
@@ -415,48 +487,34 @@ async def quality_grade(questions: list[dict], batch: int = 20) -> list[dict]:
         async with sem:
             return await grade_batch(start, chunk)
 
-    results = await asyncio.gather(*[
-        run(s, questions[s:s + batch]) for s in range(0, len(questions), batch)
-    ])
+    results = await asyncio.gather(
+        *[run(s, questions[s : s + batch]) for s in range(0, len(questions), batch)]
+    )
     keep_idx = set().union(*results) if results else set()
     kept = [q for i, q in enumerate(questions) if i in keep_idx]
     print(f"[quality] {len(questions)} -> {len(kept)} after web-answerability screen")
     return kept
 
 
-def balance(questions: list[dict], target: int, per_family_frac: float = 0.15, per_article: int = 2) -> list[dict]:
-    """Cap per-source/family/article, then sample toward the answer-type mix."""
+def balance(
+    questions: list[dict],
+    target: int = 0,
+    per_family_frac: float = 0.15,
+    per_article: int = 0,
+) -> list[dict]:
+    """Keep everything the quality grade passed (shuffled); per_article>0 caps per source article."""
     random.shuffle(questions)
-    fam_cap = max(8, int(target * per_family_frac))   # publisher-family share cap
-    art_cap = per_article                             # max questions per article
-    by_fam: dict[str, int] = defaultdict(int)
-    by_art: dict[str, int] = defaultdict(int)
-    capped = []
-    for q in questions:
-        fam = _publisher_family(q["source"])
-        if by_fam[fam] >= fam_cap or by_art[q["source_url"]] >= art_cap:
-            continue
-        capped.append(q)
-        by_fam[fam] += 1
-        by_art[q["source_url"]] += 1
-
-    buckets: dict[str, list[dict]] = defaultdict(list)
-    for q in capped:
-        buckets[q["answer_type"]].append(q)
-    out: list[dict] = []
-    for atype, frac in ANSWER_TYPE_MIX.items():
-        want = int(target * frac)
-        out.extend(buckets[atype][:want])
-    # top up to target from whatever remains
-    if len(out) < target:
-        chosen = {id(q) for q in out}
-        for q in capped:
-            if len(out) >= target:
-                break
-            if id(q) not in chosen:
-                out.append(q)
-    random.shuffle(out)
-    return out[:target]
+    if per_article and per_article > 0:
+        by_art: dict[str, int] = defaultdict(int)
+        kept: list[dict] = []
+        for q in questions:
+            if by_art[q["source_url"]] >= per_article:
+                continue
+            kept.append(q)
+            by_art[q["source_url"]] += 1
+        random.shuffle(kept)
+        return kept
+    return list(questions)
 
 
 def _qid(question: str) -> str:
@@ -464,8 +522,7 @@ def _qid(question: str) -> str:
 
 
 def load_existing(out_dir: Path, date: str) -> list[dict]:
-    """Reconstruct internal question dicts from a previously-saved date (join
-    questions/<date>.jsonl for difficulty with golds/<date>.jsonl for the rest)."""
+    """Reconstruct internal question dicts from a previously-saved date."""
     qpath = out_dir / "questions" / f"{date}.jsonl"
     gpath = out_dir / "golds" / f"{date}.jsonl"
     if not qpath.exists() or not gpath.exists():
@@ -477,16 +534,24 @@ def load_existing(out_dir: Path, date: str) -> list[dict]:
     out = []
     for line in gpath.open():
         g = json.loads(line)
-        out.append({
-            "question": g["question"], "gold_answer": g["gold_answer"],
-            "answer_span": g.get("answer_span", ""), "difficulty": diffs.get(g["id"], "medium"),
-            "answer_type": g.get("answer_type", "short"),
-            "qtype": g.get("qtype", ""), "source_url": g["source_url"], "source": g["source"],
-        })
+        out.append(
+            {
+                "question": g["question"],
+                "gold_answer": g["gold_answer"],
+                "answer_span": g.get("answer_span", ""),
+                "difficulty": diffs.get(g["id"], "medium"),
+                "answer_type": g.get("answer_type", "short"),
+                "qtype": g.get("qtype", ""),
+                "source_url": g["source_url"],
+                "source": g["source"],
+            }
+        )
     return out
 
 
-def save_local(out_dir: Path, date: str, questions: list[dict], lane: str = "news") -> tuple[Path, Path]:
+def save_local(
+    out_dir: Path, date: str, questions: list[dict], lane: str = "news"
+) -> tuple[Path, Path]:
     qdir = out_dir / "questions"
     gdir = out_dir / "golds"
     qdir.mkdir(parents=True, exist_ok=True)
@@ -496,15 +561,38 @@ def save_local(out_dir: Path, date: str, questions: list[dict], lane: str = "new
     with qpath.open("w") as qf, gpath.open("w") as gf:
         for q in questions:
             qid = _qid(q["question"])
-            qf.write(json.dumps({
-                "id": qid, "difficulty": q["difficulty"], "answer_type": q["answer_type"],
-                "question": q["question"], "source": q["source"], "date": date, "lane": lane,
-            }, ensure_ascii=False) + "\n")
-            gf.write(json.dumps({
-                "id": qid, "question": q["question"], "gold_answer": q["gold_answer"],
-                "answer_span": q["answer_span"], "answer_type": q["answer_type"], "qtype": q["qtype"],
-                "source_url": q["source_url"], "source": q["source"], "date": date,
-            }, ensure_ascii=False) + "\n")
+            qf.write(
+                json.dumps(
+                    {
+                        "id": qid,
+                        "difficulty": q["difficulty"],
+                        "answer_type": q["answer_type"],
+                        "question": q["question"],
+                        "source": q["source"],
+                        "date": date,
+                        "lane": lane,
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
+            gf.write(
+                json.dumps(
+                    {
+                        "id": qid,
+                        "question": q["question"],
+                        "gold_answer": q["gold_answer"],
+                        "answer_span": q["answer_span"],
+                        "answer_type": q["answer_type"],
+                        "qtype": q["qtype"],
+                        "source_url": q["source_url"],
+                        "source": q["source"],
+                        "date": date,
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
     return qpath, gpath
 
 
@@ -512,20 +600,25 @@ def upload_hf(repo: str, date: str, qpath: Path, dry_run: bool) -> None:
     """Append questions/<date>.jsonl to the HF dataset (golds stay private/local)."""
     token = os.environ.get("HF_TOKEN")
     if dry_run or not token:
-        print(f"[hf] dry-run (set --hf and HF_TOKEN to push): would add questions/{date}.jsonl to {repo}")
+        print(
+            f"[hf] dry-run (set --hf and HF_TOKEN to push): would add questions/{date}.jsonl to {repo}"
+        )
         return
     from huggingface_hub import CommitOperationAdd, HfApi
+
     try:
         api = HfApi(token=token)
         api.create_commit(
-            repo_id=repo, repo_type="dataset",
+            repo_id=repo,
+            repo_type="dataset",
             operations=[CommitOperationAdd(f"questions/{date}.jsonl", str(qpath))],
             commit_message=f"Add generated questions for {date}",
         )
         print(f"[hf] pushed questions/{date}.jsonl to {repo}")
     except Exception as e:
-        # Push failure must never lose the local batch (already saved on disk).
-        print(f"[hf] push to {repo} FAILED (saved locally): {type(e).__name__}: {str(e)[:160]}")
+        print(
+            f"[hf] push to {repo} FAILED (saved locally): {type(e).__name__}: {str(e)[:160]}"
+        )
 
 
 async def main_async(args) -> int:
@@ -536,13 +629,20 @@ async def main_async(args) -> int:
         _CACHE_ROOT = Path(args.out) / ".cache"
         print(f"[cache] resumable fetch+gen cache at {_CACHE_ROOT}", flush=True)
 
-    articles = await collect_articles(args.lookback, args.articles, args.concurrency,
-                                      args.fetch_timeout, args.sitemaps)
+    articles = await collect_articles(
+        args.lookback,
+        args.articles,
+        args.concurrency,
+        args.fetch_timeout,
+        args.sitemaps,
+    )
     if not articles:
         print("No articles fetched — aborting.")
         return 1
 
-    print(f"[gen] inverting {len(articles)} articles into questions ({QUESTIONS_PER_ARTICLE} each)")
+    print(
+        f"[gen] inverting {len(articles)} articles into questions ({QUESTIONS_PER_ARTICLE} each)"
+    )
     sem = asyncio.Semaphore(args.gen_concurrency)
 
     async def gen(a):
@@ -551,52 +651,66 @@ async def main_async(args) -> int:
             return cached
         async with sem:
             qs = await gen_for_article(a, QUESTIONS_PER_ARTICLE)
-        _cache_put("gen", a["url"], qs)  # checkpoint each article
+        _cache_put("gen", a["url"], qs)
         return qs
 
     raw_qs: list[dict] = []
     for i in range(0, len(articles), 1000):
-        chunk = articles[i:i + 1000]
+        chunk = articles[i : i + 1000]
         for b in await asyncio.gather(*[gen(a) for a in chunk]):
             raw_qs.extend(b)
-        print(f"[gen] {min(i + 1000, len(articles))}/{len(articles)} articles -> {len(raw_qs)} raw qs",
-              flush=True)
+        print(
+            f"[gen] {min(i + 1000, len(articles))}/{len(articles)} articles -> {len(raw_qs)} raw qs",
+            flush=True,
+        )
 
-    # leakage guard + length + banned source-reference phrases
-    clean = [q for q in raw_qs
-             if not is_contaminated(q["source_url"], q["question"], q["gold_answer"])
-             and 15 <= len(q["question"]) <= 300
-             and not _BANNED_RE.search(q["question"])
-             and not _STALE_YEAR_RE.search(q["question"])
-             and not _STALE_YEAR_RE.search(q["gold_answer"])
-             and not _bad_gold(q["question"], q["gold_answer"], q.get("answer_type", "short"))]
-    print(f"[filter] {len(raw_qs)} -> {len(clean)} after leakage/length/self-contained filter")
+    clean = [
+        q
+        for q in raw_qs
+        if not is_contaminated(q["source_url"], q["question"], q["gold_answer"])
+        and 15 <= len(q["question"]) <= 300
+        and not _BANNED_RE.search(q["question"])
+        and not _STALE_YEAR_RE.search(q["question"])
+        and not _STALE_YEAR_RE.search(q["gold_answer"])
+        and not _bad_gold(
+            q["question"], q["gold_answer"], q.get("answer_type", "short")
+        )
+    ]
+    print(
+        f"[filter] {len(raw_qs)} -> {len(clean)} after leakage/length/self-contained filter"
+    )
 
     unique = await dedup(clean)
     graded = await quality_grade(unique)
 
-    # --append: re-screen the existing date's questions through the (current)
-    # mechanical filters and merge them into the pool, so a second run tops up
-    # the same day toward the target instead of overwriting it.
     if args.append:
         existing = load_existing(Path(args.out), date)
-        existing_clean = [q for q in existing
-                          if not _BANNED_RE.search(q["question"])
-                          and not _STALE_YEAR_RE.search(q["question"])
-                          and not _STALE_YEAR_RE.search(q["gold_answer"])
-                          and not _bad_gold(q["question"], q["gold_answer"], q.get("answer_type", "short"))]
-        print(f"[append] merging {len(existing_clean)} kept existing "
-              f"(of {len(existing)}) with {len(graded)} new")
+        existing_clean = [
+            q
+            for q in existing
+            if not _BANNED_RE.search(q["question"])
+            and not _STALE_YEAR_RE.search(q["question"])
+            and not _STALE_YEAR_RE.search(q["gold_answer"])
+            and not _bad_gold(
+                q["question"], q["gold_answer"], q.get("answer_type", "short")
+            )
+        ]
+        print(
+            f"[append] merging {len(existing_clean)} kept existing "
+            f"(of {len(existing)}) with {len(graded)} new"
+        )
         graded = await dedup(existing_clean + graded)
 
-    final = balance(graded, args.target, args.per_family_frac, args.per_article)
+    final = balance(graded)
 
     qpath, gpath = save_local(Path(args.out), date, final)
     by_src = len({q["source"] for q in final})
     by_diff = defaultdict(int)
     for q in final:
         by_diff[q["difficulty"]] += 1
-    print(f"\n[done] {len(final)} questions from {by_src} sources | difficulty {dict(by_diff)}")
+    print(
+        f"\n[done] {len(final)} questions from {by_src} sources | difficulty {dict(by_diff)}"
+    )
     print(f"  questions -> {qpath}")
     print(f"  golds     -> {gpath}")
     upload_hf(args.repo, date, qpath, dry_run=not args.hf)
@@ -605,27 +719,55 @@ async def main_async(args) -> int:
 
 def main() -> int:
     default_repo = os.environ.get("HF_DATASET_REPO", "desearch/desearch-search-evals")
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     p.add_argument("--target", type=int, default=1000, help="final number of questions")
-    p.add_argument("--articles", type=int, default=500, help="articles to fetch text for")
+    p.add_argument(
+        "--articles", type=int, default=500, help="articles to fetch text for"
+    )
     p.add_argument("--lookback", type=int, default=3, help="days back for recency")
-    p.add_argument("--sitemaps", action="store_true", help="also use sitemaps (more, slower)")
-    p.add_argument("--concurrency", type=int, default=24, help="article-fetch concurrency")
-    p.add_argument("--gen-concurrency", type=int, default=12, help="LLM gen concurrency")
+    p.add_argument(
+        "--sitemaps", action="store_true", help="also use sitemaps (more, slower)"
+    )
+    p.add_argument(
+        "--concurrency", type=int, default=24, help="article-fetch concurrency"
+    )
+    p.add_argument(
+        "--gen-concurrency", type=int, default=12, help="LLM gen concurrency"
+    )
     p.add_argument("--fetch-timeout", type=float, default=20.0)
     p.add_argument("--out", default=str(HERE / "output"))
     p.add_argument("--date", default=None, help="YYYY-MM-DD (default: today UTC)")
     p.add_argument("--seed", type=int, default=7)
-    p.add_argument("--per-family-frac", type=float, default=0.15,
-                   help="max share of one publisher family (0.15 = 15%%); raise for big corpus builds")
-    p.add_argument("--per-article", type=int, default=2,
-                   help="max questions kept per source article; raise for big corpus builds")
-    p.add_argument("--append", action="store_true",
-                   help="merge with the existing date's questions (top up toward target)")
-    p.add_argument("--cache", action="store_true",
-                   help="resumable fetch+gen cache under output/.cache (crash-safe backfills)")
-    p.add_argument("--hf", action="store_true", help="push questions to HF (needs HF_TOKEN)")
-    p.add_argument("--repo", default=default_repo, help="HF dataset repo (env HF_DATASET_REPO)")
+    p.add_argument(
+        "--per-family-frac",
+        type=float,
+        default=0.15,
+        help="max share of one publisher family (0.15 = 15%%); raise for big corpus builds",
+    )
+    p.add_argument(
+        "--per-article",
+        type=int,
+        default=2,
+        help="max questions kept per source article; raise for big corpus builds",
+    )
+    p.add_argument(
+        "--append",
+        action="store_true",
+        help="merge with the existing date's questions (top up toward target)",
+    )
+    p.add_argument(
+        "--cache",
+        action="store_true",
+        help="resumable fetch+gen cache under output/.cache (crash-safe backfills)",
+    )
+    p.add_argument(
+        "--hf", action="store_true", help="push questions to HF (needs HF_TOKEN)"
+    )
+    p.add_argument(
+        "--repo", default=default_repo, help="HF dataset repo (env HF_DATASET_REPO)"
+    )
     args = p.parse_args()
     return asyncio.run(main_async(args))
 

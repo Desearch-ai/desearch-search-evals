@@ -30,11 +30,23 @@ def load_env(path: Path | None = None) -> None:
 # Benchmark/dataset pages we must never mine questions from: a hit on one of
 # these means we'd be inverting an existing answer key, not a primary source.
 CONTAMINATION_PATTERNS = {
-    "simpleqa", "simple_qa", "simple-qa",
-    "frames-benchmark", "frames_benchmark",
-    "browsecomp", "browse_comp", "browse-comp",
-    "deepsearchqa", "deep_search_qa", "deep-search-qa", "dsqa",
-    "seal-0", "seal_0", "sealhard", "seal-hard", "seal_hard",
+    "simpleqa",
+    "simple_qa",
+    "simple-qa",
+    "frames-benchmark",
+    "frames_benchmark",
+    "browsecomp",
+    "browse_comp",
+    "browse-comp",
+    "deepsearchqa",
+    "deep_search_qa",
+    "deep-search-qa",
+    "dsqa",
+    "seal-0",
+    "seal_0",
+    "sealhard",
+    "seal-hard",
+    "seal_hard",
     "huggingface.co/datasets",
 }
 

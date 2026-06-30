@@ -2,5 +2,6 @@
 .env
 output/
 logs/
+*.log
 __pycache__/
 *.pyc
