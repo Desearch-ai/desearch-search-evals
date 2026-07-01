@@ -17,9 +17,6 @@ PROVIDER="${LLM_PROVIDER:-$(getenv LLM_PROVIDER)}"; export LLM_PROVIDER="${PROVI
 DATE="$(date -u +%F)"
 mkdir -p output
 
-REPO_ARG=()
-[ -n "${HF_DATASET_REPO:-}" ] && REPO_ARG=(--repo "$HF_DATASET_REPO")
-
 echo "[daily] $(date -u) generating + merging questions for ${DATE}"
 "$PYTHON" -u generate_questions.py \
   --lookback "$LOOKBACK" \
@@ -32,5 +29,9 @@ echo "[daily] $(date -u) generating + merging questions for ${DATE}"
 # --only is REQUIRED: without it, older sitemap articles overwrite past days' files on HF.
 "$PYTHON" -u to_hf_dataset.py --label "$DATE" --only "$DATE" || exit 1
 
-"$PYTHON" -u push_to_hf.py "${REPO_ARG[@]}"
-echo "[daily] $(date -u) pushed $(wc -l < "output/hf_dataset/questions/${DATE}.jsonl" 2>/dev/null | tr -d ' ') questions for ${DATE}"
+if [ -n "${HF_DATASET_REPO:-}" ]; then
+  "$PYTHON" -u push_to_hf.py --repo "$HF_DATASET_REPO"
+  echo "[daily] $(date -u) pushed $(wc -l < "output/hf_dataset/questions/${DATE}.jsonl" 2>/dev/null | tr -d ' ') questions for ${DATE}"
+else
+  echo "[daily] $(date -u) HF_DATASET_REPO not set — ${DATE} built locally, not pushed"
+fi

@@ -161,7 +161,7 @@ handles, `from:<handle>`) + `TOPICS` (event keywords/hashtags with an engagement
 floor — the high-yield half). A tweet quality gate (≥500 followers, ≥100 views,
 no retweets/spam, ≥80 chars) mirrors SN13's spam filter so junk is never inverted.
 
-**Daily run:** `run_x.sh` (pm2: `ecosystem_x.config.js`; set `X_PUSH=1` to push).
+**Daily run:** `run_x.sh` (pm2: `ecosystem_x.config.js`); publishes when `HF_DATASET_REPO` is set.
 **30-day backfill:** `./backfill_x.sh 30` — one `x-<day>.jsonl` per day (~2000 each
 → ~50k+), then `python push_x_to_hf.py`.
 
