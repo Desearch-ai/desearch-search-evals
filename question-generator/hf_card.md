@@ -13,6 +13,15 @@ tags:
 pretty_name: Desearch Benchmark Questions
 size_categories:
 - 100K<n<1M
+configs:
+- config_name: web
+  data_files:
+  - split: train
+    path: questions/*.jsonl
+- config_name: x
+  data_files:
+  - split: train
+    path: x/*.jsonl
 ---
 
 # Desearch Benchmark Questions
@@ -53,8 +62,8 @@ date filter when searching. Gold answers are kept private and are never uploaded
 ```python
 from datasets import load_dataset
 
-web = load_dataset("desearch/dataset", data_dir="questions", split="train")
-x = load_dataset("desearch/dataset", data_dir="x", split="train")
+web = load_dataset("desearch/dataset", "web", split="train")
+x = load_dataset("desearch/dataset", "x", split="train")
 ```
 
 ## Updates
