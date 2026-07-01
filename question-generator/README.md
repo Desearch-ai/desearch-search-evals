@@ -60,7 +60,7 @@ python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 # 2. configure
 cp .env.example .env
 #    edit .env: set CHUTES_API_TOKEN (default provider), or LLM_PROVIDER=openai + OPENAI_API_KEY.
-#    to publish daily, also set HF_TOKEN + HF_DATASET_REPO.
+#    to publish, set HF_TOKEN (both lanes push to desearch/dataset by default).
 #    to use the venv's python, set PYTHON=./.venv/bin/python in .env
 
 # 3. register with pm2 and start the daily schedule
@@ -104,16 +104,16 @@ pm2 install pm2-logrotate
 | `LLM_PROVIDER` | no | `chutes` (default) or `openai` — picks the gen/grade model |
 | `CHUTES_API_TOKEN` | if chutes | Token for Chutes Qwen3 (the default provider) |
 | `OPENAI_API_KEY` | if openai | OpenAI key; also enables embedding-based dedup |
-| `HF_TOKEN` | no | Write-scoped token to push questions to HuggingFace |
-| `HF_DATASET_REPO` | no | Target dataset, e.g. `you/your-dataset`. Set it (with `HF_TOKEN`) to enable the daily push; leave blank to stay local-only |
+| `HF_TOKEN` | for push | Write-scoped token; both lanes push to `desearch/dataset` every run |
+| `HF_DATASET_REPO` | no | Optional override of the default `desearch/dataset` target |
 | `GEN_MODEL` | no | OpenAI model (default `gpt-4.1-nano`; `gpt-5*` runs as a reasoning model) |
 | `FETCH_PROXY` | no | Outbound HTTP proxy for article fetches, e.g. `http://user:pass@host:port` — helps when outlets rate-limit one server IP |
 | `PYTHON` | no | Python to run (default `python3`; point at your venv) |
 | `ARTICLES` / `TARGET` / `LOOKBACK` | no | Run-size knobs read by `run.sh` (defaults `8000` / `5000` / `2`) |
 
-`run.sh` pushes to HuggingFace only when `HF_DATASET_REPO` is set; otherwise the
-run is local-only. Either way the private golds never leave the machine, and a
-failed push never loses the local batch.
+Both lanes push to `desearch/dataset` every run (web → `questions/`, X → `x/`); set
+`HF_DATASET_REPO` to override the target, and `HF_TOKEN` so the push authenticates.
+The private golds never leave the machine, and a failed push never loses the local batch.
 
 ## Tuning the run
 
@@ -161,7 +161,7 @@ handles, `from:<handle>`) + `TOPICS` (event keywords/hashtags with an engagement
 floor — the high-yield half). A tweet quality gate (≥500 followers, ≥100 views,
 no retweets/spam, ≥80 chars) mirrors SN13's spam filter so junk is never inverted.
 
-**Daily run:** `run_x.sh` (pm2: `ecosystem_x.config.js`); publishes when `HF_DATASET_REPO` is set.
+**Daily run:** `run_x.sh` (pm2: `ecosystem_x.config.js`); pushes to `desearch/dataset` under `x/` every run.
 **30-day backfill:** `./backfill_x.sh 30` — one `x-<day>.jsonl` per day (~2000 each
 → ~50k+), then `python push_x_to_hf.py`.
 

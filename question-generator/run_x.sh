@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generate X benchmark questions from the past 24h of tweets; set HF_DATASET_REPO to publish.
+# Generate X benchmark questions from the past 24h of tweets and push them to HF.
 # Run by hand to test:  ./run_x.sh
 set -uo pipefail
 cd "$(dirname "$0")"
@@ -30,8 +30,6 @@ else
     --gen-concurrency 24 || exit 1
 fi
 
-if [ -n "$REPO" ] || [ "${X_PUSH:-0}" = "1" ]; then
-  echo "[daily-x] pushing X questions to HF -> ${REPO:-desearch/dataset}"
-  PUSH_ARG=(); [ -n "$REPO" ] && PUSH_ARG=(--repo "$REPO")
-  "$PYTHON" -u push_x_to_hf.py ${PUSH_ARG[@]+"${PUSH_ARG[@]}"}
-fi
+echo "[daily-x] pushing X questions to HF -> ${REPO:-desearch/dataset}"
+PUSH_ARG=(); [ -n "$REPO" ] && PUSH_ARG=(--repo "$REPO")
+"$PYTHON" -u push_x_to_hf.py ${PUSH_ARG[@]+"${PUSH_ARG[@]}"} || echo "[daily-x] push failed — files saved locally, re-run to retry"

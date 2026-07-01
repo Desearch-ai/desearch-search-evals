@@ -29,9 +29,9 @@ echo "[daily] $(date -u) generating + merging questions for ${DATE}"
 # --only is REQUIRED: without it, older sitemap articles overwrite past days' files on HF.
 "$PYTHON" -u to_hf_dataset.py --label "$DATE" --only "$DATE" || exit 1
 
-if [ -n "${HF_DATASET_REPO:-}" ]; then
-  "$PYTHON" -u push_to_hf.py --repo "$HF_DATASET_REPO"
+PUSH_ARG=(); [ -n "${HF_DATASET_REPO:-}" ] && PUSH_ARG=(--repo "$HF_DATASET_REPO")
+if "$PYTHON" -u push_to_hf.py ${PUSH_ARG[@]+"${PUSH_ARG[@]}"}; then
   echo "[daily] $(date -u) pushed $(wc -l < "output/hf_dataset/questions/${DATE}.jsonl" 2>/dev/null | tr -d ' ') questions for ${DATE}"
 else
-  echo "[daily] $(date -u) HF_DATASET_REPO not set — ${DATE} built locally, not pushed"
+  echo "[daily] $(date -u) push failed — ${DATE} saved locally, re-run to retry"
 fi
