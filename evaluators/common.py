@@ -23,7 +23,11 @@ from providers.common import load_env  # noqa: E402
 load_env()
 
 from openai import (  # noqa: E402
-    AsyncOpenAI, APIConnectionError, APITimeoutError, InternalServerError, RateLimitError,
+    AsyncOpenAI,
+    APIConnectionError,
+    APITimeoutError,
+    InternalServerError,
+    RateLimitError,
 )
 
 # Judge model — pinned for reproducible grading.
@@ -55,9 +59,14 @@ async def judge_chat(prompt: str, *, max_tokens: int | None = None) -> str:
         try:
             resp = await client.chat.completions.create(**kwargs)
             return (resp.choices[0].message.content or "").strip()
-        except (RateLimitError, APITimeoutError, APIConnectionError, InternalServerError) as e:
+        except (
+            RateLimitError,
+            APITimeoutError,
+            APIConnectionError,
+            InternalServerError,
+        ) as e:
             last_err = e
-            await asyncio.sleep(min(2 ** attempt, 30))
+            await asyncio.sleep(min(2**attempt, 30))
     raise last_err if last_err else RuntimeError("judge_chat exhausted retries")
 
 
@@ -91,7 +100,8 @@ _OG_DESC_RE = re.compile(
     re.IGNORECASE,
 )
 _SCRIPT_STYLE_RE = re.compile(
-    r"<(script|style)[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL,
+    r"<(script|style)[^>]*>.*?</\1>",
+    re.IGNORECASE | re.DOTALL,
 )
 _TAG_RE = re.compile(r"<[^>]+>")
 _WHITESPACE_RE = re.compile(r"\s+")
@@ -101,6 +111,7 @@ PAGE_CACHE = _REPO_ROOT / "runs" / "_page_cache"
 
 def _cache_path_for(url: str, backend: str = "static") -> Path:
     import hashlib
+
     h = hashlib.sha256(f"{backend}:{url}".encode("utf-8")).hexdigest()[:16]
     return PAGE_CACHE / f"{h}.json"
 
@@ -119,8 +130,11 @@ def _extract(html: str, body_chars: int) -> dict[str, str]:
 
 
 async def fetch_page(
-    session: aiohttp.ClientSession, url: str,
-    *, timeout: float = 8.0, body_chars: int = 10000,
+    session: aiohttp.ClientSession,
+    url: str,
+    *,
+    timeout: float = 8.0,
+    body_chars: int = 10000,
     use_cache: bool = True,
 ) -> dict[str, str]:
     """Fetch page, extract {title, description, text}. Cached to disk by (backend, URL).
@@ -139,47 +153,70 @@ async def fetch_page(
             pass
     try:
         if SCRAPINGDOG_KEY:
-            params = {"api_key": SCRAPINGDOG_KEY, "url": url,
-                      "dynamic": "true", "wait": str(SCRAPINGDOG_WAIT_MS)}
+            params = {
+                "api_key": SCRAPINGDOG_KEY,
+                "url": url,
+                "dynamic": "true",
+                "wait": str(SCRAPINGDOG_WAIT_MS),
+            }
             async with session.get(
-                SCRAPINGDOG_URL, params=params,
+                SCRAPINGDOG_URL,
+                params=params,
                 timeout=aiohttp.ClientTimeout(total=max(timeout, 60.0)),
             ) as resp:
                 html = await resp.text(errors="ignore")
                 if resp.status != 200:
-                    out = {"title": "", "description": "", "text": "",
-                           "error": f"scrapingdog {resp.status}: {html[:120]}"}
+                    out = {
+                        "title": "",
+                        "description": "",
+                        "text": "",
+                        "error": f"scrapingdog {resp.status}: {html[:120]}",
+                    }
                 else:
                     out = _extract(html, body_chars)
         else:
             async with session.get(
-                url, headers={"User-Agent": UA, "Accept": "text/html"},
+                url,
+                headers={"User-Agent": UA, "Accept": "text/html"},
                 timeout=aiohttp.ClientTimeout(total=timeout),
                 allow_redirects=True,
             ) as resp:
                 ctype = resp.headers.get("content-type", "")
                 if "html" not in ctype.lower():
-                    out = {"title": "", "description": "", "text": "", "error": f"not html ({ctype})"}
+                    out = {
+                        "title": "",
+                        "description": "",
+                        "text": "",
+                        "error": f"not html ({ctype})",
+                    }
                 else:
                     out = _extract(await resp.text(errors="ignore"), body_chars)
     except Exception as e:
-        out = {"title": "", "description": "", "text": "", "error": f"{type(e).__name__}: {e}"}
+        out = {
+            "title": "",
+            "description": "",
+            "text": "",
+            "error": f"{type(e).__name__}: {e}",
+        }
     PAGE_CACHE.mkdir(parents=True, exist_ok=True)
     cache.write_text(json.dumps(out, ensure_ascii=False))
     return out
 
 
-async def fetch_pages(urls: Iterable[str], *, concurrency: int = 8,
-                      timeout: float = 8.0) -> dict[str, dict[str, str]]:
+async def fetch_pages(
+    urls: Iterable[str], *, concurrency: int = 8, timeout: float = 8.0
+) -> dict[str, dict[str, str]]:
     """Fetch many URLs concurrently. Returns {url: page}."""
     urls = list(dict.fromkeys(urls))  # de-dupe, preserve order
     if SCRAPINGDOG_KEY:
         concurrency = min(concurrency, SCRAPINGDOG_CONCURRENCY)
     sem = asyncio.Semaphore(concurrency)
     async with aiohttp.ClientSession() as session:
+
         async def one(u: str) -> tuple[str, dict[str, str]]:
             async with sem:
                 return u, await fetch_page(session, u, timeout=timeout)
+
         return dict(await asyncio.gather(*[one(u) for u in urls]))
 
 
@@ -190,15 +227,27 @@ async def fetch_pages(urls: Iterable[str], *, concurrency: int = 8,
 
 CONTAMINATION_PATTERNS = {
     # SimpleQA artifacts
-    "simpleqa", "simple_qa", "simple-qa",
+    "simpleqa",
+    "simple_qa",
+    "simple-qa",
     # FRAMES (Google)
-    "frames-benchmark", "frames_benchmark",
+    "frames-benchmark",
+    "frames_benchmark",
     # BrowseComp (OpenAI)
-    "browsecomp", "browse_comp", "browse-comp",
+    "browsecomp",
+    "browse_comp",
+    "browse-comp",
     # DeepSearchQA (DeepMind)
-    "deepsearchqa", "deep_search_qa", "deep-search-qa", "dsqa",
+    "deepsearchqa",
+    "deep_search_qa",
+    "deep-search-qa",
+    "dsqa",
     # SEAL
-    "seal-0", "seal_0", "sealhard", "seal-hard", "seal_hard",
+    "seal-0",
+    "seal_0",
+    "sealhard",
+    "seal-hard",
+    "seal_hard",
     # HuggingFace dataset cards (very common contamination vector)
     "huggingface.co/datasets",
 }
@@ -274,27 +323,38 @@ def cited_urls(answer: str) -> list[str]:
 # Output normalization — same answers shape across providers.
 # ---------------------------------------------------------------------------
 
+
 def load_provider_outputs(path: Path) -> list[dict[str, Any]]:
     """Load a provider outputs file, normalize to {id, question, category,
     expected_answer, answer, sources, elapsed_seconds, raw, error}."""
     items = json.loads(path.read_text())
     out: list[dict[str, Any]] = []
     for it in items:
-        out.append({
-            **{k: it.get(k) for k in ("id", "question", "category",
-                                      "expected_answer", "source")
-               if k in it},
-            "model": it.get("model", ""),
-            "answer": it.get("answer", "") or "",
-            "sources": it.get("sources") or [],
-            "elapsed_seconds": it.get("elapsed_seconds", 0.0),
-            "raw": it.get("raw") or {},
-            "error": it.get("error"),
-        })
+        out.append(
+            {
+                **{
+                    k: it.get(k)
+                    for k in ("id", "question", "category", "expected_answer", "source")
+                    if k in it
+                },
+                "model": it.get("model", ""),
+                "answer": it.get("answer", "") or "",
+                "sources": it.get("sources") or [],
+                "elapsed_seconds": it.get("elapsed_seconds", 0.0),
+                "raw": it.get("raw") or {},
+                "error": it.get("error"),
+            }
+        )
     return out
 
 
-PROVIDER_NAMES = ("desearch", "gpt5mini", "perplexity", "tavily", "exa")
+PROVIDER_NAMES = (
+    "desearch",
+    "gpt5mini",
+    "perplexity",
+    "tavily",
+    "exa",
+)
 
 
 def discover_providers(run_dir: Path) -> list[str]:

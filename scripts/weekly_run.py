@@ -41,8 +41,10 @@ def _hf_download_questions(run_date: str) -> Path | None:
         return None
     try:
         path = hf_hub_download(
-            HF_DATASET_REPO, f"questions/{run_date}.jsonl",
-            repo_type="dataset", token=os.environ.get("HF_TOKEN") or None,
+            HF_DATASET_REPO,
+            f"questions/{run_date}.jsonl",
+            repo_type="dataset",
+            token=os.environ.get("HF_TOKEN") or None,
         )
     except Exception:
         return None
@@ -55,8 +57,12 @@ def _hf_latest_date() -> str | None:
     except ImportError:
         return None
     try:
-        path = hf_hub_download(HF_DATASET_REPO, "latest.json", repo_type="dataset",
-                               token=os.environ.get("HF_TOKEN") or None)
+        path = hf_hub_download(
+            HF_DATASET_REPO,
+            "latest.json",
+            repo_type="dataset",
+            token=os.environ.get("HF_TOKEN") or None,
+        )
         return json.loads(Path(path).read_text()).get("date")
     except Exception:
         return None
@@ -92,12 +98,26 @@ def resolve_questions(run_date: str) -> Path:
     )
 
 
-def run_pipeline(run_dir: Path, questions_path: Path, providers: list[str],
-                 concurrency: int, limit: int | None = None) -> None:
+def run_pipeline(
+    run_dir: Path,
+    questions_path: Path,
+    providers: list[str],
+    concurrency: int,
+    limit: int | None = None,
+) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
-    cmd = [sys.executable, "providers/run_providers.py",
-           "--questions", str(questions_path), "--out-dir", str(run_dir),
-           "--providers", *providers, "--concurrency", str(concurrency)]
+    cmd = [
+        sys.executable,
+        "providers/run_providers.py",
+        "--questions",
+        str(questions_path),
+        "--out-dir",
+        str(run_dir),
+        "--providers",
+        *providers,
+        "--concurrency",
+        str(concurrency),
+    ]
     if limit:
         cmd += ["--limit", str(limit)]
     _run(cmd)
@@ -114,7 +134,9 @@ def _grade_index(run_dir: Path, fname: str, field: str) -> dict[str, dict[str, o
     data = json.loads(path.read_text())
     out: dict[str, dict[str, object]] = {}
     for provider, payload in (data.get("per_provider") or {}).items():
-        out[provider] = {row["id"]: row.get(field) for row in payload.get("per_question", [])}
+        out[provider] = {
+            row["id"]: row.get(field) for row in payload.get("per_question", [])
+        }
     return out
 
 
@@ -136,28 +158,40 @@ def assemble(run_dir: Path, run_date: str, providers: list[str]) -> None:
                 continue
             for item in json.loads(pfile.read_text()):
                 qid = item.get("id")
-                f.write(json.dumps({
-                    "date": run_date,
-                    "question_id": qid,
-                    "difficulty": item.get("difficulty"),
-                    "question": item.get("question"),
-                    "provider": provider,
-                    "model": item.get("model"),
-                    "answer": item.get("answer", ""),
-                    "sources": item.get("sources", []),
-                    "elapsed_seconds": item.get("elapsed_seconds"),
-                    "web_search_called": (item.get("raw") or {}).get("web_search_called"),
-                    "source_relevance": relevance.get(provider, {}).get(qid),
-                    "answer_quality": quality.get(provider, {}).get(qid),
-                    "answer_quality_verdict": verdict.get(provider, {}).get(qid),
-                    "groundedness": grounded.get(provider, {}).get(qid),
-                    "error": item.get("error"),
-                }, ensure_ascii=False) + "\n")
+                f.write(
+                    json.dumps(
+                        {
+                            "date": run_date,
+                            "question_id": qid,
+                            "difficulty": item.get("difficulty"),
+                            "question": item.get("question"),
+                            "provider": provider,
+                            "model": item.get("model"),
+                            "answer": item.get("answer", ""),
+                            "sources": item.get("sources", []),
+                            "elapsed_seconds": item.get("elapsed_seconds"),
+                            "web_search_called": (item.get("raw") or {}).get(
+                                "web_search_called"
+                            ),
+                            "source_relevance": relevance.get(provider, {}).get(qid),
+                            "answer_quality": quality.get(provider, {}).get(qid),
+                            "answer_quality_verdict": verdict.get(provider, {}).get(
+                                qid
+                            ),
+                            "groundedness": grounded.get(provider, {}).get(qid),
+                            "error": item.get("error"),
+                        },
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
                 rows += 1
 
     scoreboard_src = run_dir / "scoreboard.json"
     if scoreboard_src.exists():
-        (results_dir / f"{run_date}.scoreboard.json").write_text(scoreboard_src.read_text())
+        (results_dir / f"{run_date}.scoreboard.json").write_text(
+            scoreboard_src.read_text()
+        )
 
     print(f"\nWrote {jsonl_path} ({rows} rows)")
 
@@ -176,18 +210,31 @@ def main() -> None:
     p.add_argument("--date", default=date.today().isoformat())
     p.add_argument("--providers", nargs="+", default=PROVIDERS, choices=PROVIDERS)
     p.add_argument("--concurrency", type=int, default=5)
-    p.add_argument("--skip-run", action="store_true",
-                   help="Assemble results from an existing runs/<date>/ without re-running")
-    p.add_argument("--limit", type=int, default=None,
-                   help="Only run the first N questions (quick test)")
-    p.add_argument("--no-upload", action="store_true",
-                   help="Skip the HuggingFace upload step")
+    p.add_argument(
+        "--skip-run",
+        action="store_true",
+        help="Assemble results from an existing runs/<date>/ without re-running",
+    )
+    p.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Only run the first N questions (quick test)",
+    )
+    p.add_argument(
+        "--no-upload", action="store_true", help="Skip the HuggingFace upload step"
+    )
     args = p.parse_args()
 
     run_dir = REPO / "runs" / args.date
     if not args.skip_run:
-        run_pipeline(run_dir, resolve_questions(args.date), args.providers,
-                     args.concurrency, args.limit)
+        run_pipeline(
+            run_dir,
+            resolve_questions(args.date),
+            args.providers,
+            args.concurrency,
+            args.limit,
+        )
     assemble(run_dir, args.date, args.providers)
     if run_dir.exists():
         refresh_ui(run_dir)
