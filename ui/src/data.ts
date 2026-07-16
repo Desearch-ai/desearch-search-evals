@@ -61,7 +61,8 @@ async function fetchText(url: string): Promise<string | null> {
 }
 
 export async function loadBenchmarkMeta(): Promise<BenchmarkMeta | null> {
-  const latest = await fetchJson<LatestPointer>(`${LOCAL_BASE}/latest.json`);
+  // no-store: a stale cached pointer after a deploy flip 404s the dated files.
+  const latest = await fetchJson<LatestPointer>(`${LOCAL_BASE}/latest.json`, { cache: "no-store" });
   if (!latest?.date) return null;
   const scoreboard = await fetchJson<Scoreboard>(`${LOCAL_BASE}/scoreboards/${latest.date}.json`);
   return {
