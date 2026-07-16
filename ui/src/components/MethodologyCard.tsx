@@ -15,7 +15,7 @@ const EVALUATORS: EvaluatorInfo[] = [
   {
     key: "source_relevance",
     label: "Source Relevance",
-    weight: 0.45,
+    weight: 0.40,
     short: "Are the URLs you cited actually relevant to the question?",
     full:
       "For each cited URL, the judge LLM reads the page and asks: is this page relevant to the question? " +
@@ -32,7 +32,7 @@ const EVALUATORS: EvaluatorInfo[] = [
   {
     key: "answer_quality",
     label: "Answer Quality",
-    weight: 0.25,
+    weight: 0.30,
     short: "Did the answer actually respond to the question?",
     full:
       "The judge reads question + answer (no sources) and picks one verdict. " +
@@ -148,7 +148,7 @@ export function MethodologyCard() {
           </div>
 
           <p className="text-[11px] text-text-dim leading-relaxed mt-4">
-            <span className="font-mono">composite = 0.45·source_relevance + 0.25·answer_quality + 0.30·groundedness</span>.
+            <span className="font-mono">composite = 0.40·source_relevance + 0.30·answer_quality + 0.30·groundedness</span>.
             Missing evaluators are skipped and weights renormalized.
           </p>
         </div>

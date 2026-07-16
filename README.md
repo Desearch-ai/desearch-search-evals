@@ -9,17 +9,17 @@ An open benchmark for AI-search providers that scores them on what they actually
 
 It compares Desearch against GPT-5-mini, Perplexity sonar-pro, Tavily, and Exa on the same 250 questions, and re-runs every week so the numbers reflect how each provider answers _today_, not how it answered on a static test set months ago.
 
-## Latest results (2026-05-31)
+## Latest results (2026-07-15)
 
 | #   | Provider             | Source relevance | Answer quality | Groundedness | Composite |
 | --- | -------------------- | ---------------- | -------------- | ------------ | --------- |
-| 1   | Desearch             | 92.3%            | 94.8%          | 72.3%        | **86.9%** |
-| 2   | Exa                  | 88.0%            | 96.0%          | 76.9%        | **86.6%** |
-| 3   | GPT-5-mini           | 86.5%            | 88.4%          | 62.2%        | **79.7%** |
-| 4   | Tavily               | 82.7%            | 90.4%          | 59.1%        | **77.5%** |
-| 5   | Perplexity sonar-pro | 76.2%            | 97.2%          | 61.8%        | **77.1%** |
+| 1   | Desearch             | 84.4%            | 90.4%          | 68.8%        | **81.5%** |
+| 2   | Exa                  | 85.5%            | 90.0%          | 56.3%        | **78.1%** |
+| 3   | GPT-5-mini           | 76.8%            | 88.8%          | 62.0%        | **75.9%** |
+| 4   | Tavily               | 73.4%            | 86.8%          | 59.0%        | **73.1%** |
+| 5   | Perplexity sonar-pro | 67.8%            | 88.4%          | 49.2%        | **68.4%** |
 
-250 questions across easy / medium / hard. The [live leaderboard](https://22.desearch.ai) shows the current week and lets you expand any question to compare each provider's answer, sources, and the judge's verdicts side by side. These numbers move week to week as the question set refreshes.
+250 same-day news questions — the hardest regime for groundedness, since every cited page is hours old. Desearch answered at a 5.5s median (9.7s p90), down from 8.3s in the previous run. The [live leaderboard](https://22.desearch.ai) shows the current week and lets you expand any question to compare each provider's answer, sources, and the judge's verdicts side by side. These numbers move week to week as the question set refreshes.
 
 ## Why weekly, live questions
 
@@ -35,14 +35,14 @@ This benchmark uses questions phrased to stay valid while their answers move. A 
 
 Each question is scored by three independent judge-graded evaluators. A provider has to do well on all three to rank well.
 
-**Source relevance (45%)**: for each cited URL, the judge fetches the page and rates how relevant it is to the question. This catches lazy citations that are on-topic but useless.
+**Source relevance (40%)**: for each cited URL, the judge fetches the page and rates how relevant it is to the question. This catches lazy citations that are on-topic but useless.
 
-**Answer quality (25%)**: the judge reads the question and the answer and decides whether it actually responds: a direct answer to an answerable question, or an honest decline to a genuinely unanswerable one. Dodging, refusing answerable questions, or confidently making things up all score zero.
+**Answer quality (30%)**: the judge reads the question and the answer and decides whether it actually responds: a direct answer to an answerable question, or an honest decline to a genuinely unanswerable one. Dodging, refusing answerable questions, or confidently making things up all score zero.
 
 **Groundedness (30%)**: for each factual claim in the answer, the judge fetches the cited page and decides whether the page actually supports the claim. This catches hallucinated citations: an invented answer with a real-looking link doesn't pass, because the judge reads the link.
 
 ```
-composite = 0.45 * source_relevance + 0.25 * answer_quality + 0.30 * groundedness
+composite = 0.40 * source_relevance + 0.30 * answer_quality + 0.30 * groundedness
 ```
 
 Full grading details, including the answer-quality verdict rubric, are in [`evaluators/`](./evaluators).

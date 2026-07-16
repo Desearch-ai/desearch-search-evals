@@ -3,9 +3,9 @@
 Every signal comes from the judge LLM reading content, not from provider
 self-reports:
 
-  source_relevance  45%   for each cited URL, the judge reads the page
+  source_relevance  40%   for each cited URL, the judge reads the page
                             and says whether it's relevant to the question
-  answer_quality    25%   the judge reads question + answer and says
+  answer_quality    30%   the judge reads question + answer and says
                             whether the answer actually addresses the
                             question (or correctly declines an unanswerable)
   groundedness      30%   for each factual claim, the judge checks that
@@ -27,8 +27,8 @@ from typing import Any
 
 WEIGHTS = {
     "groundedness": 0.30,
-    "source_relevance": 0.45,
-    "answer_quality": 0.25,
+    "source_relevance": 0.40,
+    "answer_quality": 0.30,
 }
 
 EVAL_FILES = {

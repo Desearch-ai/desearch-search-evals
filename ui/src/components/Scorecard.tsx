@@ -6,7 +6,7 @@ const COLS: Array<{ key: keyof Scoreboard["rows"][number]; label: string; weight
   {
     key: "source_relevance",
     label: "Source Relevance",
-    weight: 0.45,
+    weight: 0.40,
     tooltip:
       "For every URL the provider cited, the judge fetches the page and decides whether it is relevant " +
       "to the question (YES / MAYBE / NO). Mean across all cited URLs.",
@@ -14,7 +14,7 @@ const COLS: Array<{ key: keyof Scoreboard["rows"][number]; label: string; weight
   {
     key: "answer_quality",
     label: "Answer Quality",
-    weight: 0.25,
+    weight: 0.30,
     tooltip:
       "The judge reads the question and answer and picks one of RESPONSIVE / APPROPRIATE_DECLINE / EVASIVE / " +
       "WRONG_DECLINE / HALLUCINATED. Catches evasion, wrong refusals, and confident fabrication.",
@@ -81,7 +81,7 @@ export function Scorecard({ data }: { data: Scoreboard }) {
               </th>
             ))}
             <th className="text-right px-4 py-2.5 font-semibold text-text cursor-help"
-                title="Weighted mean: 0.45·source_relevance + 0.25·answer_quality + 0.30·groundedness. Missing evaluators are skipped and weights renormalized.">
+                title="Weighted mean: 0.40·source_relevance + 0.30·answer_quality + 0.30·groundedness. Missing evaluators are skipped and weights renormalized.">
               <span className="underline decoration-dotted decoration-text-dim/40 underline-offset-2">Composite</span>
             </th>
           </tr>
