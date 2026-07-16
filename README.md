@@ -9,17 +9,17 @@ An open benchmark for AI-search providers that scores them on what they actually
 
 It compares Desearch against GPT-5-mini, Perplexity sonar-pro, Tavily, and Exa on the same 250 questions, and re-runs every week so the numbers reflect how each provider answers _today_, not how it answered on a static test set months ago.
 
-## Latest results (2026-07-15)
+## Latest results (2026-07-16)
 
 | #   | Provider             | Source relevance | Answer quality | Groundedness | Composite |
 | --- | -------------------- | ---------------- | -------------- | ------------ | --------- |
-| 1   | Desearch             | 84.4%            | 90.4%          | 68.8%        | **81.5%** |
+| 1   | Desearch             | 85.3%            | 86.4%          | 65.7%        | **79.7%** |
 | 2   | Exa                  | 85.5%            | 90.0%          | 56.3%        | **78.1%** |
 | 3   | GPT-5-mini           | 76.8%            | 88.8%          | 62.0%        | **75.9%** |
 | 4   | Tavily               | 73.4%            | 86.8%          | 59.0%        | **73.1%** |
 | 5   | Perplexity sonar-pro | 67.8%            | 88.4%          | 49.2%        | **68.4%** |
 
-250 same-day news questions — the hardest regime for groundedness, since every cited page is hours old. Desearch answered at a 5.5s median (9.7s p90), down from 8.3s in the previous run. The [live leaderboard](https://22.desearch.ai) shows the current week and lets you expand any question to compare each provider's answer, sources, and the judge's verdicts side by side. These numbers move week to week as the question set refreshes.
+250 same-day news questions — the hardest regime for groundedness, since every cited page is hours old. Desearch answered at a 10.2s median (12.5s p90). The [live leaderboard](https://22.desearch.ai) shows the current week and lets you expand any question to compare each provider's answer, sources, and the judge's verdicts side by side. These numbers move week to week as the question set refreshes.
 
 ## Why weekly, live questions
 
