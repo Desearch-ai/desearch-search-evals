@@ -11,10 +11,26 @@ const DATA_DIR = path.join(HERE, "..", "public", "data");
 const REPO = process.env.HF_DATASET_REPO || "desearch/desearch-search-evals";
 const BASE = `https://huggingface.co/datasets/${REPO}/resolve/main`;
 
+// HF rate-limits anonymous datacenter IPs; retry transient failures and send
+// HF_TOKEN when the build environment provides one.
+const HEADERS = process.env.HF_TOKEN
+  ? { Authorization: `Bearer ${process.env.HF_TOKEN}` }
+  : {};
+
 async function get(file) {
-  const res = await fetch(`${BASE}/${file}`);
-  if (!res.ok) throw new Error(`${file}: HTTP ${res.status}`);
-  return res.text();
+  let lastErr;
+  for (const delayMs of [0, 2000, 6000]) {
+    if (delayMs) await new Promise((r) => setTimeout(r, delayMs));
+    try {
+      const res = await fetch(`${BASE}/${file}`, { headers: HEADERS });
+      if (res.ok) return res.text();
+      lastErr = new Error(`${file}: HTTP ${res.status}`);
+      if (res.status >= 400 && res.status < 429) break;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }
 
 try {

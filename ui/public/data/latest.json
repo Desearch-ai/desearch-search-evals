@@ -1,7 +1,7 @@
 {
-  "date": "2026-05-31",
+  "date": "2026-07-15",
   "dates": [
-    "2026-05-31"
+    "2026-07-15"
   ],
   "questions": 8,
   "rows": 40,
@@ -19,15 +19,15 @@
   ],
   "weights": {
     "groundedness": 0.3,
-    "source_relevance": 0.45,
-    "answer_quality": 0.25
+    "source_relevance": 0.4,
+    "answer_quality": 0.3
   },
   "files": {
-    "results": "results/2026-05-31.jsonl",
-    "questions": "questions/2026-05-31.jsonl",
-    "scoreboard": "scoreboards/2026-05-31.json"
+    "results": "results/2026-07-15.jsonl",
+    "questions": "questions/2026-07-15.jsonl",
+    "scoreboard": "scoreboards/2026-07-15.json"
   },
   "isFallback": true,
   "schema_version": 1,
-  "generated_utc": "2026-06-02T09:00:16Z"
+  "generated_utc": "2026-07-16T09:09:50Z"
 }
