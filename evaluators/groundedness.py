@@ -25,7 +25,10 @@ from pathlib import Path
 from typing import Any
 
 from .common import (
-    cited_urls, discover_providers, extract_claims, fetch_pages, judge_chat,
+    discover_providers,
+    extract_claims,
+    fetch_pages,
+    judge_chat,
     load_provider_outputs,
 )
 
@@ -79,30 +82,49 @@ def _score(verdict: str) -> float:
     return {"SUPPORTED": 1.0, "UNSUPPORTED": 0.0, "CONTRADICTED": 0.0}[verdict]
 
 
-async def grade_claim(claim: str, url: str, page: dict[str, str],
-                      sem: asyncio.Semaphore) -> dict[str, Any]:
+async def grade_claim(
+    claim: str, url: str, page: dict[str, str], sem: asyncio.Semaphore
+) -> dict[str, Any]:
     content = page.get("text", "") or page.get("description", "") or ""
     content = content[:3000]
     if not content and page.get("error"):
-        return {"claim": claim[:120], "url": url, "verdict": "FETCH_FAILED",
-                "score": 0.0, "error": page["error"]}
+        return {
+            "claim": claim[:120],
+            "url": url,
+            "verdict": "FETCH_FAILED",
+            "score": 0.0,
+            "error": page["error"],
+        }
     prompt = PROMPT.format(
-        claim=claim, url=url, title=page.get("title", "")[:200],
-        n=len(content), content=content,
+        claim=claim,
+        url=url,
+        title=page.get("title", "")[:200],
+        n=len(content),
+        content=content,
     )
     async with sem:
         try:
             text = await judge_chat(prompt, max_tokens=8)
         except Exception as e:
-            return {"claim": claim[:120], "url": url, "verdict": "JUDGE_ERROR",
-                    "score": 0.0, "error": f"{type(e).__name__}: {e}"}
+            return {
+                "claim": claim[:120],
+                "url": url,
+                "verdict": "JUDGE_ERROR",
+                "score": 0.0,
+                "error": f"{type(e).__name__}: {e}",
+            }
     verdict = _parse(text)
-    return {"claim": claim[:120], "url": url, "verdict": verdict,
-            "score": _score(verdict)}
+    return {
+        "claim": claim[:120],
+        "url": url,
+        "verdict": verdict,
+        "score": _score(verdict),
+    }
 
 
-def _resolve_claim_urls(claim_urls: list[str], sources: list[dict],
-                        max_check: int = 4) -> list[str]:
+def _resolve_claim_urls(
+    claim_urls: list[str], sources: list[dict], max_check: int = 4
+) -> list[str]:
     """Which pages to check for support of this claim.
     Returns up to max_check URLs in priority order:
       1. URLs cited inline in the claim (the model's actual citations).
@@ -120,17 +142,24 @@ def _resolve_claim_urls(claim_urls: list[str], sources: list[dict],
     return []
 
 
-async def grade_provider(name: str, items: list[dict],
-                         judge_concurrency: int, fetch_concurrency: int,
-                         max_claims: int) -> dict[str, Any]:
-    # Pre-fetch every URL that might be cited: sources[] + inline answer URLs.
+async def grade_provider(
+    name: str,
+    items: list[dict],
+    judge_concurrency: int,
+    fetch_concurrency: int,
+    max_claims: int,
+) -> dict[str, Any]:
+    # Pre-fetch only the URLs grading will check: per-claim cited URLs plus
+    # the sources[0] fallback — not the full sources[] fan-out.
     urls: set[str] = set()
     for it in items:
-        for s in it.get("sources") or []:
-            if u := s.get("url"):
-                urls.add(u)
-        for u in cited_urls(it.get("answer", "") or ""):
-            urls.add(u)
+        sources = it.get("sources") or []
+        if not sources:
+            continue
+        for _, claim_urls in extract_claims(
+            it.get("answer", "") or "", max_claims=max_claims
+        ):
+            urls.update(u for u in _resolve_claim_urls(claim_urls, sources) if u)
     print(f"[{name}] fetching {len(urls)} unique pages…")
     pages = await fetch_pages(urls, concurrency=fetch_concurrency)
 
@@ -141,21 +170,33 @@ async def grade_provider(name: str, items: list[dict],
         sources = item.get("sources") or []
         claims = extract_claims(answer, max_claims=max_claims)
         if not claims or not sources:
-            return {"id": item["id"], "category": item.get("category"),
-                    "n_claims": 0, "score": None, "per_claim": []}
+            return {
+                "id": item["id"],
+                "category": item.get("category"),
+                "n_claims": 0,
+                "score": None,
+                "per_claim": [],
+            }
 
         async def one(claim_tuple):
             claim_text, claim_urls = claim_tuple
             urls_to_check = _resolve_claim_urls(claim_urls, sources)
             if not urls_to_check:
-                return {"claim": claim_text[:120], "url": "", "verdict": "NO_URL",
-                        "score": 0.0, "checked": 0}
+                return {
+                    "claim": claim_text[:120],
+                    "url": "",
+                    "verdict": "NO_URL",
+                    "score": 0.0,
+                    "checked": 0,
+                }
             # Grade against EACH cited URL, take the best verdict.
             # SUPPORTED by any single page = claim is grounded.
-            sub = await asyncio.gather(*[
-                grade_claim(claim_text, u, pages.get(u, {}), sem)
-                for u in urls_to_check
-            ])
+            sub = await asyncio.gather(
+                *[
+                    grade_claim(claim_text, u, pages.get(u, {}), sem)
+                    for u in urls_to_check
+                ]
+            )
             best = max(sub, key=lambda r: r["score"])
             best_record = dict(best)
             best_record["checked"] = len(urls_to_check)
@@ -163,10 +204,14 @@ async def grade_provider(name: str, items: list[dict],
             return best_record
 
         results = await asyncio.gather(*[one(c) for c in claims])
-        scored = [r["score"] for r in results
-                  if r["verdict"] not in ("FETCH_FAILED", "NO_URL")]
+        scored = [
+            r["score"]
+            for r in results
+            if r["verdict"] not in ("FETCH_FAILED", "NO_URL")
+        ]
         return {
-            "id": item["id"], "category": item.get("category"),
+            "id": item["id"],
+            "category": item.get("category"),
             "n_claims": len(claims),
             "score": (sum(scored) / len(scored)) if scored else None,
             "per_claim": results,
@@ -175,16 +220,26 @@ async def grade_provider(name: str, items: list[dict],
     per_question = await asyncio.gather(*[go(it) for it in items])
     scored = [q["score"] for q in per_question if q["score"] is not None]
     overall = sum(scored) / len(scored) if scored else None
-    print(f"[{name}] groundedness = "
-          f"{overall:.3f}" if overall is not None else f"[{name}] no graded claims")
+    print(
+        f"[{name}] groundedness = {overall:.3f}"
+        if overall is not None
+        else f"[{name}] no graded claims"
+    )
     return {
-        "provider": name, "overall_score": overall,
-        "graded_questions": len(scored), "per_question": per_question,
+        "provider": name,
+        "overall_score": overall,
+        "graded_questions": len(scored),
+        "per_question": per_question,
     }
 
 
-async def main(run_dir: Path, judge_concurrency: int, fetch_concurrency: int,
-               max_claims: int, out_name: str = "grades_groundedness.json") -> None:
+async def main(
+    run_dir: Path,
+    judge_concurrency: int,
+    fetch_concurrency: int,
+    max_claims: int,
+    out_name: str = "grades_groundedness.json",
+) -> None:
     providers = discover_providers(run_dir)
     if not providers:
         raise SystemExit(f"No provider outputs found in {run_dir}")
@@ -194,7 +249,11 @@ async def main(run_dir: Path, judge_concurrency: int, fetch_concurrency: int,
     for p in providers:
         items = load_provider_outputs(run_dir / f"{p}.json")
         results[p] = await grade_provider(
-            p, items, judge_concurrency, fetch_concurrency, max_claims,
+            p,
+            items,
+            judge_concurrency,
+            fetch_concurrency,
+            max_claims,
         )
 
     out = {
@@ -214,11 +273,22 @@ if __name__ == "__main__":
     p.add_argument("--judge-concurrency", type=int, default=20)
     p.add_argument("--fetch-concurrency", type=int, default=8)
     p.add_argument("--max-claims", type=int, default=6)
-    p.add_argument("--prompt-file", type=Path, default=None,
-                   help="Override PROMPT with the contents of this file")
+    p.add_argument(
+        "--prompt-file",
+        type=Path,
+        default=None,
+        help="Override PROMPT with the contents of this file",
+    )
     p.add_argument("--out-name", default="grades_groundedness.json")
     args = p.parse_args()
     if args.prompt_file:
         PROMPT = args.prompt_file.read_text()
-    asyncio.run(main(args.run_dir, args.judge_concurrency,
-                     args.fetch_concurrency, args.max_claims, args.out_name))
+    asyncio.run(
+        main(
+            args.run_dir,
+            args.judge_concurrency,
+            args.fetch_concurrency,
+            args.max_claims,
+            args.out_name,
+        )
+    )
