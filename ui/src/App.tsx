@@ -116,7 +116,7 @@ export default function App() {
         {meta.scoreboard ? (
           <>
             <Scorecard data={meta.scoreboard} />
-            <Charts data={meta.scoreboard} />
+            <Charts data={meta.scoreboard} results={resultsReady ? results : null} />
           </>
         ) : (
           <div className="mb-6 p-3 text-sm glass rounded-xl flex items-center gap-2 text-warn">
