@@ -7,7 +7,8 @@ identical public row: {id, question, difficulty, start_date, end_date}.
 from datetime import datetime, timedelta, timezone
 
 FMT = "%Y-%m-%dT%H:%M:%SZ"
-WINDOW_DAYS = 7
+DAYS_BEFORE = 2
+DAYS_AFTER = 5
 
 PUBLIC_KEYS = {"id", "question", "difficulty", "start_date", "end_date"}
 FORBIDDEN_KEYS = {
@@ -30,18 +31,17 @@ def source_day(published_iso):
     return _parse(published_iso).strftime("%Y-%m-%d")
 
 
-def derive_window(published_iso, window_days=WINDOW_DAYS):
-    """Absolute [start, end] anchored to the source: end = source_day+1, start = end-window."""
-    end = _parse(published_iso).replace(
-        hour=0, minute=0, second=0, microsecond=0
-    ) + timedelta(days=1)
-    start = end - timedelta(days=window_days)
+def derive_window(published_iso, days_before=DAYS_BEFORE, days_after=DAYS_AFTER):
+    """Absolute [start, end] around the source day: [source-days_before, source+days_after]."""
+    src = _parse(published_iso).replace(hour=0, minute=0, second=0, microsecond=0)
+    start = src - timedelta(days=days_before)
+    end = src + timedelta(days=days_after + 1)
 
     return start.strftime(FMT), end.strftime(FMT)
 
 
-def build_row(qid, question, difficulty, published_iso, window_days=WINDOW_DAYS):
-    start, end = derive_window(published_iso, window_days)
+def build_row(qid, question, difficulty, published_iso):
+    start, end = derive_window(published_iso)
 
     return {
         "id": qid,

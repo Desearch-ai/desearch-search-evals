@@ -687,9 +687,7 @@ def load_existing(out_dir: Path, date: str) -> list[dict]:
     return out
 
 
-def save_local(
-    out_dir: Path, date: str, questions: list[dict], window_days: int = 7
-) -> tuple[Path, Path]:
+def save_local(out_dir: Path, date: str, questions: list[dict]) -> tuple[Path, Path]:
     qdir = out_dir / "questions"
     gdir = out_dir / "golds"
     qdir.mkdir(parents=True, exist_ok=True)
@@ -699,9 +697,7 @@ def save_local(
     with qpath.open("w") as qf, gpath.open("w") as gf:
         for q in questions:
             qid = _qid(q["question"])
-            row = build_row(
-                qid, q["question"], q["difficulty"], q["published"], window_days
-            )
+            row = build_row(qid, q["question"], q["difficulty"], q["published"])
             validate_row(row)
             qf.write(json.dumps(row, ensure_ascii=False) + "\n")
             gf.write(
@@ -857,7 +853,7 @@ async def main_async(args) -> int:
         """Grade + save one day as soon as it's ready."""
         graded = await quality_grade(deduped[label])
         final = balance(graded, args.target, args.per_author_frac, args.per_tweet)
-        qpath, _ = save_local(Path(args.out), label, final, args.window_days)
+        qpath, _ = save_local(Path(args.out), label, final)
         bt = defaultdict(int)
         for q in final:
             bt[q["answer_type"]] += 1
@@ -904,12 +900,6 @@ def main() -> int:
         type=int,
         default=24,
         help="single-run harvest window (no --day/--days)",
-    )
-    p.add_argument(
-        "--window-days",
-        type=int,
-        default=7,
-        help="answer search window the validator uses",
     )
     p.add_argument("--provider", default=None, choices=["openai", "chutes"])
     p.add_argument("--domains", nargs="*", default=None)
