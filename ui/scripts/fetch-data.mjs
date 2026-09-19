@@ -1,54 +1,71 @@
-// Bake the latest run from the HF dataset into public/data/ at build time so the
-// browser reads same-origin only. On any failure, the committed sample is kept and
-// the build still succeeds.
-
-import { mkdir, writeFile, rm } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(HERE, "..", "public", "data");
-const REPO = process.env.HF_DATASET_REPO || "desearch/desearch-search-evals";
-const BASE = `https://huggingface.co/datasets/${REPO}/resolve/main`;
-
-// HF rate-limits anonymous datacenter IPs; retry transient failures and send
-// HF_TOKEN when the build environment provides one.
-const HEADERS = process.env.HF_TOKEN
-  ? { Authorization: `Bearer ${process.env.HF_TOKEN}` }
+const destination = fileURLToPath(new URL("../public/data/", import.meta.url));
+const locals = process.argv.slice(2);
+const repo = process.env.HF_DATASET_REPO || "desearch/desearch-search-evals";
+const headers = process.env.HF_TOKEN
+  ? { Authorization: "Bearer " + process.env.HF_TOKEN }
   : {};
 
-async function get(file) {
-  let lastErr;
-  for (const delayMs of [0, 2000, 6000]) {
-    if (delayMs) await new Promise((r) => setTimeout(r, delayMs));
-    try {
-      const res = await fetch(`${BASE}/${file}`, { headers: HEADERS });
-      if (res.ok) return res.text();
-      lastErr = new Error(`${file}: HTTP ${res.status}`);
-      if (res.status >= 400 && res.status < 429) break;
-    } catch (err) {
-      lastErr = err;
-    }
+async function read(root, name) {
+  if (root) return readFile(path.resolve(root, name), "utf8");
+  const response = await fetch(
+    "https://huggingface.co/datasets/" + repo + "/resolve/main/" + name,
+    { headers, signal: AbortSignal.timeout(60_000) },
+  );
+  if (!response.ok) throw new Error(name + ": HTTP " + response.status);
+  return response.text();
+}
+
+async function pointers(root) {
+  try {
+    return JSON.parse(await read(root, "search/runs.json"));
+  } catch {
+    return [JSON.parse(await read(root, "search/latest.json"))];
   }
-  throw lastErr;
 }
 
-try {
-  const latest = JSON.parse(await get("latest.json"));
-  const date = latest.date;
-  if (!date) throw new Error("latest.json has no date");
-  const results = await get(`results/${date}.jsonl`);
-  const scoreboard = await get(`scoreboards/${date}.json`);
-  latest.isFallback = false;
-
-  await rm(DATA_DIR, { recursive: true, force: true });
-  await mkdir(path.join(DATA_DIR, "results"), { recursive: true });
-  await mkdir(path.join(DATA_DIR, "scoreboards"), { recursive: true });
-  await writeFile(path.join(DATA_DIR, "latest.json"), JSON.stringify(latest, null, 2));
-  await writeFile(path.join(DATA_DIR, "results", `${date}.jsonl`), results);
-  await writeFile(path.join(DATA_DIR, "scoreboards", `${date}.json`), scoreboard);
-
-  console.log(`Baked run ${date} from ${REPO} (${(results.length / 1e6).toFixed(1)} MB)`);
-} catch (err) {
-  console.warn(`fetch-data: ${err.message}. Using committed sample.`);
+async function copyRun(root, latest) {
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$/.test(latest.run_id) ||
+    latest.path !== "search/runs/" + latest.run_id
+  ) {
+    throw new Error("Invalid benchmark run path.");
+  }
+  for (const name of ["questions.jsonl", "results.jsonl", "scoreboard.json"]) {
+    const filename = latest.path + "/" + name;
+    const contents = await read(root, filename);
+    if (
+      name === "scoreboard.json" &&
+      JSON.parse(contents).run_id !== latest.run_id
+    )
+      throw new Error("Scoreboard does not match the requested run.");
+    const target = path.join(destination, filename);
+    await mkdir(path.dirname(target), { recursive: true });
+    await writeFile(target, contents);
+  }
+  return latest;
 }
+
+// Each source is an exported run or a bundle of runs; the first run is shown by default.
+const runs = [];
+for (const root of locals.length ? locals : [null])
+  for (const latest of await pointers(root))
+    runs.push(await copyRun(root, latest));
+await mkdir(path.join(destination, "search"), { recursive: true });
+await writeFile(
+  path.join(destination, "search/latest.json"),
+  JSON.stringify(runs[0], null, 2),
+);
+await writeFile(
+  path.join(destination, "search/runs.json"),
+  JSON.stringify(runs, null, 2),
+);
+console.log(
+  "Loaded " +
+    runs.map((run) => run.run_id).join(", ") +
+    " from " +
+    (locals.join(", ") || repo),
+);

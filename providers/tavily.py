@@ -1,56 +1,88 @@
-"""Tavily provider — uses their answer endpoint (search + LLM synthesis).
-
-Tavily's `search` API with `include_answer=true` returns both the search
-results AND an LLM-generated answer string. Closest equivalent to what
-GPT-5-mini's web_search tool produces.
-"""
-
-from __future__ import annotations
-
+import asyncio
 import time
-from typing import Any
 
 import aiohttp
 
-from .common import load_key
 
-API_URL = "https://api.tavily.com/search"
+def validate_profile(profile):
+    if profile.get("transport", "tavily") != "tavily":
+        raise ValueError("The Tavily search adapter requires Tavily transport")
+    if profile.get("engine", "tavily") != "tavily":
+        raise ValueError("The Tavily search adapter requires engine=tavily")
+    if profile.get("mode") not in {"fast", "basic", "advanced"}:
+        raise ValueError("Unsupported Tavily search mode")
+    for name, default in (("max_results", 10), ("max_characters", 2000)):
+        value = profile.get(name, default)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+            raise ValueError(f"{name} must be a positive integer")
+    if any(
+        profile.get(name)
+        for name in (
+            "allowed_domains",
+            "excluded_domains",
+            "start_date",
+            "end_date",
+            "date_filter",
+        )
+    ):
+        raise ValueError("This Tavily adapter does not support domain or date filters")
 
 
-async def query(question: str, *, timeout: float = 60.0) -> dict[str, Any]:
-    """Call Tavily search with answer synthesis enabled."""
-    key = load_key("TAVILY_API_KEY")
+RETRYABLE = {429, 500, 502, 503, 504}
+ATTEMPTS = 5
+
+
+async def search(session, question, profile, api_key):
+    validate_profile(profile)
+    if not isinstance(question, str) or not question.strip():
+        raise ValueError("A nonempty question is required")
     body = {
-        "api_key": key,
-        "query": question[:400],  # API limit
-        "search_depth": "advanced",  # gives better source quality
-        "include_answer": True,
+        "query": question,
+        "search_depth": profile["mode"],
+        "max_results": profile.get("max_results", 10),
+        "chunks_per_source": 3,
+        "include_answer": False,
         "include_raw_content": False,
-        "max_results": 10,
+        "include_published_date": True,
+        "auto_parameters": False,
+        "topic": "general",
+        "include_usage": True,
     }
     started = time.monotonic()
-    async with aiohttp.ClientSession() as session:
+    for attempt in range(ATTEMPTS):
         async with session.post(
-            API_URL, json=body, timeout=aiohttp.ClientTimeout(total=timeout)
-        ) as resp:
-            data = await resp.json()
-    elapsed = round(time.monotonic() - started, 2)
-
-    sources = [
+            "https://api.tavily.com/search",
+            json=body,
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=aiohttp.ClientTimeout(total=90),
+        ) as response:
+            raw = await response.json(content_type=None)
+            status = response.status
+        if status not in RETRYABLE:
+            break
+        if attempt < ATTEMPTS - 1:
+            await asyncio.sleep(2 ** (attempt + 1))
+    if status != 200:
+        raise RuntimeError(f"Tavily returned {status}")
+    results = [
         {
-            "url": r.get("url", ""),
-            "title": r.get("title", ""),
-            "snippet": r.get("content", "")[:600],
+            "rank": index + 1,
+            "url": row.get("url", ""),
+            "title": row.get("title", ""),
+            "text": row.get("content", "")[: profile.get("max_characters", 2000)],
+            "published": row.get("published_date"),
         }
-        for r in data.get("results", [])
+        for index, row in enumerate(raw.get("results", [])[: body["max_results"]])
     ]
     return {
-        "model": "tavily-advanced",
-        "answer": data.get("answer") or "",
-        "sources": sources,
-        "elapsed_seconds": elapsed,
-        "raw": {
-            "response_time": data.get("response_time"),
-            "web_search_called": bool(sources),
-        },
+        "query": question,
+        "observed_query": raw.get("query"),
+        "results": results,
+        "raw": raw,
+        "request": body,
+        "search_calls": 1,
+        "elapsed_seconds": time.monotonic() - started,
+        "cost_usd": None,
+        "usage_credits": raw.get("usage", {}).get("credits"),
+        "error": None,
     }

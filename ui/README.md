@@ -1,56 +1,54 @@
-# AI Search Benchmark UI
+# Search benchmark UI
 
-Single-page React + Vite app for the benchmark. Reads the latest
-`runs/<date>/` outputs + per-evaluator grades + scoreboard.
+React and Vite UI for provider scores, question results, exact source highlights,
+and evaluator decisions.
 
-## Quick start
+- Overview: sortable provider scores, top-1/5/10 controls, and coverage charts.
+- Evidence explorer: searchable questions, provider comparisons, and source passages.
+- Methodology: scoring definitions and evaluation details.
+
+The light theme follows the Desearch landing page and console. Schibsted Grotesk
+and Geist Mono are served locally; their licenses are in `public/fonts/`.
+
+## Run locally
+
+Use Node.js 22.13 or newer.
 
 ```bash
 cd ui
-npm install              # one-time
-npm run dev              # http://localhost:5173 (or 5174 if in use)
-npm run build            # static build to dist/
+npm ci
+npm run data:fetch
+npm run dev
 ```
 
-## Updating data after a new benchmark run
+The data command downloads the latest published run from
+`desearch/desearch-search-evals` on Hugging Face. Set `HF_DATASET_REPO` to use
+another dataset and `HF_TOKEN` if authentication is required.
+
+To inspect an unpublished local run, export it first from the repository root:
 
 ```bash
-# from the repo root — weekly_run.py runs the benchmark and refreshes the UI:
-python3 scripts/weekly_run.py
+python -m scripts.upload_to_hf --run runs/my-run --dry-run
+cd ui
+npm run data:fetch -- ../runs/my-run/public-export
+npm run dev
 ```
 
-To re-point the UI at a specific run without re-running:
+Both paths load the same questions, results, and scoreboard into `public/data/`.
+A missing or invalid run produces an error; the UI never substitutes sample scores.
+
+## Build and check
 
 ```bash
-python3 ui/refresh-data.py --run-dir runs/2026-05-31
+npm test
+npm run lint
+npm run build
+npm run preview
 ```
 
-`refresh-data.py` picks the most recent `runs/<date>/` by default. Any
-`runs/` subdirectory whose name starts with `_` is ignored.
+The build uses the data already loaded and makes no API calls. Deploy `dist/`
+to a static host. Refresh the data before building to publish a new result set.
+Generated data and builds are excluded from Git.
 
-## Layout
-
-```
-ui/
-  public/data/                  # JSON the UI fetches at runtime
-    manifest.json               # which run is loaded + headline line
-    questions.json              # the run's question set
-    {desearch,gpt5mini,...}.json
-    grades_source_relevance.json
-    grades_answer_quality.json
-    grades_groundedness.json
-    scoreboard.json             # aggregator output
-  src/
-    App.tsx                     # composite scorecard + filterable question list
-    data.ts                     # fetch + normalize, splice in per-Q grades
-    providers.ts                # provider config (colors, ordering)
-    types.ts
-    components/
-      Scorecard.tsx             # 3-evaluator + composite table with explainers
-      MethodologyCard.tsx       # expandable "what each metric means" panel
-      Filters.tsx               # search bar + category pills
-      QuestionCard.tsx          # collapsible row, evaluator pills per provider
-      ProviderColumn.tsx        # one provider's answer, sources, scores
-      AnswerText.tsx            # citation-aware text renderer
-  refresh-data.py
-```
+The UI displays exported scores without recomputing them. Page and returned-text
+results remain separate. Source highlights preserve the original text and offsets.

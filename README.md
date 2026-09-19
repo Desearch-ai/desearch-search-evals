@@ -1,124 +1,193 @@
-# AI Search Benchmark
+# Desearch Search Evals
 
-An open benchmark for AI-search providers that scores them on what they actually return: do their answers respond to the question, are the cited sources relevant, and do those sources actually back the claims. Every score comes from an LLM judge reading the fetched pages, not from string-matching against a fixed answer key.
+Compare ranked search results from Desearch, Exa, Parallel, Perplexity and Tavily on
+questions with verified answers. A question counts as answered when at least one of a
+provider's top results states the verified answer, whichever publisher it comes from.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
-[![🤗 Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-desearch%2Fdesearch--search--evals-ff9d00.svg)](https://huggingface.co/datasets/desearch/desearch-search-evals)
-
-**[View the live leaderboard →](https://22.desearch.ai)**
-
-It compares Desearch against GPT-5-mini, Perplexity sonar-pro, Tavily, and Exa on the same 250 questions, and re-runs every week so the numbers reflect how each provider answers _today_, not how it answered on a static test set months ago.
-
-## Latest results (2026-07-16)
-
-| #   | Provider             | Source relevance | Answer quality | Groundedness | Composite |
-| --- | -------------------- | ---------------- | -------------- | ------------ | --------- |
-| 1   | Desearch             | 85.3%            | 86.4%          | 65.7%        | **79.7%** |
-| 2   | Exa                  | 85.5%            | 90.0%          | 56.3%        | **78.1%** |
-| 3   | GPT-5-mini           | 76.8%            | 88.8%          | 62.0%        | **75.9%** |
-| 4   | Tavily               | 73.4%            | 86.8%          | 59.0%        | **73.1%** |
-| 5   | Perplexity sonar-pro | 67.8%            | 88.4%          | 49.2%        | **68.4%** |
-
-250 same-day news questions — the hardest regime for groundedness, since every cited page is hours old. Desearch answered at a 10.2s median (12.5s p90). The [live leaderboard](https://22.desearch.ai) shows the current week and lets you expand any question to compare each provider's answer, sources, and the judge's verdicts side by side. These numbers move week to week as the question set refreshes.
-
-## Why weekly, live questions
-
-Most published search benchmarks are fixed `(question, gold_answer)` sets released once. Two problems follow: providers can memorize them, and a frozen answer key can't tell whether a provider actually searched or just recited training data.
-
-This benchmark uses questions phrased to stay valid while their answers move. A fresh set runs every week, so:
-
-- **There's no answer key to train on.** The right answer this week isn't the right answer next week.
-- **You can see real search working (or not).** Because grading reads the cited pages, a provider that skips the web and answers from memory gets caught.
-- **Trends show up over time.** Each run is dated and kept, so you can watch a provider improve or regress instead of trusting a single snapshot.
-
-## What gets measured
-
-Each question is scored by three independent judge-graded evaluators. A provider has to do well on all three to rank well.
-
-**Source relevance (40%)**: for each cited URL, the judge fetches the page and rates how relevant it is to the question. This catches lazy citations that are on-topic but useless.
-
-**Answer quality (30%)**: the judge reads the question and the answer and decides whether it actually responds: a direct answer to an answerable question, or an honest decline to a genuinely unanswerable one. Dodging, refusing answerable questions, or confidently making things up all score zero.
-
-**Groundedness (30%)**: for each factual claim in the answer, the judge fetches the cited page and decides whether the page actually supports the claim. This catches hallucinated citations: an invented answer with a real-looking link doesn't pass, because the judge reads the link.
-
-```
-composite = 0.40 * source_relevance + 0.30 * answer_quality + 0.30 * groundedness
+```text
+Freeze questions with verified answers
+            ↓
+Search every provider profile with the same questions
+            ↓
+Fetch result pages and grade page and returned text separately
+            ↓
+Report hit@1/5/10, then calibrate the judge against human labels
+            ↓
+Export results for the UI and, separately, publish
 ```
 
-Full grading details, including the answer-quality verdict rubric, are in [`evaluators/`](./evaluators).
-
-The judge is `gpt-5.4-mini`, pinned with deterministic settings in [`evaluators/common.py`](./evaluators/common.py) so the same answer always grades the same way.
-
-## Use the data
-
-Every run is published to the HuggingFace dataset, accumulating week over week:
-
-**[`desearch/desearch-search-evals`](https://huggingface.co/datasets/desearch/desearch-search-evals)** (CC-BY-4.0)
-
-```python
-from datasets import load_dataset
-
-# Latest run: one row per (question, provider) with answers, sources, and scores
-ds = load_dataset("desearch/desearch-search-evals", "results", split="latest")
-```
-
-Each results row has the question, provider, answer, cited sources, the three evaluator scores, and the answer-quality verdict. The per-run scoreboards and full question sets are in the same repo.
-
-## Run it yourself
+## Setup
 
 ```bash
-pip install -r requirements.txt
-cp .env.example .env          # add your API keys
-
-python3 scripts/weekly_run.py
+python -m pip install -r requirements.txt
+cp .env.example .env
 ```
 
-This calls every provider, grades them, writes the run, and (with an `HF_TOKEN` set) uploads it to HuggingFace. Useful flags: `--limit 5` for a quick smoke test, `--providers desearch perplexity` to run a subset, `--no-upload` to keep a run local.
+Set `EXA_API_KEY`, `PARALLEL_API_KEY`, `TAVILY_API_KEY` and `OPENROUTER_API_KEY` (Perplexity search and the judge). Set `HF_TOKEN` for publishing.
 
-Keys go in `.env`:
+## 1. Freeze questions
 
-```
-DESEARCH_API_KEY=
-OPENAI_API_KEY=          # GPT-5-mini provider + judge model
-OPENROUTER_API_KEY=      # Perplexity sonar-pro
-TAVILY_API_KEY=
-EXA_API_KEY=
-HF_TOKEN=                # optional, write-scoped, to upload runs
-```
+### Public benchmark: SimpleQA Verified
 
-## Add your own provider
-
-Any web-search system can be graded by the same pipeline. Add a module in [`providers/`](./providers) with an async `query()` returning the shared shape, then register it. The evaluators never special-case a provider; behavior is judged from the answer and sources alone. See [`providers/desearch.py`](./providers/desearch.py) for the reference implementation.
-
-```python
-async def query(question: str) -> dict:
-    return {
-        "model": "my-searcher",
-        "answer": "...markdown with [N](url) inline citations...",
-        "sources": [{"url": "...", "title": "...", "snippet": "..."}],
-        "elapsed_seconds": 12.4,
-        "raw": {"web_search_called": True},
-    }
+```bash
+python -m scripts.prepare_benchmark \
+  --benchmark simpleqa_verified \
+  --source simpleqa_verified.csv \
+  --original-simpleqa simple_qa_test_set.csv \
+  --output runs/simpleqa-verified/dataset \
+  --evaluation-count 463 --calibration-count 60
 ```
 
-Leave `sources` empty when the model honestly declines an unanswerable question, so it isn't graded on irrelevant search noise.
+The importer keeps the official wording and answers, including tolerances such as
+`(or collier)` and `(acceptable range: anything between 198 and 202)`. It uses only the
+held-out partition for evaluation and never filters questions by index coverage.
 
-## How it fits together
+### News: one question per event
 
+```bash
+python -m scripts.prepare_news \
+  --articles runs/news/articles.jsonl \
+  --out runs/news/dataset \
+  --start-date 2026-09-09 --end-date 2026-09-15 \
+  --target 500 --reserve 250 \
+  --exclude runs/news/pilot/questions.jsonl runs/news/pilot/rejected.jsonl
 ```
-questions  ->  providers  ->  3 evaluators  ->  aggregator  ->  results + scoreboard
-                                                                      |
-                                                          HuggingFace dataset + live leaderboard
+
+Articles carry an `event_id` grouping coverage of the same real-world event and an
+`owner` so sister sites of one publisher count once. The generator asks about each
+event's central fact, keeps a question only when articles from at least two
+independent owners state its answer, and has a second model verify it. `--exclude`
+keeps events used for pilots or calibration out of the evaluation set. See
+[news sampling](docs/news-sampling.md) for what these questions can and cannot show.
+
+## 2. Run searches and grading
+
+```bash
+python -m scripts.run_benchmark \
+  --questions runs/news/dataset/questions.jsonl \
+  --config configs/search.json \
+  --run runs/news/run \
+  --import-local runs/news/desearch_results.jsonl \
+  --concurrency 12
 ```
 
-- [`providers/`](./providers): one module per provider, unified output shape
-- [`evaluators/`](./evaluators): source relevance, answer quality, groundedness, and the composite aggregator
-- [`scripts/weekly_run.py`](./scripts/weekly_run.py): runs a full week end to end
-- [`scripts/upload_to_hf.py`](./scripts/upload_to_hf.py): publishes a run to HuggingFace
-- [`ui/`](./ui): the live leaderboard
+Desearch results are produced by the Desearch index and imported as frozen files; the
+[input formats](questions/README.md) describe them. The command writes:
 
-Question sets and run outputs live on HuggingFace rather than in git, so the repo stays small as runs accumulate. `weekly_run.py` pulls the question set from HuggingFace when it isn't present locally.
+- `searches/PROFILE/QUESTION.json`: every provider response, including failures.
+- `evaluation/results.json`: per result, the verdict for the fetched page and for the
+  returned text, with the judged text and highlighted sections.
+- `evaluation/report.md` and `report.json`: scores and operational counts.
+
+Run the same command to resume. Searches, page fetches and judge calls are cached.
+Use a new run directory when questions or provider profiles change.
+
+## 3. Calibrate the judge
+
+Scores are not published until the judge has been checked against human labels drawn
+from the same run.
+
+```bash
+python -m scripts.calibration sample --evaluation runs/news/run/evaluation --out runs/news/labels/cases.jsonl --n 200
+python -m scripts.calibration prelabel --cases runs/news/labels/cases.jsonl --model anthropic/claude-sonnet-4.5
+# a person sets human_label to "yes" or "no" and fills labeler for every case
+python -m scripts.calibration score --cases runs/news/labels/cases.jsonl --out runs/news/run/evaluation/calibration.json
+python -m evaluators.source_report --run runs/news/run/evaluation
+```
+
+Cases are sampled across four groups (accepted hits, answers rejected by the quote
+check, rejections despite a string match, rejections without one) and written without
+the judge's verdict. Model pre-labels are suggestions for the reviewer, never labels.
+The report then states the judge's precision on counted hits and the share of rejected
+results that did state the answer, weighted by group size.
+
+## 4. Export, view and publish
+
+```bash
+python -m scripts.upload_to_hf --run runs/news/run --dry-run
+cd ui && npm ci && npm run data:fetch -- ../runs/news/run/public-export && npm run dev
+```
+
+Publishing is a separate command:
+
+```bash
+python -m scripts.upload_to_hf --run runs/news/run --repo desearch/desearch-search-evals --upload
+```
+
+It uploads questions, graded results with their evidence, scores and the report under
+`search/runs/RUN_ID/`, and updates `search/latest.json`, `search/leaderboard.md` and the
+dataset README in one commit. Raw API traces, credentials and page caches stay local.
+
+To publish several benchmarks together, bundle their exports. The dataset then holds exactly
+those runs, a `search/runs.json` index (the first run is shown by default) and one README;
+`--upload` replaces everything else in the repository except `.gitattributes`:
+
+```bash
+python -m scripts.upload_to_hf --bundle runs/simpleqa-verified/run/public-export \
+  runs/sealqa/run/public-export runs/frames/run/public-export \
+  runs/browsecomp/final/public-export
+cd ui && npm run data:fetch -- ../runs/hf-bundle
+python -m scripts.upload_to_hf --bundle ... --upload
+```
+
+## Providers and modes
+
+| Provider | Transport | Modes |
+| --- | --- | --- |
+| Desearch | Frozen local results | fast, standard |
+| Exa | Direct API (`/search`, highlights) | fast, auto |
+| Parallel | Direct API (`/v1/search`, excerpts) | fast, basic |
+| Perplexity | OpenRouter Search | one search profile |
+| Tavily | Direct API | fast, basic |
+
+Every profile gets the same question text, returns up to 10 results and sends no date
+filters. Deep-research and generated-answer products are excluded.
+
+## Scores
+
+| Metric | Meaning |
+| --- | --- |
+| Page states answer @k | One of the top k result pages states the verified answer |
+| Returned text states answer @k | One of the top k returned snippets states it |
+| Page MRR@10 | Reciprocal rank of the first page that states it |
+
+Any publisher counts and repeated coverage adds nothing. Failed and empty searches score
+zero and stay in the denominator. Pages that copy a benchmark's own questions earn no
+credit. These scores measure whether results carry the answer, not recall over every
+relevant page on the web. See the [evaluation protocol](docs/source-evaluation.md).
+
+## Agentic benchmarks
+
+BrowseComp ships no reference URLs, so retrieval cannot be scored: finding the page is the
+task. Those benchmarks run an agent that searches, reads pages and submits one answer, with
+the model, turn budget, page fetcher and judge identical across providers, so the search API
+is the only variable. See [agentic benchmarks](docs/agentic-benchmarks.md).
+
+```bash
+python -m scripts.run_agent_benchmark --questions runs/browsecomp/dataset/questions100.jsonl \
+  --config configs/agent_browsecomp.json --run runs/browsecomp/run100 --grader exact
+```
+
+## Structure
+
+```text
+providers/          API calls, mode validation, local imports
+evaluators/         Answer matching, judge prompt, grading, page fetching, reports
+scripts/            Question preparation, runner, calibration, publishing
+configs/            Provider profiles
+ui/                 React results dashboard and evidence viewer
+question-generator/ Additional news preparation tools
+lowtier/            News collection tools
+runs/               Local datasets, responses, caches, reports and exports (ignored)
+```
+
+## Tests
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest
+```
 
 ## License
 
-Code is MIT. The dataset on HuggingFace (questions and results) is CC-BY-4.0.
+Code: MIT. Dataset licensing follows the source dataset.

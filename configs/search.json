@@ -1,0 +1,63 @@
+{
+  "profiles": [
+    {
+      "id": "desearch-fast",
+      "transport": "local",
+      "mode": "fast"
+    },
+    {
+      "id": "desearch-standard",
+      "transport": "local",
+      "mode": "standard"
+    },
+    {
+      "id": "exa-fast",
+      "transport": "exa",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "exa-standard",
+      "transport": "exa",
+      "mode": "auto",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "parallel-fast",
+      "transport": "parallel",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "parallel-standard",
+      "transport": "parallel",
+      "mode": "basic",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "perplexity-search",
+      "transport": "openrouter",
+      "engine": "perplexity",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "tavily-fast",
+      "transport": "tavily",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "tavily-standard",
+      "transport": "tavily",
+      "mode": "basic",
+      "max_results": 10,
+      "max_characters": 2000
+    }
+  ]
+}

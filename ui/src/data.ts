@@ -1,133 +1,120 @@
-import type {
-  LatestPointer,
-  NormalizedAnswer,
-  Provider,
-  Question,
-  Scoreboard,
-} from "./types";
+import type { LatestPointer, Question, ResultRow, Scoreboard } from "./types";
 
-// Data is baked into ./data at build time (ui/scripts/fetch-data.mjs pulls the
-// latest run from HF). The browser only ever reads same-origin, never HF.
-const LOCAL_BASE = "./data";
-
-export interface BenchmarkMeta {
-  date: string;
-  scoreboard: Scoreboard | null;
-  isFallback: boolean;
-  questionCount: number | null;
-  base: string;
-}
-
-export interface BenchmarkResults {
+export interface Details {
   questions: Question[];
-  answersByQuestion: Map<string, Partial<Record<Provider, NormalizedAnswer>>>;
+  rows: Map<string, Map<string, ResultRow>>;
 }
 
-interface ResultRow {
-  question_id: string;
-  difficulty?: string | null;
-  question?: string;
-  provider: Provider;
-  model?: string;
-  answer?: string;
-  sources?: { url?: string; title?: string; snippet?: string }[];
-  elapsed_seconds?: number;
-  web_search_called?: boolean | null;
-  source_relevance?: number | null;
-  answer_quality?: number | null;
-  answer_quality_verdict?: string | null;
-  groundedness?: number | null;
-  error?: string | null;
+async function read(path: string, signal: AbortSignal): Promise<string> {
+  const response = await fetch(import.meta.env.BASE_URL + "data/" + path, {
+    signal,
+    cache: "no-cache",
+  });
+  if (!response.ok)
+    throw new Error("Could not load " + path + " (" + response.status + ").");
+  return response.text();
 }
 
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> {
-  try {
-    const res = await fetch(url, init);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch {
-    return null;
+export function parseRows(
+  questions: Question[],
+  rows: ResultRow[],
+  latest: LatestPointer,
+) {
+  const indexed = new Map<string, Map<string, ResultRow>>();
+  for (const question of questions) {
+    if (indexed.has(question.id))
+      throw new Error("Duplicate question in benchmark data.");
+    indexed.set(question.id, new Map());
   }
-}
-
-async function fetchText(url: string): Promise<string | null> {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    return await res.text();
-  } catch {
-    return null;
+  if (
+    questions.length !== latest.questions ||
+    rows.length !== latest.rows ||
+    new Set(latest.profiles).size !== latest.profiles.length
+  ) {
+    throw new Error("Benchmark counts do not match the published run.");
   }
-}
-
-export async function loadBenchmarkMeta(): Promise<BenchmarkMeta | null> {
-  // no-store: a stale cached pointer after a deploy flip 404s the dated files.
-  const latest = await fetchJson<LatestPointer>(`${LOCAL_BASE}/latest.json`, { cache: "no-store" });
-  if (!latest?.date) return null;
-  const scoreboard = await fetchJson<Scoreboard>(`${LOCAL_BASE}/scoreboards/${latest.date}.json`);
-  return {
-    date: latest.date,
-    scoreboard,
-    isFallback: latest.isFallback === true,
-    questionCount: latest.questions ?? null,
-    base: LOCAL_BASE,
-  };
-}
-
-function normalize(provider: Provider, row: ResultRow): NormalizedAnswer {
-  return {
-    provider,
-    answer: row.answer ?? "",
-    sources: (row.sources ?? []).map((s) => ({
-      url: s.url ?? "",
-      title: s.title ?? "",
-      snippet: s.snippet,
-    })),
-    elapsed: row.elapsed_seconds ?? 0,
-    model: row.model ?? provider,
-    searchCalled: row.web_search_called ?? null,
-    error: row.error ?? undefined,
-    sourceRelevance: row.source_relevance ?? null,
-    groundedness: row.groundedness ?? null,
-    answerQuality: row.answer_quality ?? null,
-    answerQualityVerdict: row.answer_quality_verdict ?? null,
-  };
-}
-
-function parseResults(text: string): BenchmarkResults {
-  const questionsById = new Map<string, Question>();
-  const answersByQuestion = new Map<string, Partial<Record<Provider, NormalizedAnswer>>>();
-
-  for (const line of text.split("\n")) {
-    if (!line.trim()) continue;
-    let row: ResultRow;
-    try {
-      row = JSON.parse(line) as ResultRow;
-    } catch {
-      continue;
+  for (const row of rows) {
+    const group = indexed.get(row.question_id);
+    if (
+      !group ||
+      !latest.profiles.includes(row.profile_id) ||
+      group.has(row.profile_id) ||
+      row.run_id !== latest.run_id
+    ) {
+      throw new Error("Benchmark contains an unknown or duplicate result.");
     }
-    const qid = row.question_id;
-    if (!qid) continue;
-    if (!questionsById.has(qid)) {
-      questionsById.set(qid, {
-        id: qid,
-        category: row.difficulty ?? "",
-        source: "",
-        question: row.question ?? "",
-        expected_answer: null,
-        difficulty: row.difficulty ?? null,
-      });
-      answersByQuestion.set(qid, {});
-    }
-    answersByQuestion.get(qid)![row.provider] = normalize(row.provider, row);
+    group.set(row.profile_id, row);
   }
-
-  const questions = [...questionsById.values()].sort((a, b) => a.id.localeCompare(b.id));
-  return { questions, answersByQuestion };
+  for (const group of indexed.values()) {
+    if (group.size !== latest.profiles.length)
+      throw new Error("Benchmark is missing a provider result.");
+  }
+  return indexed;
 }
 
-// ~5 MB, loaded after the leaderboard paints.
-export async function loadResults(meta: BenchmarkMeta): Promise<BenchmarkResults | null> {
-  const text = await fetchText(`${meta.base}/results/${meta.date}.jsonl`);
-  return text ? parseResults(text) : null;
+export async function loadRuns(signal: AbortSignal): Promise<LatestPointer[]> {
+  try {
+    const runs: LatestPointer[] = JSON.parse(
+      await read("search/runs.json", signal),
+    );
+    if (Array.isArray(runs) && runs.length) return runs;
+  } catch (error) {
+    if (signal.aborted) throw error;
+  }
+  return [JSON.parse(await read("search/latest.json", signal))];
+}
+
+function checkPath(latest: LatestPointer) {
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(latest.run_id) ||
+    latest.path !== "search/runs/" + latest.run_id
+  ) {
+    throw new Error("Invalid benchmark run path.");
+  }
+}
+
+function jsonl<T>(text: string): T[] {
+  return text
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) => JSON.parse(line));
+}
+
+/** The scoreboard alone is a few KB, so the chart and table render before the per-question data. */
+export async function loadScoreboard(
+  signal: AbortSignal,
+  latest: LatestPointer,
+): Promise<Scoreboard> {
+  checkPath(latest);
+  const scoreboard: Scoreboard = JSON.parse(
+    await read(latest.path + "/scoreboard.json", signal),
+  );
+  if (
+    scoreboard.run_id !== latest.run_id ||
+    scoreboard.questions !== latest.questions ||
+    latest.profiles.some(
+      (id) =>
+        !scoreboard.profiles[id] ||
+        !scoreboard.routes.some((route) => route.id === id),
+    )
+  ) {
+    throw new Error("Scoreboard does not match the published run.");
+  }
+  return scoreboard;
+}
+
+export async function loadDetails(
+  signal: AbortSignal,
+  latest: LatestPointer,
+): Promise<Details> {
+  checkPath(latest);
+  const [questionsText, resultsText] = await Promise.all([
+    read(latest.path + "/questions.jsonl", signal),
+    read(latest.path + "/results.jsonl", signal),
+  ]);
+  const questions = jsonl<Question>(questionsText);
+  return {
+    questions,
+    rows: parseRows(questions, jsonl<ResultRow>(resultsText), latest),
+  };
 }

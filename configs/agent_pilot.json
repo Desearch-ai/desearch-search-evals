@@ -1,0 +1,24 @@
+{
+  "profiles": [
+    {
+      "id": "exa-standard",
+      "provider": "exa",
+      "transport": "exa",
+      "engine": "exa",
+      "mode": "auto",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 7.0
+    },
+    {
+      "id": "parallel-standard",
+      "provider": "parallel",
+      "transport": "parallel",
+      "engine": "parallel",
+      "mode": "basic",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 5.0
+    }
+  ]
+}

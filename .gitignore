@@ -1,14 +1,11 @@
 .env
 .DS_Store
-
 runs/
-
-# Run outputs and question sets live on HuggingFace, not git. The small offline
-# sample the UI falls back to is committed under ui/public/data/.
-/results/
-/questions/*.jsonl
-
+results/
+questions/*.jsonl
 __pycache__/
 *.pyc
-
+.pytest_cache/
+.ruff_cache/
+.venv/
 .claude/

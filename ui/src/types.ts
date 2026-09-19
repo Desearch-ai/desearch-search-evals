@@ -1,61 +1,110 @@
-export type Provider =
-  | "desearch"
-  | "gpt5mini"
-  | "perplexity"
-  | "tavily"
-  | "exa";
+export type Metric = number | null;
+
+export interface Profile {
+  id: string;
+  transport: string;
+  engine?: string;
+  mode?: string;
+  placeholder?: boolean;
+}
 
 export interface Question {
   id: string;
-  category: string;
-  source: string;
   question: string;
-  expected_answer: string | null;
-  difficulty?: string | null;
-}
-
-export interface SourceItem {
-  url: string;
-  title: string;
-  snippet?: string;
-}
-
-export interface NormalizedAnswer {
-  provider: Provider;
   answer: string;
-  sources: SourceItem[];
-  elapsed: number;
-  model: string;
-  searchCalled: boolean | null;
-  error?: string;
-  // Per-evaluator per-question scores (filled in by data.ts)
-  sourceRelevance?: number | null;
-  groundedness?: number | null;
-  answerQuality?: number | null;
-  answerQualityVerdict?: string | null;
+  answer_aliases?: string[];
+  benchmark?: string;
+  event_id?: string;
+  event_date?: string;
+  outlets?: number;
+  reference_sources?: {
+    url: string | null;
+    title?: string;
+    domain?: string;
+    quote?: string;
+  }[];
 }
 
-export interface ScoreboardRow {
-  provider: Provider;
-  source_relevance: number | null;
-  groundedness: number | null;
-  answer_quality: number | null;
-  composite: number | null;
+export interface Highlight {
+  field: "title" | "text";
+  quote: string;
+  start: number;
+  end: number;
+}
+
+export interface Basis {
+  screen: string;
+  status: string;
+  hit: 0 | 1;
+  fetched?: boolean;
+  label: string | null;
+  explanation: string | null;
+  extracted_answer: string | null;
+  highlights: Highlight[];
+  evidence_title: string | null;
+  evidence_text: string | null;
+}
+
+export interface GradedResult {
+  rank: number;
+  url: string | null;
+  title: string;
+  published?: string | null;
+  mirror: boolean;
+  gold?: string | null;
+  page: Basis | null;
+  snippet: Basis | null;
+}
+
+export interface ResultRow {
+  run_id: string;
+  question_id: string;
+  profile_id: string;
+  latency_seconds?: number | null;
+  search_status: string;
+  metrics: Record<string, number>;
+  results?: GradedResult[];
+  answer?: string | null;
+  extracted_answer?: string | null;
+  reason?: string;
+  score?: number;
+  searches?: number;
+  turns?: number;
+  seconds?: number;
+  search_seconds?: number;
+}
+
+export interface ProfileScore {
+  metrics: Record<string, Metric>;
+  failed_searches?: number;
+  missing_searches?: number;
+  empty_responses?: number;
+  results?: number;
+  pages_fetched?: number;
+  judge_errors?: number;
+  pending_judgments?: number;
+  mirrors?: number;
 }
 
 export interface Scoreboard {
-  evaluators_present: string[];
-  weights: Record<string, number>;
-  rows: ScoreboardRow[];
+  run_id: string;
+  kind?: "retrieval" | "agent";
+  model?: string;
+  turns?: number;
+  questions: number;
+  judge: string | null;
+  judge_calls: number | null;
+  routes: Profile[];
+  profiles: Record<string, ProfileScore>;
 }
 
 export interface LatestPointer {
-  date: string;
-  dates?: string[];
-  questions?: number;
-  rows?: number;
-  providers?: Provider[];
-  evaluators?: string[];
-  weights?: Record<string, number>;
-  isFallback?: boolean;
+  run_id: string;
+  kind?: "retrieval" | "agent";
+  label?: string;
+  note?: string | null;
+  path: string;
+  questions: number;
+  rows: number;
+  profiles: string[];
 }

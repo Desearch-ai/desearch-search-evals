@@ -1,4 +1,5 @@
 aiohttp>=3.9
 beautifulsoup4>=4.12
-openai>=2.0
-huggingface_hub>=0.34
+yarl>=1.9
+huggingface_hub>=0.24
+PyYAML>=6

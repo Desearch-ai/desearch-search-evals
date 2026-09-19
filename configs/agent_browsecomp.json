@@ -1,0 +1,82 @@
+{
+  "profiles": [
+    {
+      "id": "desearch",
+      "provider": "desearch_api",
+      "transport": "desearch_api",
+      "mode": "balanced",
+      "base_url": "https://api-dev.desearch.ai",
+      "max_results": 20,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 10.0
+    },
+    {
+      "id": "exa-fast",
+      "provider": "exa",
+      "transport": "exa",
+      "engine": "exa",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 7.0
+    },
+    {
+      "id": "exa-standard",
+      "provider": "exa",
+      "transport": "exa",
+      "engine": "exa",
+      "mode": "auto",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 7.0
+    },
+    {
+      "id": "parallel-fast",
+      "provider": "parallel",
+      "transport": "parallel",
+      "engine": "parallel",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 1.0
+    },
+    {
+      "id": "parallel-standard",
+      "provider": "parallel",
+      "transport": "parallel",
+      "engine": "parallel",
+      "mode": "basic",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 5.0
+    },
+    {
+      "id": "perplexity-search",
+      "provider": "perplexity",
+      "transport": "openrouter",
+      "engine": "perplexity",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "tavily-fast",
+      "provider": "tavily",
+      "transport": "tavily",
+      "engine": "tavily",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 8.0
+    },
+    {
+      "id": "tavily-standard",
+      "provider": "tavily",
+      "transport": "tavily",
+      "engine": "tavily",
+      "mode": "basic",
+      "max_results": 10,
+      "max_characters": 2000,
+      "price_per_1k_searches_usd": 8.0
+    }
+  ]
+}
