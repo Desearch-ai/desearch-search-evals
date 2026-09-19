@@ -9,14 +9,22 @@ const headers = process.env.HF_TOKEN
   ? { Authorization: "Bearer " + process.env.HF_TOKEN }
   : {};
 
-async function read(root, name) {
+// Result files run to tens of MB, so each download gets minutes and a few retries.
+async function read(root, name, attempts = 3) {
   if (root) return readFile(path.resolve(root, name), "utf8");
-  const response = await fetch(
-    "https://huggingface.co/datasets/" + repo + "/resolve/main/" + name,
-    { headers, signal: AbortSignal.timeout(60_000) },
-  );
-  if (!response.ok) throw new Error(name + ": HTTP " + response.status);
-  return response.text();
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const response = await fetch(
+        "https://huggingface.co/datasets/" + repo + "/resolve/main/" + name,
+        { headers, signal: AbortSignal.timeout(600_000) },
+      );
+      if (!response.ok) throw new Error(name + ": HTTP " + response.status);
+      return await response.text();
+    } catch (error) {
+      if (attempt >= attempts) throw error;
+      console.warn("Retrying " + name + " after: " + error.message);
+    }
+  }
 }
 
 async function pointers(root) {

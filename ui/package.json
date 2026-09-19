@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/fetch-data.mjs && tsc -b && vite build",
     "data:fetch": "node scripts/fetch-data.mjs",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "lint": "eslint .",
