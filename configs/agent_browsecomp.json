@@ -5,7 +5,7 @@
       "provider": "desearch_api",
       "transport": "desearch_api",
       "mode": "balanced",
-      "base_url": "https://api-dev.desearch.ai",
+      "base_url": "https://api.desearch.ai",
       "max_results": 20,
       "max_characters": 2000,
       "price_per_1k_searches_usd": 10.0
