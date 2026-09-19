@@ -112,9 +112,47 @@ export async function loadDetails(
     read(latest.path + "/questions.jsonl", signal),
     read(latest.path + "/results.jsonl", signal),
   ]);
-  const questions = jsonl<Question>(questionsText);
-  return {
-    questions,
-    rows: parseRows(questions, jsonl<ResultRow>(resultsText), latest),
-  };
+  const questions = await Promise.all(
+    jsonl<Question>(questionsText).map((q) =>
+      unsealFields(q, ["question", "answer"]),
+    ),
+  );
+  const rows = await Promise.all(
+    jsonl<ResultRow>(resultsText).map((row) =>
+      unsealFields(row, ["answer", "extracted_answer", "reason"]),
+    ),
+  );
+  return { questions, rows: parseRows(questions, rows, latest) };
+}
+
+const keys = new Map<string, Promise<Uint8Array>>();
+
+/** Reverses BrowseComp's scheme: base64, then XOR with the canary's SHA-256, repeated. */
+export async function unseal(text: string, canary: string): Promise<string> {
+  let key = keys.get(canary);
+  if (!key) {
+    key = crypto.subtle
+      .digest("SHA-256", new TextEncoder().encode(canary))
+      .then((digest) => new Uint8Array(digest));
+    keys.set(canary, key);
+  }
+  const bytes = await key;
+  const raw = Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(
+    raw.map((value, i) => value ^ bytes[i % bytes.length]),
+  );
+}
+
+async function unsealFields<T extends { canary?: string }>(
+  row: T,
+  fields: (keyof T)[],
+): Promise<T> {
+  if (!row.canary) return row;
+  const out = { ...row };
+  for (const field of fields) {
+    const value = out[field];
+    if (typeof value === "string")
+      out[field] = (await unseal(value, row.canary)) as T[keyof T];
+  }
+  return out;
 }

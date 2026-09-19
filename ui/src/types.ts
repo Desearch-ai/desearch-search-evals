@@ -14,6 +14,7 @@ export interface Question {
   answer: string;
   answer_aliases?: string[];
   benchmark?: string;
+  canary?: string;
   event_id?: string;
   event_date?: string;
   outlets?: number;
@@ -72,6 +73,7 @@ export interface ResultRow {
   turns?: number;
   seconds?: number;
   search_seconds?: number;
+  canary?: string;
 }
 
 export interface ProfileScore {

@@ -271,7 +271,10 @@ def test_agent_export_matches_the_shape_the_ui_reads(tmp_path):
     }
     assert scoreboard["kind"] == "agent"
     assert scoreboard["profiles"]["exa-fast"]["metrics"]["score"] == 1.0
-    assert rows[0]["answer"] == "A" and rows[0]["metrics"]["score"] == 1.0
+    from scripts.upload_to_hf import BROWSECOMP_CANARY, seal
+
+    assert rows[0]["answer"] == seal("A") and rows[0]["metrics"]["score"] == 1.0
+    assert rows[0]["canary"] == BROWSECOMP_CANARY
     assert "69" not in files["search/runs/browsecomp/report.md"].decode()
 
 
@@ -297,3 +300,16 @@ def test_failed_searches_are_not_cached_or_shown_as_empty(tmp_path, monkeypatch)
     assert calls == ["q", "q"], "a failure must be retried, not served from cache"
     assert tools.search_errors == 2 and tools.searches == 0
     assert not list((tmp_path / "searches").glob("*.json"))
+
+
+def test_browsecomp_text_is_sealed_with_the_benchmark_canary():
+    import base64
+    import hashlib
+
+    from scripts.upload_to_hf import BROWSECOMP_CANARY, seal
+
+    sealed_text = seal("Who wrote it?")
+    raw = base64.b64decode(sealed_text)
+    key = hashlib.sha256(BROWSECOMP_CANARY.encode()).digest()
+    assert bytes(a ^ b for a, b in zip(raw, key)).decode() == "Who wrote it?"
+    assert "Who" not in sealed_text
