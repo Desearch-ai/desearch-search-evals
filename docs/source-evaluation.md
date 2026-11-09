@@ -10,8 +10,10 @@ required, and several results repeating the same fact still count as one hit.
 Two views are scored separately:
 
 - **Page:** the result's page, fetched once with one shared extractor for every
-  provider. When a page cannot be fetched, the returned text is judged instead and the
-  fallback is recorded.
+  provider: a desktop browser's headers, one retry on timeouts, 429 and 5xx answers,
+  and text extraction for HTML and PDF. A fetched page is judged with the same text
+  whichever provider returned it. When a page cannot be fetched, the returned text is
+  judged instead and each result records which of the two was read.
 - **Returned text:** only what the search API returned, which is what an agent sees
   without fetching.
 
@@ -25,10 +27,11 @@ Two views are scored separately:
    even without a match, to catch paraphrases. Grading stops at the first confirmed
    hit, since later ranks cannot change hit@k or reciprocal rank.
 3. **Long pages.** A page over 6,000 characters is cut to its opening plus the passages
-   that share the most terms with the question, contain the answer, or contain the
-   provider's own snippet, so the page view never shows less than the snippet.
+   that share the most terms with the question or contain the answer. Nothing a
+   provider returned affects this cut.
 4. **Judge.** The judge sees the question, the verified answer with aliases, the
-   publication date if known and the text split into numbered sections. It never sees
+   publication date when judging returned text that carries one, and the text split
+   into numbered sections. It never sees
    the provider, rank or domain. It labels the source `answers`, `partial`,
    `no_answer` or `uncertain`, extracts the answer and selects the supporting
    section IDs; code derives the exact highlighted text and offsets.
@@ -55,10 +58,18 @@ The judge applies these rules:
 | Returned text states answer @k | At least one of the first k returned snippets states it |
 | MRR@10 | Reciprocal rank of the first result that states it |
 
-k is 1, 5 and 10. Failed searches, missing searches and empty responses score zero and
+k is 1, 3, 5 and 10. Failed searches, missing searches and empty responses score zero and
 are counted per profile, together with fetched pages, judge errors and benchmark
 mirrors. Pages copying a benchmark's own questions (for example dataset mirrors of
-SimpleQA) receive no credit and keep their rank.
+SimpleQA) receive no credit and keep their rank. The mirror verdict belongs to the URL:
+it reads the URL, every provider's title and text for it and the start of the fetched
+page, and applies to every provider that returned that URL.
+
+The report also gives per profile the page fetch rate, the share of page hits read from
+returned text, search latency p50 and p90, mean returned characters per result and cost
+per search; 95% bootstrap intervals over questions (1,000 resamples, fixed seed) for
+both @10 scores; wins and losses at @10 against `desearch-index` when that profile ran;
+and the @10 scores by question freshness when the questions carry one.
 
 ## Judge calibration
 

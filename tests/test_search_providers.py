@@ -6,7 +6,7 @@ import unittest.mock
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
-from providers import desearch, exa, parallel, search, tavily
+from providers import desearch, desearch_router, exa, parallel, perplexity, search, tavily
 
 QUESTION = "Which company acquired DoubleClick in 2008?"
 
@@ -18,10 +18,12 @@ class ProfileTests(unittest.TestCase):
             ({"transport": "exa", "mode": "auto"}, "exa"),
             ({"transport": "parallel", "mode": "fast"}, "parallel"),
             ({"transport": "parallel", "mode": "advanced"}, "parallel"),
-            ({"transport": "openrouter", "engine": "perplexity"}, "perplexity"),
+            ({"transport": "perplexity", "mode": "web"}, "perplexity"),
+            ({"transport": "perplexity", "mode": "fast"}, "perplexity"),
             ({"transport": "tavily", "mode": "fast"}, "tavily"),
             ({"transport": "tavily", "mode": "basic"}, "tavily"),
             ({"transport": "local", "mode": "standard"}, "desearch"),
+            ({"transport": "desearch_router", "mode": "standard"}, "desearch_router"),
         ]
         with patch("providers.search.os.environ.get") as load_key:
             for profile, expected in cases:
@@ -33,8 +35,9 @@ class ProfileTests(unittest.TestCase):
 
     def test_retired_and_invalid_profiles_are_rejected(self):
         for profile in (
-            {"transport": "openrouter", "engine": "exa", "mode": "fast"},
-            {"transport": "openrouter", "engine": "parallel", "mode": "fast"},
+            {"transport": "openrouter", "engine": "perplexity"},
+            {"transport": "perplexity", "mode": "people"},
+            {"transport": "perplexity", "mode": "web", "max_results": 25},
             {"transport": "exa", "mode": "deep"},
             {"transport": "parallel", "mode": "turbo"},
             {"transport": "exa", "mode": "fast", "start_date": "2026-09-01"},
@@ -51,8 +54,8 @@ class DispatchTests(unittest.IsolatedAsyncioTestCase):
             ({"transport": "exa", "mode": "fast"}, "EXA_API_KEY", "exa"),
             ({"transport": "parallel", "mode": "fast"}, "PARALLEL_API_KEY", "parallel"),
             (
-                {"transport": "openrouter", "engine": "perplexity"},
-                "OPENROUTER_API_KEY",
+                {"transport": "perplexity", "mode": "web"},
+                "PERPLEXITY_API_KEY",
                 "perplexity",
             ),
             ({"transport": "tavily", "mode": "basic"}, "TAVILY_API_KEY", "tavily"),
@@ -279,6 +282,91 @@ class ParallelSearchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["results"][0]["text"], "one\ntwo")
         self.assertIsNone(result["cost_usd"])
         self.assertEqual(result["usage"], raw["usage"])
+
+
+class PerplexitySearchTests(unittest.IsolatedAsyncioTestCase):
+    async def test_native_request_caps_page_text_and_keeps_rank_order(self):
+        raw = {
+            "results": [
+                {
+                    "url": "https://example.org/a",
+                    "title": "A",
+                    "snippet": "first page text",
+                    "date": "2026-09-10",
+                },
+                {"url": "https://example.org/b", "title": "B", "snippet": ""},
+            ],
+            "id": "x",
+        }
+        session = FakeSession(raw)
+        profile = {"transport": "perplexity", "mode": "fast", "max_characters": 10}
+        result = await perplexity.search(session, QUESTION, profile, "key")
+        endpoint, request = session.calls[0]
+        self.assertEqual(endpoint, "https://api.perplexity.ai/search")
+        self.assertEqual(request["headers"], {"Authorization": "Bearer key"})
+        self.assertEqual(
+            request["json"],
+            {
+                "query": QUESTION,
+                "search_type": "fast",
+                "max_results": 10,
+                "max_tokens_per_page": 3,
+                "max_tokens": 30,
+            },
+        )
+        self.assertEqual([r["url"] for r in result["results"]], ["https://example.org/a", "https://example.org/b"])
+        self.assertEqual(result["results"][0]["text"], "first page")
+        self.assertEqual(result["results"][0]["published"], "2026-09-10")
+        self.assertEqual(result["cost_usd"], 0.001)
+        self.assertNotIn("error", result)
+
+    async def test_http_failure_is_an_explicit_error(self):
+        result = await perplexity.search(
+            FakeSession({"detail": "bad"}, 422),
+            QUESTION,
+            {"transport": "perplexity", "mode": "web"},
+            "key",
+        )
+        self.assertTrue(result["error"].startswith("HTTP_422"))
+        self.assertEqual(result["results"], [])
+        self.assertIsNone(result["cost_usd"])
+
+
+class DesearchRouterTests(unittest.IsolatedAsyncioTestCase):
+    async def test_request_and_highlights_match_the_other_providers(self):
+        raw = {
+            "failed": {"search": {}, "parts": {}},
+            "results": [
+                {
+                    "url": "https://example.org/a",
+                    "title": "A",
+                    "published": "2026-09-10T08:00:00Z",
+                    "highlights": ["first part", "second part"],
+                }
+            ],
+            "ms": {"total": 900.0},
+        }
+        session = FakeSession(raw)
+        profile = {"transport": "desearch_router", "mode": "standard", "max_characters": 15}
+        result = await desearch_router.search(session, QUESTION, profile, "http://router:1/")
+        endpoint, request = session.calls[0]
+        self.assertEqual(endpoint, "http://router:1/search")
+        self.assertEqual(
+            request["json"],
+            {"query": QUESTION, "k": 10, "contents": {"highlights": {"max_chars": 15}}},
+        )
+        self.assertEqual(result["results"][0]["text"], "first part\nseco")
+        self.assertEqual(result["results"][0]["published"], "2026-09-10")
+        self.assertNotIn("error", result)
+
+    async def test_a_partial_index_answer_is_an_error(self):
+        raw = {"failed": {"search": {"shard-11": "loading"}}, "results": []}
+        with patch("providers.desearch_router.asyncio.sleep", AsyncMock()):
+            result = await desearch_router.search(
+                FakeSession(raw), QUESTION, {"transport": "desearch_router", "mode": "standard"}, "http://r"
+            )
+        self.assertTrue(result["error"].startswith("HTTP_503"))
+        self.assertEqual(result["results"], [])
 
 
 if __name__ == "__main__":

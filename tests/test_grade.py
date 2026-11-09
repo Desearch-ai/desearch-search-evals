@@ -19,20 +19,21 @@ def test_long_page_keeps_opening_and_the_passage_that_answers():
     assert "fifth of six children of Gilbert and Mary Hani" in text
 
 
-def test_long_page_keeps_the_passage_its_snippet_came_from():
+def test_long_page_keeps_the_passage_with_an_answer_alias():
     question = {
         "question": "What kind of ship was the Q-ship Salvia made to resemble?",
-        "answer": "tramp steamer (or collier)",
+        "answer": "tramp steamer",
+        "answer_aliases": ["collier"],
     }
-    snippet = "Salvia was given a false counter-stern so that she looked like a small 1,000-ton tramp from the sea."
+    passage = "Salvia was fitted out so that from the sea she looked like a collier."
     page = (
         "Project Gutenberg metadata.\n" * 200
         + "Filler text about the war at sea.\n" * 1500
-        + snippet
+        + passage
         + "\n"
         + "end\n" * 500
     )
-    assert snippet in grade.evidence_text(page, question, snippet)
+    assert passage in grade.evidence_text(page, question)
 
 
 def test_short_page_is_unchanged():
@@ -53,6 +54,17 @@ def test_benchmark_mirrors_are_detected():
     assert not grade.is_mirror(
         {"url": "https://en.wikipedia.org/wiki/Orin", "text": "Orin won."}
     )
+
+
+def test_mirror_verdict_is_per_url_and_reads_the_fetched_body():
+    plain = {"url": "https://example.org/a", "title": "A", "text": "Orin won."}
+    flagged = {**plain, "url": "https://www.example.org/a/", "title": "SimpleQA copy"}
+    assert grade.mirror_keys([plain, flagged], {}) == {grade.url_key(plain["url"])}
+    source = {"url": "https://example.org/b", "title": "B", "text": "Orin won."}
+    early = {source["url"]: {"title": "B", "text": "Questions from BrowseComp."}}
+    late = {source["url"]: {"title": "B", "text": "x" * 3000 + " BrowseComp"}}
+    assert grade.mirror_keys([source], early) == {"example.org/b"}
+    assert grade.mirror_keys([source], late) == set()
 
 
 class FakeJudge:

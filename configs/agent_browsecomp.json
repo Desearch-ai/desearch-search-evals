@@ -53,10 +53,11 @@
     {
       "id": "perplexity-search",
       "provider": "perplexity",
-      "transport": "openrouter",
-      "engine": "perplexity",
+      "transport": "perplexity",
       "max_results": 10,
-      "max_characters": 2000
+      "max_characters": 2000,
+      "mode": "web",
+      "price_per_1k_searches_usd": 5.0
     },
     {
       "id": "tavily-fast",

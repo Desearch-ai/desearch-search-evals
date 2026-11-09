@@ -38,7 +38,12 @@ def make_run(root):
                 "title": "Fintech news",
                 "text": "Nothing relevant here.",
             },
-            {"url": "https://a.example/nelo", "title": "Nelo", "text": "A seed round."},
+            {
+                "url": "https://a.example/nelo",
+                "title": "Nelo",
+                "text": "A seed round.",
+                "published": "2021-04-02",
+            },
             {
                 "url": "https://c.example/later",
                 "title": "Later",
@@ -59,7 +64,7 @@ def test_search_artifacts_to_scores_and_export(tmp_path, monkeypatch):
     pages = {
         "https://a.example/nelo": {
             "status": "ok",
-            "title": "Nelo raises $3M",
+            "title": "",
             "text": "Nelo raised $3 million. Homebrew led the seed round.",
         },
         "https://b.example/other": {"status": "blocked", "title": "", "text": ""},
@@ -111,6 +116,14 @@ def test_search_artifacts_to_scores_and_export(tmp_path, monkeypatch):
     assert exa["page_hit_at_1"] == 0 and exa["page_hit_at_5"] == 1
     assert exa["snippet_hit_at_1"] == 0 and exa["snippet_hit_at_10"] == 1
     assert report["profiles"]["exa"]["pages_fetched"] == 2
+
+    graded = json.loads((run / "evaluation" / "results.json").read_text())
+    desearch_page = graded["profiles"]["desearch"][0]["results"][0]["page"]
+    exa_results = graded["profiles"]["exa"][0]["results"]
+    assert desearch_page["evidence"] == exa_results[1]["page"]["evidence"]
+    assert desearch_page["evidence_source"] == "fetched_page"
+    assert exa_results[0]["page"]["evidence_source"] == "returned_text"
+    assert exa_results[0]["returned_chars"] == len("Nothing relevant here.")
 
     files = upload_to_hf.build_export(run, "test-run")
     rows = [

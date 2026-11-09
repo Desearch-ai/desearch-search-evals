@@ -2,6 +2,7 @@
 
 import asyncio
 import hashlib
+import io
 import ipaddress
 import json
 import re
@@ -14,10 +15,32 @@ from yarl import URL
 
 from utils import now, write_json
 
-USER_AGENT = (
-    "DesearchSearchEvals/1.0 (https://github.com/Desearch-ai/desearch-search-evals)"
+try:
+    import pypdf
+except ImportError:
+    pypdf = None
+
+FETCHER_VERSION = 3
+BOT_AGENT = "DesearchSearchEvals/1.0 (https://github.com/Desearch-ai/desearch-search-evals)"
+BROWSER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
 )
+ACCEPT = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+    "application/pdf;q=0.8,*/*;q=0.7",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+# Wikimedia refuses scripted browser agents; other sites refuse bot agents.
+AGENTS = (BOT_AGENT, BROWSER_AGENT)
+REFUSED = {401, 403}
+HTML_TYPES = {"text/html", "application/xhtml+xml"}
+PDF_TYPES = {"application/pdf", "application/x-pdf"}
+BINARY_TYPES = {"application/octet-stream", "binary/octet-stream"}
+ATTEMPTS = 2
+RETRY_DELAY = 1.0
 DEFAULT_MAX_BYTES = 3 * 1024 * 1024
+DEFAULT_MAX_PDF_BYTES = 10 * 1024 * 1024
 DEFAULT_MAX_TEXT_CHARS = 150_000
 DEFAULT_TIMEOUT = 20
 REMOVED_ELEMENTS = ("script", "style", "noscript", "template", "svg")
@@ -171,8 +194,32 @@ def extract_html(html, *, max_text_chars=DEFAULT_MAX_TEXT_CHARS):
     }
 
 
+def extract_pdf(raw, *, max_text_chars=DEFAULT_MAX_TEXT_CHARS):
+    """Text of a PDF's pages in order, read until the text budget is full."""
+    reader = pypdf.PdfReader(io.BytesIO(raw))
+    if reader.is_encrypted:
+        reader.decrypt("")
+    title = normalize_whitespace(str(getattr(reader.metadata, "title", None) or ""))
+    parts, size, read_all = [], 0, True
+    for page in reader.pages:
+        if size > max_text_chars:
+            read_all = False
+            break
+        part = page.extract_text() or ""
+        parts.append(part)
+        size += len(part) + 1
+    full_text = normalize_whitespace(" ".join(parts))
+    return {
+        "title": title,
+        "text": full_text[:max_text_chars],
+        "complete": read_all and len(full_text) <= max_text_chars,
+    }
+
+
 def cache_path(cache_dir, url):
-    key = hashlib.sha256(canonical_url(url).encode()).hexdigest()
+    key = hashlib.sha256(
+        f"v{FETCHER_VERSION}\n{canonical_url(url)}".encode()
+    ).hexdigest()
     return Path(cache_dir) / f"{key}.json"
 
 
@@ -187,24 +234,8 @@ async def _read_body(response, max_bytes):
     return b"".join(chunks)
 
 
-async def _fetch_page(
-    session,
-    url,
-    *,
-    cache_dir,
-    timeout,
-    max_bytes,
-    max_text_chars,
-    max_redirects,
-    refresh,
-):
-    policy = {
-        "max_bytes": max_bytes,
-        "max_text_chars": max_text_chars,
-        "max_redirects": max_redirects,
-        "timeout_seconds": timeout,
-    }
-    page = {
+def _blank_page(url, policy):
+    return {
         "requested_url": url,
         "final_url": None,
         "retrieved_at": now(),
@@ -216,39 +247,23 @@ async def _fetch_page(
         "text": "",
         "complete": False,
         "redirects": [],
+        "attempts": 0,
         "fetch_policy": policy,
     }
-    try:
-        current = canonical_url(url)
-    except UnsafeURL as error:
-        page["error"] = str(error)
-        return page
-    path = cache_path(cache_dir, current)
-    if not refresh and path.exists():
-        try:
-            cached = json.loads(path.read_text())
-            if (
-                isinstance(cached, dict)
-                and cached.get("fetch_policy") == policy
-                and isinstance(cached.get("complete"), bool)
-                and canonical_url(cached["requested_url"]) == current
-            ):
-                return {**cached, "requested_url": url}
-        except (ValueError, OSError, KeyError):
-            pass
 
+
+async def _attempt(session, url, current, policy, agent=BOT_AGENT):
+    """One bounded fetch: (page, PDF bytes still to extract, whether a retry may help)."""
+    page = _blank_page(url, policy)
+    max_bytes, max_pdf_bytes = policy["max_bytes"], policy["max_pdf_bytes"]
+    pdf, transient = None, False
     try:
-        async with asyncio.timeout(timeout):
-            for redirect_count in range(max_redirects + 1):
+        async with asyncio.timeout(policy["timeout_seconds"]):
+            for redirect_count in range(policy["max_redirects"] + 1):
                 current = canonical_url(current)
                 page["final_url"] = current
                 async with session.get(
-                    current,
-                    allow_redirects=False,
-                    headers={
-                        "User-Agent": USER_AGENT,
-                        "Accept": "text/html, application/xhtml+xml",
-                    },
+                    current, allow_redirects=False, headers={"User-Agent": agent, **ACCEPT}
                 ) as response:
                     page["http_status"] = response.status
                     page["content_type"] = response.headers.get("Content-Type", "")
@@ -257,7 +272,7 @@ async def _fetch_page(
                         if not location:
                             page["error"] = "redirect_without_location"
                             break
-                        if redirect_count == max_redirects:
+                        if redirect_count == policy["max_redirects"]:
                             page["error"] = "too_many_redirects"
                             break
                         target = canonical_url(str(URL(current).join(URL(location))))
@@ -268,17 +283,28 @@ async def _fetch_page(
                         continue
                     if response.status != 200:
                         page["error"] = f"http_{response.status}"
+                        transient = response.status == 429 or response.status >= 500
                         break
                     media_type = page["content_type"].split(";", 1)[0].strip().lower()
-                    if media_type not in {"text/html", "application/xhtml+xml"}:
+                    readable_pdf = pypdf is not None and (
+                        media_type in PDF_TYPES or media_type in BINARY_TYPES
+                    )
+                    if media_type not in HTML_TYPES and not readable_pdf:
                         page["error"] = "unsupported_content_type"
                         break
-                    if response.content_length and response.content_length > max_bytes:
+                    limit = max_bytes if media_type in HTML_TYPES else max_pdf_bytes
+                    if response.content_length and response.content_length > limit:
                         page["error"] = "response_too_large"
                         break
-                    raw = await _read_body(response, max_bytes)
+                    raw = await _read_body(response, limit)
                     if raw is None:
                         page["error"] = "response_too_large"
+                        break
+                    if media_type not in HTML_TYPES:
+                        if raw.startswith(b"%PDF-"):
+                            pdf = raw
+                        else:
+                            page["error"] = "unsupported_content_type"
                         break
                     decoded = UnicodeDammit(
                         raw,
@@ -292,7 +318,8 @@ async def _fetch_page(
                         break
                     page.update(
                         extract_html(
-                            decoded.unicode_markup, max_text_chars=max_text_chars
+                            decoded.unicode_markup,
+                            max_text_chars=policy["max_text_chars"],
                         )
                     )
                     page["complete"] &= not decoded.contains_replacement_characters
@@ -307,7 +334,73 @@ async def _fetch_page(
         page["error"] = str(error)
     except (aiohttp.ClientError, asyncio.TimeoutError, OSError, ValueError) as error:
         page["error"] = type(error).__name__
+        transient = isinstance(error, asyncio.TimeoutError)
+    return page, pdf, transient
 
+
+async def _fetch_page(
+    session,
+    url,
+    *,
+    cache_dir,
+    timeout,
+    max_bytes,
+    max_pdf_bytes,
+    max_text_chars,
+    max_redirects,
+    refresh,
+):
+    policy = {
+        "fetcher_version": FETCHER_VERSION,
+        "max_bytes": max_bytes,
+        "max_pdf_bytes": max_pdf_bytes,
+        "max_text_chars": max_text_chars,
+        "max_redirects": max_redirects,
+        "timeout_seconds": timeout,
+    }
+    try:
+        current = canonical_url(url)
+    except UnsafeURL as error:
+        return {**_blank_page(url, policy), "error": str(error)}
+    path = cache_path(cache_dir, current)
+    if not refresh and path.exists():
+        try:
+            cached = json.loads(path.read_text())
+            if (
+                isinstance(cached, dict)
+                and cached.get("fetch_policy") == policy
+                and isinstance(cached.get("complete"), bool)
+                and canonical_url(cached["requested_url"]) == current
+            ):
+                return {**cached, "requested_url": url}
+        except (ValueError, OSError, KeyError):
+            pass
+
+    for agent in AGENTS:
+        for attempt in range(1, ATTEMPTS + 1):
+            page, pdf, transient = await _attempt(session, url, current, policy, agent)
+            page["attempts"] = attempt
+            if not transient or attempt == ATTEMPTS:
+                break
+            await asyncio.sleep(RETRY_DELAY * attempt)
+        page["user_agent"] = "bot" if agent == BOT_AGENT else "browser"
+        if page.get("http_status") not in REFUSED:
+            break
+    if pdf is not None:
+        try:
+            page.update(
+                await asyncio.wait_for(
+                    asyncio.to_thread(extract_pdf, pdf, max_text_chars=max_text_chars),
+                    timeout,
+                )
+            )
+        except Exception:  # pypdf raises many unrelated types on malformed files
+            page["error"] = "pdf_extraction_failed"
+        else:
+            if page["text"]:
+                page["status"] = "ok"
+            else:
+                page["error"] = "empty_pdf_text"
     write_json(path, page)
     return page
 
@@ -319,6 +412,7 @@ async def fetch_pages(
     concurrency=6,
     timeout=DEFAULT_TIMEOUT,
     max_bytes=DEFAULT_MAX_BYTES,
+    max_pdf_bytes=DEFAULT_MAX_PDF_BYTES,
     max_text_chars=DEFAULT_MAX_TEXT_CHARS,
     max_redirects=5,
     refresh=False,
@@ -326,7 +420,13 @@ async def fetch_pages(
     """Fetch unique public URLs with one shared, bounded static extraction policy."""
     if not 1 <= concurrency <= 32:
         raise ValueError("concurrency must be between 1 and 32")
-    if timeout <= 0 or max_bytes < 1 or max_text_chars < 1 or max_redirects < 0:
+    if (
+        timeout <= 0
+        or max_bytes < 1
+        or max_pdf_bytes < 1
+        or max_text_chars < 1
+        or max_redirects < 0
+    ):
         raise ValueError("fetch limits must be positive; redirects may be zero")
     urls = list(dict.fromkeys(urls))
     semaphore = asyncio.Semaphore(concurrency)
@@ -350,6 +450,7 @@ async def fetch_pages(
                         cache_dir=cache_dir,
                         timeout=timeout,
                         max_bytes=max_bytes,
+                        max_pdf_bytes=max_pdf_bytes,
                         max_text_chars=max_text_chars,
                         max_redirects=max_redirects,
                         refresh=refresh,

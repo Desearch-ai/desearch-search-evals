@@ -3,8 +3,8 @@ import os
 from . import (
     desearch_api,
     desearch_index,
+    desearch_router,
     exa,
-    openrouter,
     parallel,
     perplexity,
     serper,
@@ -14,6 +14,7 @@ from . import (
 ADAPTERS = {
     "desearch_api": desearch_api,
     "desearch_index": desearch_index,
+    "desearch_router": desearch_router,
     "exa": exa,
     "parallel": parallel,
     "serper": serper,
@@ -23,20 +24,24 @@ ADAPTERS = {
 KEYS = {
     "desearch_api": "DESEARCH_API_KEY",
     "desearch_index": "DESEARCH_INDEX_KEY",
+    "desearch_router": "DESEARCH_ROUTER_URL",
     "exa": "EXA_API_KEY",
     "parallel": "PARALLEL_API_KEY",
     "serper": "SERPER_API_KEY",
-    "perplexity": "OPENROUTER_API_KEY",
+    "perplexity": "PERPLEXITY_API_KEY",
     "tavily": "TAVILY_API_KEY",
 }
 
 
 def validate_profile(profile):
-    """Every profile calls its provider's own API, except Perplexity, which goes through OpenRouter."""
+    """Every profile calls its provider's own API."""
     transport = profile.get("transport")
     if transport == "desearch_index":
         provider = "desearch_index"
         desearch_index.validate_profile(profile)
+    elif transport == "desearch_router":
+        provider = "desearch_router"
+        desearch_router.validate_profile(profile)
     elif transport == "desearch_api":
         provider = "desearch_api"
         desearch_api.validate_profile(profile)
@@ -46,11 +51,9 @@ def validate_profile(profile):
     elif transport == "parallel":
         provider = "parallel"
         parallel.validate_profile(profile)
-    elif transport == "openrouter":
-        provider = profile.get("engine")
-        if provider != "perplexity":
-            raise ValueError(f"Unsupported OpenRouter search engine: {provider}")
-        openrouter.build_request("Validate search profile", profile)
+    elif transport == "perplexity":
+        provider = "perplexity"
+        perplexity.validate_profile(profile)
     elif transport == "serper":
         provider = "serper"
         serper.validate_profile(profile)

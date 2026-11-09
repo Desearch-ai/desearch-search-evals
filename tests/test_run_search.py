@@ -12,7 +12,7 @@ from providers.run_search import prepare
 
 @pytest.fixture(autouse=True)
 def credentials(monkeypatch):
-    monkeypatch.setenv("OPENROUTER_API_KEY", "fake-key")
+    monkeypatch.setenv("EXA_API_KEY", "fake-key")
 
 
 def test_resume_rejects_changed_questions(tmp_path):
@@ -94,7 +94,7 @@ def test_search_runner_sends_question_only_and_resumes_without_calls(
     saved = args.run / "searches/exa-fast/q1.json"
     before = saved.read_bytes()
     assert json.loads(before)["status"] == "ok"
-    monkeypatch.delenv("OPENROUTER_API_KEY")
+    monkeypatch.delenv("EXA_API_KEY")
 
     execution = asyncio.run(run_search.execute(args))
     request.assert_awaited_once()
@@ -202,7 +202,7 @@ def test_invalid_limits_fail_before_requests(
 @pytest.mark.parametrize(
     "results", ["malformed", [{"rank": 2, "text": "Answer"}], [{"text": 23}]]
 )
-def test_malformed_adapter_results_become_resumable_failures(
+def test_malformed_adapter_results_become_retried_failures(
     tmp_path, monkeypatch, results
 ):
     args = arguments(tmp_path)
@@ -221,5 +221,68 @@ def test_malformed_adapter_results_become_resumable_failures(
     assert row["invalid_result"]["results"] == results
     assert row["raw"] == {"provider": "response"}
     assert row["cost_usd"] == 0.02
+    request.return_value = {"results": [], "cost_usd": 0.01}
+    summary = asyncio.run(run_search.execute(args))
+    assert request.await_count == 2
+    row = json.loads((args.run / "searches/exa-fast/q1.json").read_text())
+    assert row["status"] == "ok" and "invalid_result" not in row
+    assert [attempt["cost_usd"] for attempt in row["retried_errors"]] == [0.02]
+    assert summary["recorded_cost_usd"] == pytest.approx(0.03)
+
+
+def test_saved_search_errors_are_retried_and_successes_kept(tmp_path, monkeypatch):
+    args = arguments(tmp_path)
+    request = AsyncMock(side_effect=TimeoutError)
+    monkeypatch.setattr(run_search.search, "search", request)
     asyncio.run(run_search.execute(args))
-    request.assert_awaited_once()
+    request.side_effect = None
+    request.return_value = {"results": [], "cost_usd": 0.01}
+    assert asyncio.run(run_search.execute(args))["processed"] == 1
+    row = json.loads((args.run / "searches/exa-fast/q1.json").read_text())
+    assert row["status"] == "ok"
+    assert row["retried_errors"][0]["error"] == "TimeoutError"
+    assert asyncio.run(run_search.execute(args))["processed"] == 0
+    assert request.await_count == 2
+
+
+def test_saved_local_errors_stay_frozen(tmp_path):
+    question = {"id": "q1", "question": "Who won?"}
+    config = {"profiles": [{"id": "local", "transport": "local", "mode": "fast"}]}
+    run = tmp_path / "run"
+    prepare(run, [question], config)
+    run_search.write_json(
+        run / "searches/local/q1.json",
+        {
+            "query": "Who won?",
+            "question_id": "q1",
+            "profile_id": "local",
+            "status": "error",
+            "error": "timeout",
+            "results": [],
+        },
+    )
+    args = argparse.Namespace(run=run, import_local=None)
+    assert run_search.preflight(args, [question], config) == ({}, [])
+
+
+@pytest.mark.parametrize(
+    "profile, key",
+    [
+        ({"id": "exa-fast", "transport": "exa", "mode": "fast"}, "EXA_API_KEY"),
+        ({"id": "tavily", "transport": "tavily", "mode": "basic"}, "TAVILY_API_KEY"),
+        ({"id": "par", "transport": "parallel", "mode": "fast"}, "PARALLEL_API_KEY"),
+    ],
+)
+def test_missing_provider_key_fails_before_any_search(
+    tmp_path, monkeypatch, profile, key
+):
+    args = arguments(tmp_path)
+    args.config.write_text(json.dumps({"profiles": [profile]}))
+    monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "unrelated")
+    request = AsyncMock()
+    monkeypatch.setattr(run_search.search, "search", request)
+    with pytest.raises(ValueError, match=f"{key} is required.*{profile['id']}"):
+        asyncio.run(run_search.execute(args))
+    request.assert_not_awaited()
+    assert not args.run.exists()

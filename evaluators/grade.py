@@ -20,6 +20,7 @@ JUDGED_RANKS = 3
 PAGE_CHARS = 6000
 OPENING_CHARS = 1500
 PASSAGE_CHARS = 1200
+MIRROR_BODY_CHARS = 3000
 MIRROR = re.compile(
     r"(?<![a-z0-9])(?:simple[\s_-]?qa|seal[\s_-]?qa|browse[\s_-]?comp|frames[\s_-]benchmark)(?![a-z0-9])|simple[\s_-]?evals",
     re.IGNORECASE,
@@ -32,6 +33,20 @@ def is_mirror(source: dict) -> bool:
         " ".join(str(source.get(key) or "") for key in ("url", "title", "text"))
     )
     return bool(MIRROR.search(text))
+
+
+def mirror_keys(sources_: list[dict], fetched: dict) -> set[str]:
+    """URL keys that any returned copy or the fetched page marks as a benchmark mirror."""
+    keys = set()
+    for source in sources_:
+        page = fetched.get(source["url"]) or {}
+        body = {
+            "title": page.get("title"),
+            "text": (page.get("text") or "")[:MIRROR_BODY_CHARS],
+        }
+        if source["url"] and (is_mirror(source) or is_mirror(body)):
+            keys.add(url_key(source["url"]))
+    return keys
 
 
 def passages_of(text: str, size: int = PASSAGE_CHARS) -> list[tuple[int, str]]:
@@ -53,14 +68,13 @@ def passages_of(text: str, size: int = PASSAGE_CHARS) -> list[tuple[int, str]]:
     ]
 
 
-def evidence_text(text: str, question: dict, snippet: str = "") -> str:
-    """A long page cut to its opening plus the passages most likely to hold the answer, so the page never shows less than its snippet."""
+def evidence_text(text: str, question: dict) -> str:
+    """A long page cut to its opening plus the passages with the question's terms and answer; never provider-dependent."""
     if len(text) <= PAGE_CHARS:
         return text
     terms = {
         w for w in answer_match.normalize(question["question"]).split() if len(w) > 3
     }
-    probes = [s for s in re.split(r"(?<=[.!?])\s+", snippet) if len(s) > 60][:3]
     scored = []
     for offset, chunk in passages_of(text):
         plain = answer_match.normalize(chunk)
@@ -71,8 +85,6 @@ def evidence_text(text: str, question: dict, snippet: str = "") -> str:
             )
             != "none"
         ):
-            score += 5
-        if any(answer_match.normalize(probe) in plain for probe in probes):
             score += 5
         scored.append((score, offset, chunk))
     chosen = [(0, text[:OPENING_CHARS])]
@@ -230,6 +242,12 @@ async def execute(args):
             urls, cache_dir=args.page_cache, concurrency=args.fetch_concurrency
         )
     )
+    mirrors = mirror_keys([s for *_, ranked in searches for s in ranked], fetched)
+
+    def mirrored(source):
+        return (
+            (url_key(source["url"]) in mirrors) if source["url"] else is_mirror(source)
+        )
 
     evidence: dict = {}
     async with aiohttp.ClientSession() as session:
@@ -242,23 +260,22 @@ async def execute(args):
         )
 
         def bases(question, source):
-            """(basis, title, text, fetched) for the page and for the returned text."""
+            """(title, text, published, fetched) for the page and for the returned text; a fetched page shows the same text whoever returned it."""
             page = fetched.get(source["url"], {})
             page_ok = page.get("status") == "ok" and bool(
                 (page.get("text") or "").strip()
             )
-            page_text = (
-                evidence_text(page["text"], question, source["text"])
-                if page_ok
-                else source["text"]
-            )
-            page_title = (
-                (page.get("title") or source["title"]) if page_ok else source["title"]
-            )
-            return {
-                "page": (page_title, page_text, page_ok),
-                "snippet": (source["title"], source["text"], None),
-            }
+            returned = (source["title"], source["text"], source["published"])
+            if page_ok:
+                page_basis = (
+                    page.get("title") or "",
+                    evidence_text(page["text"], question),
+                    None,
+                    True,
+                )
+            else:
+                page_basis = (*returned, False)
+            return {"page": page_basis, "snippet": (*returned, None)}
 
         async def grade_in_order(question, ranked, basis):
             """Judge results in rank order and stop at the first confirmed hit; later ranks cannot change hit@k or MRR."""
@@ -266,10 +283,10 @@ async def execute(args):
             if gold_only:
                 return [None] * len(ranked)
             for source in ranked:
-                if is_mirror(source):
+                if mirrored(source):
                     rows.append(None)
                     continue
-                title, text, page_ok = bases(question, source)[basis]
+                title, text, published, page_ok = bases(question, source)[basis]
                 if found:
                     row = {
                         "screen": None,
@@ -285,12 +302,15 @@ async def execute(args):
                         source["rank"],
                         title,
                         text,
-                        source["published"],
+                        published,
                         evidence,
                     )
                     found = bool(row["hit"])
                 if basis == "page":
                     row["fetched"] = page_ok
+                    row["evidence_source"] = (
+                        "fetched_page" if page_ok else "returned_text"
+                    )
                 rows.append(row)
             return rows
 
@@ -302,7 +322,7 @@ async def execute(args):
             results = [
                 {
                     **_meta(source),
-                    "mirror": is_mirror(source),
+                    "mirror": mirrored(source),
                     "page": page,
                     "snippet": snippet,
                 }
@@ -317,6 +337,8 @@ async def execute(args):
                 "question_id": question["id"],
                 "search_status": result.get("status"),
                 "search_error": result.get("error"),
+                "elapsed_seconds": result.get("elapsed_seconds"),
+                "cost_usd": result.get("cost_usd"),
                 "gold_urls": len(gold),
                 "results": results,
             }
@@ -352,7 +374,10 @@ async def execute(args):
 
 
 def _meta(source: dict) -> dict:
-    return {key: source.get(key) for key in ("rank", "url", "title", "published")}
+    return {
+        **{key: source.get(key) for key in ("rank", "url", "title", "published")},
+        "returned_chars": source.get("original_text_chars"),
+    }
 
 
 def main():

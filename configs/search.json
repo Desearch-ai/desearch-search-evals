@@ -1,14 +1,12 @@
 {
   "profiles": [
     {
-      "id": "desearch-fast",
-      "transport": "local",
-      "mode": "fast"
-    },
-    {
-      "id": "desearch-standard",
-      "transport": "local",
-      "mode": "standard"
+      "id": "desearch-index",
+      "transport": "desearch_router",
+      "mode": "standard",
+      "max_results": 10,
+      "max_characters": 2000,
+      "concurrency": 2
     },
     {
       "id": "exa-fast",
@@ -18,30 +16,9 @@
       "max_characters": 2000
     },
     {
-      "id": "exa-standard",
+      "id": "exa-auto",
       "transport": "exa",
       "mode": "auto",
-      "max_results": 10,
-      "max_characters": 2000
-    },
-    {
-      "id": "parallel-fast",
-      "transport": "parallel",
-      "mode": "fast",
-      "max_results": 10,
-      "max_characters": 2000
-    },
-    {
-      "id": "parallel-standard",
-      "transport": "parallel",
-      "mode": "basic",
-      "max_results": 10,
-      "max_characters": 2000
-    },
-    {
-      "id": "perplexity-search",
-      "transport": "openrouter",
-      "engine": "perplexity",
       "max_results": 10,
       "max_characters": 2000
     },
@@ -53,9 +30,37 @@
       "max_characters": 2000
     },
     {
-      "id": "tavily-standard",
+      "id": "tavily-advanced",
       "transport": "tavily",
-      "mode": "basic",
+      "mode": "advanced",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "parallel-fast",
+      "transport": "parallel",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "parallel-advanced",
+      "transport": "parallel",
+      "mode": "advanced",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "perplexity-fast",
+      "transport": "perplexity",
+      "mode": "fast",
+      "max_results": 10,
+      "max_characters": 2000
+    },
+    {
+      "id": "perplexity-web",
+      "transport": "perplexity",
+      "mode": "web",
       "max_results": 10,
       "max_characters": 2000
     }

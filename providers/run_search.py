@@ -106,6 +106,21 @@ def prepare(run, questions, config):
         )
 
 
+def errored(row):
+    return row.get("status") == "error" or bool(row.get("error"))
+
+
+def required_keys(profiles):
+    """Environment key each searchable profile needs, by key name."""
+    needed = {}
+    for profile in profiles:
+        provider = search.validate_profile(profile)
+        if provider not in search.KEYS:
+            raise ValueError(f"No API key is known for {profile['id']} ({provider})")
+        needed.setdefault(search.KEYS[provider], []).append(profile["id"])
+    return needed
+
+
 def validate_result(row, question, profile):
     if not isinstance(row, dict) or row.get("query") != question["question"]:
         raise ValueError("Search query differs from the frozen question")
@@ -156,19 +171,20 @@ def preflight(args, questions, config):
                 row = cached
             if row is not None:
                 validate_result(row, question, profile)
+                if errored(row) and profile["transport"] != "local":
+                    missing.append((question, profile))
             elif profile["transport"] == "local":
                 raise ValueError(
                     f"Missing local Desearch result {relative}; provide a complete --import-local JSONL file"
                 )
             else:
                 missing.append((question, profile))
-    needed = {
-        "TAVILY_API_KEY" if p["transport"] == "tavily" else "OPENROUTER_API_KEY"
-        for _, p in missing
-    }
-    for name in sorted(needed):
+    profiles = list({p["id"]: p for _, p in missing}.values())
+    for name, ids in sorted(required_keys(profiles).items()):
         if not os.environ.get(name, "").strip():
-            raise ValueError(f"{name} is required for uncached searches")
+            raise ValueError(
+                f"{name} is required for uncached searches of {', '.join(ids)}"
+            )
     return imported, missing
 
 
@@ -185,6 +201,10 @@ async def execute(args, prepared=None):
         if not target.exists():
             write_json(target, row)
     semaphore = asyncio.Semaphore(args.concurrency)
+    limits = {
+        p["id"]: asyncio.Semaphore(p.get("concurrency", args.concurrency))
+        for p in config["profiles"]
+    }
     processed = 0
     async with aiohttp.ClientSession() as session:
 
@@ -193,7 +213,8 @@ async def execute(args, prepared=None):
             question, profile = item
             identifier = question["id"]
             target = run / "searches" / profile["id"] / f"{identifier}.json"
-            async with semaphore:
+            async with limits[profile["id"]], semaphore:
+                previous = json.loads(target.read_text()) if target.exists() else None
                 try:
                     row = await search.search(session, question["question"], profile)
                     if not isinstance(row, dict):
@@ -220,6 +241,14 @@ async def execute(args, prepared=None):
                 }
                 row.setdefault("query", question["question"])
                 row.setdefault("status", "error" if row.get("error") else "ok")
+                if previous is not None:
+                    row["retried_errors"] = [
+                        *previous.get("retried_errors", []),
+                        {
+                            key: previous.get(key)
+                            for key in ("error", "cost_usd", "completed_at")
+                        },
+                    ]
                 try:
                     validate_result(row, question, profile)
                 except (ValueError, TypeError) as error:
@@ -244,7 +273,10 @@ async def execute(args, prepared=None):
     artifacts = [json.loads(p.read_text()) for p in (run / "searches").glob("*/*.json")]
     print(f"Searches: {len(artifacts)} saved, {processed} new", flush=True)
     recorded = sum(
-        row["cost_usd"] for row in artifacts if valid_cost(row.get("cost_usd"))
+        attempt["cost_usd"]
+        for row in artifacts
+        for attempt in [row, *row.get("retried_errors", [])]
+        if valid_cost(attempt.get("cost_usd"))
     )
     unknown = sum(not valid_cost(row.get("cost_usd")) for row in artifacts)
     return {

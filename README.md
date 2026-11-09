@@ -23,7 +23,7 @@ python -m pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Set `EXA_API_KEY`, `PARALLEL_API_KEY`, `TAVILY_API_KEY` and `OPENROUTER_API_KEY` (Perplexity search and the judge). Set `HF_TOKEN` for publishing.
+Set `EXA_API_KEY`, `PARALLEL_API_KEY`, `TAVILY_API_KEY`, `PERPLEXITY_API_KEY` and `OPENROUTER_API_KEY` (judge and graders). Set `DESEARCH_ROUTER_URL` to search the Desearch index directly, `CHUTES_API_TOKEN` for the answer step, and `HF_TOKEN` for publishing.
 
 ## 1. Freeze questions
 
@@ -132,16 +132,18 @@ python -m scripts.upload_to_hf --bundle ... --upload
 
 ## Providers and modes
 
-| Provider | Transport | Modes |
-| --- | --- | --- |
-| Desearch | Frozen local results | fast, standard |
-| Exa | Direct API (`/search`, highlights) | fast, auto |
-| Parallel | Direct API (`/v1/search`, excerpts) | fast, basic |
-| Perplexity | OpenRouter Search | one search profile |
-| Tavily | Direct API | fast, basic |
+| Provider | Transport | Fast mode | Standard mode |
+| --- | --- | --- | --- |
+| Desearch | Index router (`/search`, highlights) or frozen local results | | standard |
+| Exa | Direct API (`/search`, highlights) | fast | auto |
+| Parallel | Direct API (`/v1/search`, excerpts) | fast | advanced |
+| Perplexity | Direct Search API (`/search`) | fast | web |
+| Tavily | Direct API | fast | advanced |
 
-Every profile gets the same question text, returns up to 10 results and sends no date
-filters. Deep-research and generated-answer products are excluded.
+Each provider runs at its own fast mode and at its best single-search mode; deep-research,
+multi-query and generated-answer modes are excluded. Every profile gets the same question
+text, returns up to 10 results with at most 2,000 characters each, and sends no date
+filters. A profile may set `concurrency` to cap its parallel searches.
 
 ## Scores
 
@@ -155,6 +157,22 @@ Any publisher counts and repeated coverage adds nothing. Failed and empty search
 zero and stay in the denominator. Pages that copy a benchmark's own questions earn no
 credit. These scores measure whether results carry the answer, not recall over every
 relevant page on the web. See the [evaluation protocol](docs/source-evaluation.md).
+
+## Answer accuracy
+
+`scripts.run_answers` gives each profile's saved top 10 returned texts (benchmark mirrors
+removed) to one reader, Qwen3.6-27B with thinking on, plus a `no-search` baseline, and grades
+the answer with the benchmark's official prompt: GPT-4.1 with the SimpleQA Verified prompt,
+GPT-4o-mini with the SealQA prompt (`evaluators/templates/`). `scripts.answer_report` prints
+accuracy with 95% intervals, F1, paired wins against `desearch-index`, and splits by freshness
+and Seal-0.
+
+```bash
+python -m scripts.run_answers --questions runs/sealqa/dataset/questions.jsonl \
+  --config configs/search.json --run runs/sealqa/run
+python -m scripts.answer_report --questions runs/sealqa/dataset/questions.jsonl \
+  --config configs/search.json --run runs/sealqa/run
+```
 
 ## Agentic benchmarks
 

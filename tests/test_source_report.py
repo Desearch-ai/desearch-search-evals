@@ -1,3 +1,6 @@
+import pytest
+
+
 from evaluators.source_report import markdown, question_scores, summarize
 
 QUESTIONS = [{"id": "q1"}, {"id": "q2"}]
@@ -88,3 +91,82 @@ def test_gold_url_hit_and_recall_use_distinct_reference_pages():
     assert scores["gold_recall_at_10"] == 2 / 3
     assert scores["gold_all_at_10"] == 0
     assert "gold_hit_at_1" not in question_scores(row("q1", [result()]))
+
+
+def test_rank_header_names_every_cutoff():
+    graded = {"profiles": {"p": [row("q1", [result(1, 0)]), row("q2", [result()])]}}
+    text = markdown(summarize(QUESTIONS, graded, ["p"]))
+    assert "Page states answer @1 / @3 / @5 / @10" in text
+    assert "@1 / @5 / @10" not in text
+
+
+def test_operations_cover_fetching_latency_size_and_cost():
+    fallback = dict(result(1, 0), returned_chars=100)
+    fallback["page"] = {**fallback["page"], "fetched": False, "evidence_source": "returned_text"}
+    fetched = dict(result(1, 0), returned_chars=300)
+    fetched["page"]["evidence_source"] = "fetched_page"
+    unfetched = dict(result(), returned_chars=200)
+    unfetched["page"]["fetched"] = False
+    rows = [
+        {**row("q1", [fallback, unfetched]), "elapsed_seconds": 1.0, "cost_usd": 0.01},
+        {**row("q2", [fetched]), "elapsed_seconds": 3.0, "cost_usd": None},
+    ]
+    profile = summarize(QUESTIONS, {"profiles": {"p": rows}}, ["p"])["profiles"]["p"]
+    assert profile["fetch_rate"] == 1 / 3
+    assert profile["page_hits_from_returned_text"] == 0.5
+    assert profile["latency_p50_seconds"] == 2.0
+    assert profile["latency_p90_seconds"] == pytest.approx(2.8)
+    assert profile["mean_returned_chars"] == 200
+    assert (profile["cost_per_search_usd"], profile["searches_with_cost"]) == (0.01, 1)
+    text = markdown(summarize(QUESTIONS, {"profiles": {"p": rows}}, ["p"]))
+    assert "2.00 s / 2.80 s" in text and "$0.0100" in text
+
+
+def test_latency_and_cost_are_blank_when_absent():
+    graded = {"profiles": {"p": [row("q1", [result()])]}}
+    profile = summarize(QUESTIONS, graded, ["p"])["profiles"]["p"]
+    assert profile["latency_p50_seconds"] is None
+    assert profile["cost_per_search_usd"] is None
+
+
+def test_bootstrap_interval_is_fixed_and_brackets_the_mean():
+    questions = [{"id": f"q{i}"} for i in range(40)]
+    rows = [row(f"q{i}", [result(int(i % 4 == 0), int(i % 2 == 0))]) for i in range(40)]
+    first = summarize(questions, {"profiles": {"p": rows}}, ["p"])["profiles"]["p"]
+    again = summarize(questions, {"profiles": {"p": rows}}, ["p"])["profiles"]["p"]
+    low, high = first["ci95"]["snippet_hit_at_10"]
+    assert first["ci95"] == again["ci95"]
+    assert low < 0.5 < high and 0 <= low and high <= 1
+    page_low, page_high = first["ci95"]["page_hit_at_10"]
+    assert page_low < 0.25 < page_high
+
+
+def test_paired_table_against_desearch_index():
+    graded = {
+        "profiles": {
+            "desearch-index": [row("q1", [result(1, 1)]), row("q2", [result()])],
+            "exa": [row("q1", [result()]), row("q2", [result(1, 0)])],
+        }
+    }
+    report = summarize(QUESTIONS, graded, ["desearch-index", "exa"])
+    counts = report["paired"]["profiles"]["exa"]
+    assert counts["page"] == {"baseline_only": 1, "profile_only": 1, "both": 0, "neither": 0}
+    assert counts["snippet"]["baseline_only"] == 1 and counts["snippet"]["profile_only"] == 0
+    assert "Paired against desearch-index" in markdown(report)
+    assert summarize(QUESTIONS, graded, ["exa"])["paired"] is None
+
+
+def test_freshness_split_only_when_questions_carry_it():
+    graded = {"profiles": {"p": [row("q1", [result(1, 1)]), row("q2", [result()])]}}
+    assert summarize(QUESTIONS, graded, ["p"])["by_freshness"] is None
+    questions = [
+        {"id": "q1", "freshness": "never-changing"},
+        {"id": "q2", "freshness": "fast-changing"},
+    ]
+    report = summarize(questions, graded, ["p"])
+    split = report["by_freshness"]
+    assert split["never-changing"]["profiles"]["p"]["page_hit_at_10"] == 1
+    assert split["fast-changing"]["profiles"]["p"]["page_hit_at_10"] == 0
+    assert split["fast-changing"]["questions"] == 1
+    assert "## By freshness @10" in markdown(report)
+    assert split["fast-changing"]["profiles"]["p"]["gold_hit_at_10"] is None
