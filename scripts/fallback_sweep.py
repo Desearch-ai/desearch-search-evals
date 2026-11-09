@@ -61,7 +61,7 @@ def signals(question, search):
     out = {"term_coverage": coverage(question, search)}
     if not rows or not any(r.get("scores") for r in rows):
         return out
-    for name in ("rerank", "fused", "dense", "part"):
+    for name in ("rerank", "fused", "dense", "bm25", "part"):
         values = [score(r, name) for r in rows[:10]]
         values = [v for v in values if v is not None]
         if values:
