@@ -47,6 +47,8 @@ def test_cause_follows_the_misses_buckets():
     assert fallback_sweep.cause({**base, "held": {"u": None}}) == "unknown"
     assert fallback_sweep.cause({**base, "held": {"u": True}, "rank": 40}) == "in index, below 10"
     assert fallback_sweep.cause({**base, "held": {"u": True}, "rank": 4}) == "judged miss in top 10"
+    assert fallback_sweep.cause({**base, "held": {"u": "not ours"}}) == "not ours to hold"
+    assert fallback_sweep.cause({**base, "held": {"u": "not ours", "v": False}}) == "coverage"
 
 
 def test_merged_context_dedupes_urls_and_reranks():
@@ -120,7 +122,7 @@ def test_report_scores_the_trigger_and_the_fallback(tmp_path, monkeypatch, capsy
     assert "| term_coverage | 1.00 | 0.667 | 50% | 100% | 100% | 0% | 0% |" in out
     assert "| 0.667 | 50% | 50.0% | 100.0% | +2 / -0 | n/a | 50% (0%) | $0.50 | 3.5s / 4.0s (1.75s) |" in out
     assert "| 1 | 75% | 50.0% | 75.0% | +2 / -1 |" in out
-    assert "| 0.667 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | +1 / -0 | +1 / -0 |" in out
+    assert "| 0.667 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | +1 / -0 | +1 / -0 |" in out
 
 
 def test_fixed_cuts_fire_below_each_cut_and_missing_scores_fire_first():

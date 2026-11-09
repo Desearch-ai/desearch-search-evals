@@ -29,6 +29,7 @@ CAUSES = (
     "in index, below 10",
     "judged miss in top 10",
     "nobody answers",
+    "not ours to hold",
     "unknown",
 )
 OURS_TO_FIX = {"excerpt", "in index, below 10", "judged miss in top 10"}
@@ -113,8 +114,11 @@ def cause(case):
     if not case["answering"]:
         return "nobody answers"
     held = case.get("held") or {}
-    if not any(held.values()):
-        return "unknown" if any(v is None for v in held.values()) else "coverage"
+    ours = {k: v for k, v in held.items() if v != "not ours"}
+    if held and not ours:
+        return "not ours to hold"
+    if not any(v is True for v in ours.values()):
+        return "unknown" if any(v is None for v in ours.values()) else "coverage"
     if case.get("rank") is None:
         return "in index, below 10"
     return "judged miss in top 10" if case["rank"] <= 10 else "in index, below 10"
