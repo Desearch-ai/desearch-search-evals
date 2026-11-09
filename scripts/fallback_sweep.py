@@ -21,6 +21,7 @@ STOP = set(
     "what which who whom whose when where were with that this from have has had into than then them they their there these those about after before would could should does many much most more being been also only over under between during year years name".split()
 )
 SPLIT = "{base}+{fallback}"
+CONTROL = "{base}-top5"
 CAUSES = (
     "hit",
     "excerpt",
@@ -61,7 +62,7 @@ def signals(question, search):
     out = {"term_coverage": coverage(question, search)}
     if not rows or not any(r.get("scores") for r in rows):
         return out
-    for name in ("rerank", "fused", "dense", "bm25", "part"):
+    for name in ("rerank", "fused", "dense", "bm25"):
         values = [score(r, name) for r in rows[:10]]
         values = [v for v in values if v is not None]
         if values:
@@ -145,15 +146,15 @@ def gather(args):
     if args.misses and Path(args.misses).exists():
         cases = {c["qid"]: c for c in json.loads(Path(args.misses).read_text())}
     name = SPLIT.format(base=args.base, fallback=args.fallback)
-    rows, matched = [], 0
+    rows, overlap, same_top = [], [], 0
     for q in questions:
         saved = load(run, args.base, q["id"])
         live = load(args.signals_run, args.base, q["id"]) if args.signals_run else saved
-        same = [url_key(r["url"]) for r in (live.get("results") or [])[:10]] == [
-            url_key(r["url"]) for r in (saved.get("results") or [])[:10]
-        ]
-        matched += same
-        extra = signals(q["question"], live) if same or not args.require_match else {}
+        now = [url_key(r["url"]) for r in (live.get("results") or [])[:10]]
+        then = [url_key(r["url"]) for r in (saved.get("results") or [])[:10]]
+        overlap.append(len(set(now) & set(then)) / max(1, len(then)))
+        same_top += bool(now and then and now[0] == then[0])
+        extra = signals(q["question"], live)
         extra["term_coverage"] = coverage(q["question"], saved)
         fallback = load(run, args.fallback, q["id"])
         rows.append(
@@ -165,6 +166,7 @@ def gather(args):
                 "page_hit": top_hit(ours.get(q["id"]), "page"),
                 "base": grades.get(f"{args.base}/{q['id']}") == "CORRECT",
                 "merged": fb.get(f"{name}/{q['id']}"),
+                "control": fb.get(f"{CONTROL.format(base=args.base)}/{q['id']}"),
                 "fallback_text_hit": top_hit(theirs[q["id"]], "snippet")
                 if q["id"] in theirs
                 else None,
@@ -173,22 +175,27 @@ def gather(args):
                 "cause": cause(cases.get(q["id"])) if cases else None,
             }
         )
-    return rows, matched
+    names = {k for r in rows for k in r["signals"]}
+    for r in rows:
+        for k in names:
+            r["signals"].setdefault(k, -math.inf)
+    agreement = (statistics.fmean(overlap) if overlap else 0.0, same_top)
+    return rows, agreement
 
 
-def fires(rows, name, rates):
-    usable = [r for r in rows if name in r["signals"]]
-    values = sorted(r["signals"][name] for r in usable)
-    n = len(values)
-    cuts = sorted({values[min(n - 1, round(n * rate))] for rate in rates if n})
-    return [(cut, [r for r in usable if r["signals"][name] < cut]) for cut in cuts]
+def fires(rows, name, rates, cuts=None):
+    if not cuts:
+        values = sorted(r["signals"][name] for r in rows)
+        n = len(values)
+        cuts = {values[min(n - 1, round(n * rate))] for rate in rates if n}
+    return [(cut, [r for r in rows if r["signals"][name] < cut]) for cut in sorted(cuts)]
 
 
 def pct(part, whole):
     return f"{part / whole:.0%}" if whole else "n/a"
 
 
-def trigger_table(rows, names, rates):
+def trigger_table(rows, names, rates, cuts=None):
     lines = [
         "| Signal | AUC | Fire below | Fallback rate | Precision (poor when fired) | Recall (poor caught) | False fallback (fires on our text hits) | Fires where our answer was right |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
@@ -198,7 +205,7 @@ def trigger_table(rows, names, rates):
     right = sum(r["base"] for r in rows)
     for name in names:
         area = auc(rows, name)
-        for cut, fired in fires(rows, name, rates):
+        for cut, fired in fires(rows, name, rates, cuts):
             hit = sum(not r["text_hit"] for r in fired)
             lines.append(
                 f"| {name} | {area:.2f} | {cut:.3g} | {pct(len(fired), len(rows))} | "
@@ -208,14 +215,14 @@ def trigger_table(rows, names, rates):
     return lines
 
 
-def fallback_table(rows, name, rates, price):
+def fallback_table(rows, name, rates, price, cuts=None):
     n = len(rows)
     base = sum(r["base"] for r in rows)
     lines = [
-        "| Fire below | Fallback rate | Ours alone | Ours + fallback | Gained / lost | Fallback text@10 on fired (our text@10) | Fallback $ per 1k of our queries | Added latency per fallback, mean / p95 (per query, mean) |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Fire below | Fallback rate | Ours alone | Ours + fallback | Gained / lost | Re-read of our top 5 alone: gained / lost | Fallback text@10 on fired (our text@10) | Fallback $ per 1k of our queries | Added latency per fallback, mean / p95 (per query, mean) |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
-    for cut, fired in fires(rows, name, rates):
+    for cut, fired in fires(rows, name, rates, cuts):
         if any(r["merged"] is None for r in fired):
             lines.append(
                 f"| {cut:.3g} | {pct(len(fired), n)} | missing fallback answers |"
@@ -224,6 +231,11 @@ def fallback_table(rows, name, rates, price):
         merged_right = [r["merged"] == "CORRECT" for r in fired]
         gained = sum(m and not r["base"] for m, r in zip(merged_right, fired))
         lost = sum(r["base"] and not m for m, r in zip(merged_right, fired))
+        control = (
+            "n/a"
+            if any(r["control"] is None for r in fired)
+            else f"+{sum(r['control'] == 'CORRECT' and not r['base'] for r in fired)} / -{sum(r['base'] and r['control'] != 'CORRECT' for r in fired)}"
+        )
         judged = [r for r in fired if r["fallback_text_hit"] is not None]
         seconds = sorted(r["fallback_seconds"] or 0.0 for r in fired)
         mean = statistics.fmean(seconds) if seconds else 0.0
@@ -232,21 +244,21 @@ def fallback_table(rows, name, rates, price):
         )
         lines.append(
             f"| {cut:.3g} | {pct(len(fired), n)} | {base / n:.1%} | {(base + gained - lost) / n:.1%} | "
-            f"+{gained} / -{lost} | {pct(sum(r['fallback_text_hit'] for r in judged), len(judged))} "
+            f"+{gained} / -{lost} | {control} | {pct(sum(r['fallback_text_hit'] for r in judged), len(judged))} "
             f"({pct(sum(r['text_hit'] for r in judged), len(judged))}) | "
             f"${len(fired) / n * 1000 * price:.2f} | {mean:.1f}s / {p95:.1f}s ({mean * len(fired) / n:.2f}s) |"
         )
     return lines
 
 
-def cause_table(rows, name, rates):
+def cause_table(rows, name, rates, cuts=None):
     lines = [
         "| Fire below | Fired | "
         + " | ".join(CAUSES)
         + " | Gained / lost on coverage | Gained / lost on ours-to-fix |",
         "| ---: | ---: | " + " | ".join("---:" for _ in CAUSES) + " | ---: | ---: |",
     ]
-    for cut, fired in fires(rows, name, rates):
+    for cut, fired in fires(rows, name, rates, cuts):
         count = Counter(r["cause"] for r in fired)
 
         def swing(group):
@@ -264,40 +276,45 @@ def cause_table(rows, name, rates):
 
 
 def report(args):
-    rows, matched = gather(args)
+    rows, (overlap, same_top) = gather(args)
     n = len(rows)
-    names = sorted(
-        {k for r in rows for k in r["signals"]},
-        key=lambda k: -(auc([r for r in rows if k in r["signals"]], k) or 0),
-    )
+    names = sorted({k for r in rows for k in r["signals"]}, key=lambda k: -(auc(rows, k) or 0))
     chosen = args.signal or names[0]
+    poor = sum(not r["text_hit"] for r in rows)
     lines = [
         f"### {args.label}: fall back to {args.fallback} when {args.base}'s results look poor ({n} questions)",
         "",
-        f"Poor means none of our top 10 returned texts states the answer (text@10 miss): {sum(not r['text_hit'] for r in rows)} of {n}. "
-        f"Router signals come from a rerun whose top 10 matched the saved top 10 on {matched} of {n} questions"
-        + (", and only those carry them." if args.require_match else ".")
-        if args.signals_run
-        else f"Poor means none of our top 10 returned texts states the answer (text@10 miss): {sum(not r['text_hit'] for r in rows)} of {n}.",
+        f"Poor means none of our top 10 returned texts states the answer (text@10 miss): {poor} of {n}."
+        + (
+            f" Router scores come from a rerun that shares {overlap:.0%} of the saved top 10 on average and the same first result on {same_top} of {n} questions."
+            if args.signals_run
+            else ""
+        ),
         "",
-        "#### Trigger",
+        f"#### Trigger on {chosen}" + (" at fixed cuts" if args.cuts else ""),
         "",
-        *trigger_table(rows, names, args.rates),
+        *trigger_table(rows, [chosen], args.rates, args.cuts),
         "",
         f"#### Fallback on {chosen}: ours + {args.fallback} (our top 5 + its top 5, URLs deduped) on fired questions",
         "",
-        *fallback_table(rows, chosen, args.rates, args.price),
+        *fallback_table(rows, chosen, args.rates, args.price, args.cuts),
         "",
     ]
     if any(r["cause"] for r in rows):
         lines += [
             f"#### Why the fired questions missed (on {chosen})",
             "",
-            *cause_table(rows, chosen, args.rates),
+            *cause_table(rows, chosen, args.rates, args.cuts),
             "",
             "Coverage: the pages other providers answered from are not in our index. Excerpt: our page states the answer and our returned text does not. In index, below 10: the answering page is ours but ranked below 10 or past 100. The fix for excerpt and ranking misses is ours.",
             "",
         ]
+    lines += [
+        f"#### Every signal at matched fallback rates (top {args.top_signals} by AUC)",
+        "",
+        *trigger_table(rows, names[: args.top_signals], args.rates),
+        "",
+    ]
     lines.append(
         "Every signal is computed from the query and our results at query time; none reads the answer. AUC is how well the signal ranks our text hits above our misses."
     )
@@ -310,18 +327,18 @@ def report(args):
 def flag(args):
     rows, _ = gather(args)
     chosen = args.signal or "term_coverage"
-    _, fired = fires(rows, chosen, [max(args.rates)])[-1]
+    cut, fired = fires(rows, chosen, args.rates, args.cuts)[-1]
     with open(args.out, "w") as handle:
         for r in fired:
             handle.write(json.dumps(r["question"]) + "\n")
-    print(f"{len(fired)} of {len(rows)} flagged on {chosen} at {max(args.rates):.0%}")
+    print(f"{len(fired)} of {len(rows)} flagged on {chosen} below {cut:.3g}")
 
 
 async def answer(args):
     run_answers.load_env(args.env_file)
     run = Path(args.run)
     questions = read_jsonl(args.questions)
-    name = SPLIT.format(base=args.base, fallback=args.fallback)
+    name = CONTROL.format(base=args.base) if args.control else SPLIT.format(base=args.base, fallback=args.fallback)
     out = run / "answers"
     answers = run_answers.Store(out / "fallback_answers.jsonl")
     grades = run_answers.Store(out / "fallback_grades.jsonl")
@@ -336,7 +353,8 @@ async def answer(args):
             if item not in answers.rows:
                 ctx = run_answers.context(
                     merged(
-                        load(run, args.base, q["id"]), load(run, args.fallback, q["id"])
+                        load(run, args.base, q["id"]),
+                        {} if args.control else load(run, args.fallback, q["id"]),
                     )
                 )
                 text, usage = await run_answers.read(
@@ -398,11 +416,6 @@ def main():
         "--signals-run", help="run dir with a rerun of the base that kept router scores"
     )
     parser.add_argument(
-        "--require-match",
-        action="store_true",
-        help="use rerun signals only when its top 10 matches the saved one",
-    )
-    parser.add_argument(
         "--misses", help="misses.json with per-question coverage lookups"
     )
     parser.add_argument(
@@ -415,6 +428,13 @@ def main():
     )
     parser.add_argument(
         "--rates", type=float, nargs="+", default=[0.1, 0.2, 0.3, 0.4, 0.5]
+    )
+    parser.add_argument(
+        "--cuts", type=float, nargs="+", help="fixed signal cuts in place of rate quantiles"
+    )
+    parser.add_argument("--top-signals", type=int, default=5)
+    parser.add_argument(
+        "--control", action="store_true", help="answer from our top 5 alone, to size reader noise"
     )
     parser.add_argument("--today")
     parser.add_argument("--reader-tokens", type=int, default=6000)

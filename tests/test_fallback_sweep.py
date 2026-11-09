@@ -118,6 +118,14 @@ def test_report_scores_the_trigger_and_the_fallback(tmp_path, monkeypatch, capsy
     fallback_sweep.main()
     out = capsys.readouterr().out
     assert "| term_coverage | 1.00 | 0.667 | 50% | 100% | 100% | 0% | 0% |" in out
-    assert "| 0.667 | 50% | 50.0% | 100.0% | +2 / -0 | 50% (0%) | $0.50 | 3.5s / 4.0s (1.75s) |" in out
+    assert "| 0.667 | 50% | 50.0% | 100.0% | +2 / -0 | n/a | 50% (0%) | $0.50 | 3.5s / 4.0s (1.75s) |" in out
     assert "| 1 | 75% | 50.0% | 75.0% | +2 / -1 |" in out
     assert "| 0.667 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | +1 / -0 | +1 / -0 |" in out
+
+
+def test_fixed_cuts_fire_below_each_cut_and_missing_scores_fire_first():
+    import math
+
+    rows = [{"signals": {"s": v}} for v in (-math.inf, 1.0, 3.0, 9.0)]
+    got = fallback_sweep.fires(rows, "s", [0.5], cuts=[2, 4])
+    assert [(cut, len(fired)) for cut, fired in got] == [(2, 2), (4, 3)]
