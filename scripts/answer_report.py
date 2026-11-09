@@ -6,6 +6,7 @@ import random
 from collections import defaultdict
 from pathlib import Path
 
+from scripts.run_answers import GRADERS
 from utils import read_jsonl
 
 BASE = "desearch-index"
@@ -76,6 +77,13 @@ def main():
         "One search per question; the reader (Qwen3.6-27B, thinking on) sees each profile's top 10 returned texts, mirrors removed; graded with the benchmark's official prompt. `no-search` answers from model knowledge alone.",
         "",
     ]
+    for benchmark in sorted({q.get("benchmark") for q in questions} & set(GRADERS)):
+        grader = GRADERS[benchmark]
+        lines += [
+            f"Grader for {benchmark}: {grader['model']} with `{grader['template']}`."
+            + (f" {grader['note']}" if grader.get("note") else ""),
+            "",
+        ]
     lines += table(questions, grades, profiles, "All")
     groups = defaultdict(list)
     for q in questions:

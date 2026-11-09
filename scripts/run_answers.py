@@ -40,9 +40,9 @@ GRADERS = {
         "model": "openai/gpt-4.1",
         "template": "simpleqa_verified_grader.txt",
     },
-    # The paper's rater, Gemini-Pro-1.5-0514, is retired; 2.5 Flash without thinking is its nearest served successor.
     "frames": {
         "model": "google/gemini-2.5-flash",
+        "note": "It stands in for the paper's rater, Gemini-Pro-1.5-0514, which is retired; thinking is off, as 1.5 had none.",
         "template": "frames_grader.txt",
         "system": "You are a helpful assistant.",
         "max_tokens": 1024,

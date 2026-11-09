@@ -90,8 +90,12 @@ def test_letter_graders_keep_their_short_requests():
 
 def test_answer_report_splits_frames_by_reasoning_type(tmp_path, monkeypatch, capsys):
     questions = [
-        {"id": "f1", "reasoning_types": ["Numerical reasoning"]},
-        {"id": "f2", "reasoning_types": ["Numerical reasoning", "Tabular reasoning"]},
+        {"id": "f1", "benchmark": "frames", "reasoning_types": ["Numerical reasoning"]},
+        {
+            "id": "f2",
+            "benchmark": "frames",
+            "reasoning_types": ["Numerical reasoning", "Tabular reasoning"],
+        },
     ]
     qpath = tmp_path / "q.jsonl"
     qpath.write_text("".join(json.dumps(q) + "\n" for q in questions))
@@ -128,3 +132,5 @@ def test_answer_report_splits_frames_by_reasoning_type(tmp_path, monkeypatch, ca
     numerical = report.split("### Reasoning: Numerical reasoning")[1].split("###")[0]
     assert "| desearch-index | 50.0%" in numerical
     assert "Freshness" not in report
+    assert "Grader for frames: google/gemini-2.5-flash" in report
+    assert "Gemini-Pro-1.5-0514" in report
