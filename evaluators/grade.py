@@ -25,6 +25,10 @@ MIRROR = re.compile(
     r"(?<![a-z0-9])(?:simple[\s_-]?qa|seal[\s_-]?qa|browse[\s_-]?comp|frames[\s_-]benchmark)(?![a-z0-9])|simple[\s_-]?evals",
     re.IGNORECASE,
 )
+MIRROR_URL = re.compile(
+    r"^https?://(?:www\.)?(?:huggingface\.co/datasets/|artificialanalysis\.ai/(?:[a-z]{2}/)?microevals/)",
+    re.IGNORECASE,
+)
 
 
 def is_mirror(source: dict) -> bool:
@@ -32,7 +36,7 @@ def is_mirror(source: dict) -> bool:
     text = unquote(
         " ".join(str(source.get(key) or "") for key in ("url", "title", "text"))
     )
-    return bool(MIRROR.search(text))
+    return bool(MIRROR.search(text) or MIRROR_URL.match(str(source.get("url") or "")))
 
 
 def mirror_keys(sources_: list[dict], fetched: dict) -> set[str]:

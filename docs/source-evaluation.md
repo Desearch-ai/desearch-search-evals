@@ -61,8 +61,9 @@ The judge applies these rules:
 
 k is 1, 3, 5 and 10. Failed searches, missing searches and empty responses score zero and
 are counted per profile, together with fetched pages, judge errors and benchmark
-mirrors. Pages copying a benchmark's own questions (for example dataset mirrors of
-SimpleQA) receive no credit and keep their rank. The mirror verdict belongs to the URL:
+mirrors. Pages copying a benchmark's own questions (dataset mirrors of SimpleQA, any
+Hugging Face dataset page, eval listings such as Artificial Analysis microevals) receive
+no credit, and the answer step drops them from the reader's context and keep their rank. The mirror verdict belongs to the URL:
 it reads the URL, every provider's title and text for it and the start of the fetched
 page, and applies to every provider that returned that URL.
 

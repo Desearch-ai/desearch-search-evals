@@ -159,6 +159,17 @@ def test_benchmark_copies_with_underscored_names_are_mirrors():
     assert not grade.is_mirror({"url": "https://example.org/simplest-quarter"})
 
 
+def test_dataset_and_eval_listing_copies_are_mirrors():
+    assert grade.is_mirror({"url": "https://huggingface.co/datasets/ZixuanKe/Frames_All"})
+    assert grade.is_mirror(
+        {"url": "https://artificialanalysis.ai/es/microevals/how-old-was-harvard-123"}
+    )
+    assert not grade.is_mirror({"url": "https://huggingface.co/papers/2409.12941"})
+    assert not grade.is_mirror(
+        {"url": "https://example.org/a", "text": "see huggingface.co/datasets for data"}
+    )
+
+
 def test_passage_overlapping_the_opening_keeps_its_later_part():
     question = {
         "question": "How many children did Gilbert and Mary Hani have?",
