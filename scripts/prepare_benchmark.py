@@ -133,6 +133,10 @@ def select_samples(records, evaluation_count, calibration_count, seed):
                 f"Insufficient {split} rows: need {count}, have {len(ordered)}"
             )
         samples[split] = ordered[:count]
+    chosen = {row["id"] for rows in samples.values() for row in rows}
+    samples["remainder"] = sorted(
+        (r for r in records if r["id"] not in chosen), key=lambda r: r["original_index"]
+    )
     return samples
 
 
@@ -155,10 +159,16 @@ def write_sample(args):
         "benchmark": args.benchmark,
         "provenance": PROVENANCE[args.benchmark],
         "seed": args.seed,
-        "counts": {split: len(rows) for split, rows in samples.items()},
+        "counts": {
+            split: len(rows)
+            for split, rows in samples.items()
+            if split != "remainder" or args.remainder
+        },
     }
     artifacts = {
-        f"{split}/questions.jsonl": jsonl_text(rows) for split, rows in samples.items()
+        f"{split}/questions.jsonl": jsonl_text(rows)
+        for split, rows in samples.items()
+        if split != "remainder" or args.remainder
     }
     artifacts["dataset.json"] = json_text(metadata)
     output = Path(args.output)
@@ -182,6 +192,11 @@ def main():
     parser.add_argument("--evaluation-count", type=int, default=20)
     parser.add_argument("--calibration-count", type=int, default=10)
     parser.add_argument("--seed", default="42")
+    parser.add_argument(
+        "--remainder",
+        action="store_true",
+        help="also write every question in neither sample, as a held-out set",
+    )
     metadata = write_sample(parser.parse_args())
     print(json_text(metadata["counts"]))
 
