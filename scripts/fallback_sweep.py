@@ -120,6 +120,28 @@ def cause(case):
     return "judged miss in top 10" if case["rank"] <= 10 else "in index, below 10"
 
 
+def expected(fit, question):
+    return fit["intercept"] + fit["slope"] * math.log(len(question))
+
+
+def fit_length(args):
+    """Least squares of top_rerank on log question length, and the residual cut firing as often as the raw cut."""
+    points = []
+    for q in read_jsonl(args.questions):
+        value = signals(q["question"], load(args.signals_run, args.base, q["id"])).get("top_rerank")
+        if value is not None:
+            points.append((math.log(len(q["question"])), value))
+    xs, ys = zip(*points)
+    mx, my = statistics.fmean(xs), statistics.fmean(ys)
+    slope = sum((x - mx) * (y - my) for x, y in points) / sum((x - mx) ** 2 for x in xs)
+    fit = {"intercept": my - slope * mx, "slope": slope, "fitted_on": args.questions, "n": len(points)}
+    rate = sum(y < args.raw_cut for y in ys) / len(ys)
+    residuals = sorted(y - fit["intercept"] - slope * x for x, y in points)
+    fit |= {"raw_cut": args.raw_cut, "fire_rate": rate, "cut": residuals[min(len(residuals) - 1, round(rate * len(residuals)))]}
+    Path(args.out).write_text(json.dumps(fit, indent=2) + "\n")
+    print(json.dumps(fit))
+
+
 def auc(rows, name):
     good = [r["signals"][name] for r in rows if r["text_hit"]]
     poor = [r["signals"][name] for r in rows if not r["text_hit"]]
@@ -147,6 +169,7 @@ def gather(args):
         cases = {c["qid"]: c for c in json.loads(Path(args.misses).read_text())}
     name = SPLIT.format(base=args.base, fallback=args.fallback)
     rows, overlap, same_top = [], [], 0
+    fit = json.loads(Path(args.length_fit).read_text()) if args.length_fit else None
     for q in questions:
         saved = load(run, args.base, q["id"])
         live = load(args.signals_run, args.base, q["id"]) if args.signals_run else saved
@@ -155,6 +178,8 @@ def gather(args):
         overlap.append(len(set(now) & set(then)) / max(1, len(then)))
         same_top += bool(now and then and now[0] == then[0])
         extra = signals(q["question"], live)
+        if fit and "top_rerank" in extra:
+            extra["rerank_vs_length"] = extra["top_rerank"] - expected(fit, q["question"])
         extra["term_coverage"] = coverage(q["question"], saved)
         fallback = load(run, args.fallback, q["id"])
         rows.append(
@@ -401,7 +426,7 @@ async def answer(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["answer", "flag", "report"])
+    parser.add_argument("command", choices=["answer", "flag", "report", "fit"])
     parser.add_argument("--questions", required=True)
     parser.add_argument("--run", required=True)
     parser.add_argument("--base", default="desearch-index")
@@ -433,6 +458,8 @@ def main():
         "--cuts", type=float, nargs="+", help="fixed signal cuts in place of rate quantiles"
     )
     parser.add_argument("--top-signals", type=int, default=5)
+    parser.add_argument("--length-fit", help="fit json from the fit command; adds rerank_vs_length")
+    parser.add_argument("--raw-cut", type=float, default=4.0, help="fit: raw top_rerank cut whose fire rate the residual cut matches")
     parser.add_argument(
         "--control", action="store_true", help="answer from our top 5 alone, to size reader noise"
     )
@@ -444,6 +471,8 @@ def main():
     args = parser.parse_args()
     if args.command == "answer":
         asyncio.run(answer(args))
+    elif args.command == "fit":
+        fit_length(args)
     elif args.command == "flag":
         flag(args)
     else:

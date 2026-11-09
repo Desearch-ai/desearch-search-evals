@@ -129,3 +129,23 @@ def test_fixed_cuts_fire_below_each_cut_and_missing_scores_fire_first():
     rows = [{"signals": {"s": v}} for v in (-math.inf, 1.0, 3.0, 9.0)]
     got = fallback_sweep.fires(rows, "s", [0.5], cuts=[2, 4])
     assert [(cut, len(fired)) for cut, fired in got] == [(2, 2), (4, 3)]
+
+
+def test_length_fit_matches_the_raw_cut_fire_rate(tmp_path, monkeypatch):
+    questions = [{"id": f"q{i}", "question": "x" * (20 + 10 * i)} for i in range(10)]
+    qpath = tmp_path / "q.jsonl"
+    qpath.write_text("".join(json.dumps(q) + "\n" for q in questions))
+    for i in range(10):
+        path = tmp_path / "searches" / "desearch-index" / f"q{i}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"results": [{"url": "u", "scores": {"rerank": float(i)}}]}))
+    out = tmp_path / "fit.json"
+    monkeypatch.setattr(sys, "argv", [
+        "x", "fit", "--questions", str(qpath), "--run", "x", "--signals-run", str(tmp_path),
+        "--raw-cut", "3", "--out", str(out),
+    ])
+    fallback_sweep.main()
+    fit = json.loads(out.read_text())
+    assert fit["slope"] > 0 and fit["fire_rate"] == 0.3
+    residual = [i - fallback_sweep.expected(fit, q["question"]) for i, q in enumerate(questions)]
+    assert sum(r < fit["cut"] for r in residual) == 3
