@@ -87,6 +87,14 @@ def main():
         lines += table(
             [q for q in questions if q.get("seal_0")], grades, profiles, "Seal-0 subset"
         )
+    kinds = defaultdict(list)
+    for q in questions:
+        for kind in q.get("reasoning_types") or []:
+            kinds[kind].append(q)
+    if kinds:
+        lines.append("A FRAMES question can carry several reasoning types, so it counts in each.\n")
+    for name in sorted(kinds, key=lambda k: -len(kinds[k])):
+        lines += table(kinds[name], grades, profiles, f"Reasoning: {name}")
     out = Path(args.run) / "answers" / "report.md"
     out.write_text("\n".join(lines))
     print(out.read_text())

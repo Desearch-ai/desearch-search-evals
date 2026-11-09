@@ -99,8 +99,9 @@ async def execute(args):
     questions = read_jsonl(args.questions)[: args.limit]
     config = json.loads(Path(args.config).read_text())
     profiles = config["profiles"]
-    for profile in profiles:
-        search_provider.validate_profile(profile)
+    if not (args.regrade or args.report_only):
+        for profile in profiles:
+            search_provider.validate_profile(profile)
 
     run_dir = Path(args.run)
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -121,12 +122,16 @@ async def execute(args):
         return report(run_dir, questions, profiles, args)
 
     semaphore = asyncio.Semaphore(args.concurrency)
+    limits = {
+        p["id"]: asyncio.Semaphore(p.get("concurrency", args.concurrency))
+        for p in profiles
+    }
     writing = asyncio.Lock()
 
     async with aiohttp.ClientSession() as session:
 
         async def guarded(question, profile):
-            async with semaphore:
+            async with limits[profile["id"]], semaphore:
                 row = await one_task(session, key, question, profile, args, run_dir)
             # Written as each task lands, so an interrupted run keeps what it paid for.
             async with writing:

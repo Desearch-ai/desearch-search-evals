@@ -1,7 +1,8 @@
 # Agentic benchmarks
 
-SimpleQA Verified, SealQA and FRAMES ship reference URLs, so they are scored by retrieval: did
-the provider return the page, no model involved. BrowseComp ships only a question and an answer.
+SimpleQA Verified, SealQA and FRAMES are scored on one search per question: whether the results
+state the answer, whether they include the reference pages, and the answer a fixed reader gives
+from them (`scripts.run_answers`). BrowseComp ships only a question and an answer.
 Finding the page is the task, so the only thing to score is the answer an agent submits after
 searching.
 
@@ -18,7 +19,9 @@ scripts/run_agent_benchmark.py
 ```
 
 Held constant across providers: the model (GPT-5.6 Luna, medium reasoning), 25 turns, 10 results
-per search, the same page fetcher, and the same judge. The agent calls `finish` to submit; running
+per search, the same page fetcher, and the same judge. `configs/agent_browsecomp.json` carries the
+same nine profiles and modes as `configs/search.json`; a profile's `concurrency` caps its parallel
+tasks, which keeps the Desearch index router at two. The agent calls `finish` to submit; running
 out of turns submits nothing and scores zero, which is how Artificial Analysis scores it too.
 
 Benchmark copies are filtered out of search results and fetched pages before the model sees them,

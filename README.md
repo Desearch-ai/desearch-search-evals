@@ -42,6 +42,16 @@ The importer keeps the official wording and answers, including tolerances such a
 `(or collier)` and `(acceptable range: anything between 198 and 202)`. It uses only the
 held-out partition for evaluation and never filters questions by index coverage.
 
+### Public benchmark: FRAMES
+
+```bash
+python -m scripts.prepare_frames --output runs/frames/dataset --sample 500
+```
+
+Downloads `test.tsv` from a pinned revision of `google/frames-benchmark` (824 questions),
+keeps the official wording, answers and reasoning types, splits the reference Wikipedia
+URLs cleanly, and with `--sample` also writes a seeded `sample500.jsonl`.
+
 ### News: one question per event
 
 ```bash
@@ -163,9 +173,10 @@ relevant page on the web. See the [evaluation protocol](docs/source-evaluation.m
 `scripts.run_answers` gives each profile's saved top 10 returned texts (benchmark mirrors
 removed) to one reader, Qwen3.6-27B with thinking on, plus a `no-search` baseline, and grades
 the answer with the benchmark's official prompt: GPT-4.1 with the SimpleQA Verified prompt,
-GPT-4o-mini with the SealQA prompt (`evaluators/templates/`). `scripts.answer_report` prints
-accuracy with 95% intervals, F1, paired wins against `desearch-index`, and splits by freshness
-and Seal-0.
+GPT-4o-mini with the SealQA prompt, and the FRAMES paper's auto-rating prompt with Gemini 2.5
+Flash, thinking off, since the paper's Gemini 1.5 Pro is retired (`evaluators/templates/`).
+`scripts.answer_report` prints accuracy with 95% intervals, F1, paired wins against
+`desearch-index`, and splits by freshness, Seal-0 and FRAMES reasoning type.
 
 ```bash
 python -m scripts.run_answers --questions runs/sealqa/dataset/questions.jsonl \

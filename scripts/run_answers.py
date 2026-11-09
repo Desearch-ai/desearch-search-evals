@@ -20,12 +20,37 @@ CHUTES = "https://llm.chutes.ai/v1/chat/completions"
 OPENROUTER = "https://openrouter.ai/api/v1/chat/completions"
 READER = "Qwen/Qwen3.6-27B-TEE"
 READER_PRICE = (0.25e-6, 2.0e-6)
+GRADES = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
+DECISIONS = {"TRUE": "CORRECT", "FALSE": "INCORRECT"}
+
+
+def letter_grade(reply):
+    found = re.search(r"\b([ABC])\b", reply)
+    return GRADES.get(found.group(1) if found else "", "UNPARSED")
+
+
+def decision_grade(reply):
+    found = re.findall(r"Decision\W*(TRUE|FALSE)\b", reply, flags=re.I)
+    return DECISIONS.get(found[-1].upper() if found else "", "UNPARSED")
+
+
 GRADERS = {
-    "sealqa": ("openai/gpt-4o-mini", "sealqa_grader.txt"),
-    "simpleqa_verified": ("openai/gpt-4.1", "simpleqa_verified_grader.txt"),
+    "sealqa": {"model": "openai/gpt-4o-mini", "template": "sealqa_grader.txt"},
+    "simpleqa_verified": {
+        "model": "openai/gpt-4.1",
+        "template": "simpleqa_verified_grader.txt",
+    },
+    # The paper's rater, Gemini-Pro-1.5-0514, is retired; 2.5 Flash without thinking is its nearest served successor.
+    "frames": {
+        "model": "google/gemini-2.5-flash",
+        "template": "frames_grader.txt",
+        "system": "You are a helpful assistant.",
+        "max_tokens": 1024,
+        "parse": decision_grade,
+        "extra": {"reasoning": {"enabled": False}},
+    },
 }
 NO_SEARCH = "no-search"
-GRADES = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
 
 READER_SYSTEM = """Today is {today}. Answer the question using the search results below. They may be incomplete, outdated or contradict each other: prefer the most recent reliable source, and answer from your own knowledge only when the results do not settle it.
 
@@ -150,25 +175,33 @@ async def read(session, token, question, ctx, today, max_tokens):
     }
 
 
-async def grade(session, key, benchmark, question, target, response):
-    model, template = GRADERS[benchmark]
-    prompt = (TEMPLATES / template).read_text()
+def grader_request(benchmark, question, target, response):
+    grader = GRADERS[benchmark]
     prompt = (
-        prompt.replace("{question}", question)
+        (TEMPLATES / grader["template"])
+        .read_text()
+        .replace("{question}", question)
         .replace("{target}", target)
         .replace("{predicted_answer}", response)
     )
-    body = {
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 5,
+    messages = [{"role": "user", "content": prompt}]
+    if grader.get("system"):
+        messages.insert(0, {"role": "system", "content": grader["system"]})
+    return {
+        "model": grader["model"],
+        "messages": messages,
+        "max_tokens": grader.get("max_tokens", 5),
         "temperature": 0,
+        **grader.get("extra", {}),
     }
+
+
+async def grade(session, key, benchmark, question, target, response):
+    body = grader_request(benchmark, question, target, response)
     data = await post(session, OPENROUTER, key, body)
     reply = (data["choices"][0]["message"].get("content") or "").strip()
-    letter = re.search(r"\b([ABC])\b", reply)
     return (
-        GRADES.get(letter.group(1) if letter else "", "UNPARSED"),
+        GRADERS[benchmark].get("parse", letter_grade)(reply),
         reply,
         (data.get("usage") or {}).get("cost"),
     )

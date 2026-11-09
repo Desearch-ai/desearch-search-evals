@@ -10,8 +10,9 @@ required, and several results repeating the same fact still count as one hit.
 Two views are scored separately:
 
 - **Page:** the result's page, fetched once with one shared extractor for every
-  provider: a desktop browser's headers, one retry on timeouts, 429 and 5xx answers,
-  and text extraction for HTML and PDF. A fetched page is judged with the same text
+  provider: a named bot user agent first and a desktop browser's headers only when a
+  site answers 401 or 403 (Wikimedia refuses scripted browser agents), one retry on
+  timeouts, 429 and 5xx answers, and text extraction for HTML and PDF. A fetched page is judged with the same text
   whichever provider returned it. When a page cannot be fetched, the returned text is
   judged instead and each result records which of the two was read.
 - **Returned text:** only what the search API returned, which is what an agent sees

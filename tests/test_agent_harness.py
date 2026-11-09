@@ -1,5 +1,7 @@
+import argparse
 import asyncio
 import json
+from collections import Counter
 
 import pytest
 
@@ -313,3 +315,85 @@ def test_browsecomp_text_is_sealed_with_the_benchmark_canary():
     key = hashlib.sha256(BROWSECOMP_CANARY.encode()).digest()
     assert bytes(a ^ b for a, b in zip(raw, key)).decode() == "Who wrote it?"
     assert "Who" not in sealed_text
+
+
+def test_profile_concurrency_caps_agent_tasks(tmp_path, monkeypatch):
+    from scripts import run_agent_benchmark
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test")
+    questions = tmp_path / "q.jsonl"
+    questions.write_text(
+        "".join(json.dumps({"id": f"q{i}", "question": "x"}) + "\n" for i in range(6))
+    )
+    config = tmp_path / "c.json"
+    config.write_text(
+        json.dumps(
+            {
+                "profiles": [
+                    {"id": "index", "transport": "desearch_router", "mode": "standard", "concurrency": 1},
+                    {"id": "exa", "transport": "exa", "mode": "fast"},
+                ]
+            }
+        )
+    )
+    running, peak = Counter(), Counter()
+
+    async def fake_task(session, key, question, profile, args, run_dir):
+        running[profile["id"]] += 1
+        peak[profile["id"]] = max(peak[profile["id"]], running[profile["id"]])
+        await asyncio.sleep(0.01)
+        running[profile["id"]] -= 1
+        return {"question_id": question["id"], "profile_id": profile["id"], "status": "ok"}
+
+    monkeypatch.setattr(run_agent_benchmark, "one_task", fake_task)
+    args = argparse.Namespace(
+        env_file=str(tmp_path / "none.env"),
+        questions=str(questions),
+        limit=None,
+        config=str(config),
+        run=str(tmp_path / "run"),
+        regrade=False,
+        report_only=False,
+        concurrency=4,
+        model="m",
+        grader_model="g",
+        grader="exact",
+        turns=1,
+    )
+    asyncio.run(run_agent_benchmark.execute(args))
+    assert peak["index"] == 1
+    assert peak["exa"] > 1
+
+
+def test_report_only_rebuilds_runs_with_retired_transports(tmp_path, monkeypatch):
+    from scripts import run_agent_benchmark
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test")
+    questions = tmp_path / "q.jsonl"
+    questions.write_text(json.dumps({"id": "q0", "question": "x"}) + "\n")
+    config = tmp_path / "c.json"
+    config.write_text(json.dumps({"profiles": [{"id": "old", "transport": "openrouter"}]}))
+    run = tmp_path / "run"
+    run.mkdir()
+    (run / "answers.jsonl").write_text(
+        json.dumps({"question_id": "q0", "profile_id": "old", "status": "ok", "score": 1.0}) + "\n"
+    )
+    args = argparse.Namespace(
+        env_file=str(tmp_path / "none.env"),
+        questions=str(questions),
+        limit=None,
+        config=str(config),
+        run=str(run),
+        regrade=False,
+        report_only=True,
+        concurrency=1,
+        model="m",
+        grader_model="g",
+        grader="exact",
+        turns=1,
+    )
+    summary = asyncio.run(run_agent_benchmark.execute(args))
+    assert summary["profiles"]["old"]["score"] == 1.0
+    args.report_only = False
+    with pytest.raises(ValueError):
+        asyncio.run(run_agent_benchmark.execute(args))
