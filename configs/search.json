@@ -63,6 +63,13 @@
       "mode": "web",
       "max_results": 10,
       "max_characters": 2000
+    },
+    {
+      "id": "octen",
+      "transport": "octen",
+      "max_results": 10,
+      "max_characters": 2000,
+      "concurrency": 8
     }
   ]
 }

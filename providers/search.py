@@ -5,6 +5,7 @@ from . import (
     desearch_index,
     desearch_router,
     exa,
+    octen,
     parallel,
     perplexity,
     serper,
@@ -16,6 +17,7 @@ ADAPTERS = {
     "desearch_index": desearch_index,
     "desearch_router": desearch_router,
     "exa": exa,
+    "octen": octen,
     "parallel": parallel,
     "serper": serper,
     "perplexity": perplexity,
@@ -26,6 +28,7 @@ KEYS = {
     "desearch_index": "DESEARCH_INDEX_KEY",
     "desearch_router": "DESEARCH_ROUTER_URL",
     "exa": "EXA_API_KEY",
+    "octen": "OCTEN_API_KEY",
     "parallel": "PARALLEL_API_KEY",
     "serper": "SERPER_API_KEY",
     "perplexity": "PERPLEXITY_API_KEY",
@@ -48,6 +51,9 @@ def validate_profile(profile):
     elif transport == "exa":
         provider = "exa"
         exa.validate_profile(profile)
+    elif transport == "octen":
+        provider = "octen"
+        octen.validate_profile(profile)
     elif transport == "parallel":
         provider = "parallel"
         parallel.validate_profile(profile)

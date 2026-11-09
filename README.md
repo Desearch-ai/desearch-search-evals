@@ -23,7 +23,7 @@ python -m pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Set `EXA_API_KEY`, `PARALLEL_API_KEY`, `TAVILY_API_KEY`, `PERPLEXITY_API_KEY` and `OPENROUTER_API_KEY` (judge and graders). Set `DESEARCH_ROUTER_URL` to search the Desearch index directly, `CHUTES_API_TOKEN` for the answer step, and `HF_TOKEN` for publishing.
+Set `EXA_API_KEY`, `PARALLEL_API_KEY`, `TAVILY_API_KEY`, `PERPLEXITY_API_KEY`, `OCTEN_API_KEY` and `OPENROUTER_API_KEY` (judge and graders). Set `DESEARCH_ROUTER_URL` to search the Desearch index directly, `CHUTES_API_TOKEN` for the answer step, and `HF_TOKEN` for publishing.
 
 ## 1. Freeze questions
 
@@ -149,11 +149,15 @@ python -m scripts.upload_to_hf --bundle ... --upload
 | Parallel | Direct API (`/v1/search`, excerpts) | fast | advanced |
 | Perplexity | Direct Search API (`/search`) | fast | web |
 | Tavily | Direct API | fast | advanced |
+| Octen | Direct API (`/search`, highlights) | | default (no modes) |
 
 Each provider runs at its own fast mode and at its best single-search mode; deep-research,
 multi-query and generated-answer modes are excluded. Every profile gets the same question
 text, returns up to 10 results with at most 2,000 characters each, and sends no date
 filters. A profile may set `concurrency` to cap its parallel searches.
+
+Octen has one search mode. Its terms forbid using its output to build a competing engine, so
+Octen runs are internal measurements only and its results never feed the Desearch index.
 
 ## Scores
 

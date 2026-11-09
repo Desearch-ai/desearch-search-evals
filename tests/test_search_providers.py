@@ -6,7 +6,7 @@ import unittest.mock
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
-from providers import desearch, desearch_router, exa, parallel, perplexity, search, tavily
+from providers import desearch, desearch_router, exa, parallel, octen, perplexity, search, tavily
 
 QUESTION = "Which company acquired DoubleClick in 2008?"
 
@@ -371,3 +371,61 @@ class DesearchRouterTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OctenSearchTests(unittest.IsolatedAsyncioTestCase):
+    async def test_request_caps_highlights_and_maps_fields(self):
+        raw = {
+            "code": 0,
+            "msg": "success",
+            "data": {
+                "results": [
+                    {
+                        "url": "https://example.org/a",
+                        "title": "A",
+                        "highlight": "first page text",
+                        "time_published": "2024-10-15T00:00:00Z",
+                    },
+                    {"url": "https://example.org/b", "title": "B"},
+                ]
+            },
+            "meta": {"latency": 237},
+        }
+        session = FakeSession(raw)
+        profile = {"transport": "octen", "max_characters": 10}
+        result = await octen.search(session, QUESTION, profile, "key")
+        endpoint, request = session.calls[0]
+        self.assertEqual(endpoint, "https://api.octen.ai/search")
+        self.assertEqual(request["headers"], {"x-api-key": "key"})
+        self.assertEqual(
+            request["json"],
+            {"query": QUESTION, "count": 10, "highlight": {"enable": True, "max_tokens": 100}},
+        )
+        self.assertEqual(result["results"][0]["text"], "first page")
+        self.assertEqual(result["results"][0]["published"], "2024-10-15")
+        self.assertEqual(result["results"][1]["text"], "")
+        self.assertEqual(result["server_ms"], 237)
+        self.assertEqual(result["cost_usd"], 0.001)
+        self.assertNotIn("error", result)
+
+    def test_default_profile_asks_for_500_highlight_tokens(self):
+        request = octen.build_request(QUESTION, {"transport": "octen"})
+        self.assertEqual(request["highlight"]["max_tokens"], 500)
+        self.assertEqual(set(request), {"query", "count", "highlight"})
+
+    async def test_business_error_codes_are_explicit_errors(self):
+        result = await octen.search(
+            FakeSession({"code": 403, "msg": "Insufficient balance in account"}, 200),
+            QUESTION,
+            {"transport": "octen"},
+            "key",
+        )
+        self.assertIn("code 403", result["error"])
+        self.assertEqual(result["results"], [])
+        self.assertIsNone(result["cost_usd"])
+
+    def test_octen_profiles_validate_and_need_their_key(self):
+        self.assertEqual(search.validate_profile({"transport": "octen"}), "octen")
+        self.assertEqual(search.KEYS["octen"], "OCTEN_API_KEY")
+        with self.assertRaises(ValueError):
+            octen.validate_profile({"transport": "octen", "start_date": "2024-01-01"})
