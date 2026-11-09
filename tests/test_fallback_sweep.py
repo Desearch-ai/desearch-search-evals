@@ -24,10 +24,29 @@ def test_coverage_reads_only_the_question_and_our_results():
     assert fallback_sweep.coverage("Grammy album record", mirror_only) == 0.0
 
 
-def test_confidence_takes_the_last_stated_value():
-    assert fallback_sweep.confidence("Exact Answer: x\nConfidence: 85%") == 0.85
-    assert fallback_sweep.confidence("Confidence: 20%\nConfidence: 60%") == 0.6
-    assert fallback_sweep.confidence("") == 0.0
+def test_signals_read_router_scores_when_kept():
+    search = {
+        "results": [
+            {"url": "https://a.org", "title": "", "text": "", "scores": {"rerank": 0.2, "fused": 0.5}, "highlight_scores": [0.3]},
+            {"url": "https://b.org", "title": "", "text": "", "scores": {"rerank": 0.9, "fused": None}},
+        ],
+        "candidates": {"found": 9},
+    }
+    out = fallback_sweep.signals("alpha beta", search)
+    assert out["top_rerank"] == 0.9 and out["top_fused"] == 0.5
+    assert out["top_highlight"] == 0.3 and round(out["log_found"], 3) == 2.303
+    assert set(fallback_sweep.signals("alpha", {"results": [{"url": "x"}]})) == {"term_coverage"}
+
+
+def test_cause_follows_the_misses_buckets():
+    base = {"page_hit": False, "snip_hit": False, "answering": {"u": ["exa"]}}
+    assert fallback_sweep.cause({**base, "page_hit": True}) == "excerpt"
+    assert fallback_sweep.cause({**base, "page_hit": True, "snip_hit": True}) == "hit"
+    assert fallback_sweep.cause({**base, "answering": {}}) == "nobody answers"
+    assert fallback_sweep.cause({**base, "held": {"u": False}}) == "coverage"
+    assert fallback_sweep.cause({**base, "held": {"u": None}}) == "unknown"
+    assert fallback_sweep.cause({**base, "held": {"u": True}, "rank": 40}) == "in index, below 10"
+    assert fallback_sweep.cause({**base, "held": {"u": True}, "rank": 4}) == "judged miss in top 10"
 
 
 def test_merged_context_dedupes_urls_and_reranks():
@@ -52,7 +71,12 @@ def test_merged_context_dedupes_urls_and_reranks():
     )
 
 
-def test_sweep_counts_gains_and_losses(tmp_path, monkeypatch, capsys):
+def judged(qid, hit):
+    flag = {"hit": int(hit)}
+    return {"question_id": qid, "search_status": "ok", "results": [{"mirror": False, "page": flag, "snippet": flag}]}
+
+
+def test_report_scores_the_trigger_and_the_fallback(tmp_path, monkeypatch, capsys):
     questions = [{"id": f"q{i}", "question": f"alpha beta gamma {i}"} for i in range(4)]
     qpath = tmp_path / "q.jsonl"
     qpath.write_text("".join(json.dumps(q) + "\n" for q in questions))
@@ -60,46 +84,40 @@ def test_sweep_counts_gains_and_losses(tmp_path, monkeypatch, capsys):
     (run / "answers").mkdir(parents=True)
     texts = ["alpha beta gamma", "alpha beta", "alpha", "nothing"]
     for i, text in enumerate(texts):
-        path = run / "searches" / "desearch-index" / f"q{i}.json"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            json.dumps(
-                {"results": [{"url": "https://a.org", "title": "", "text": text}]}
-            )
-        )
+        for profile, body in (
+            ("desearch-index", {"results": [{"url": "https://a.org", "title": "", "text": text}]}),
+            ("octen", {"results": [], "elapsed_seconds": 1.0 + i}),
+        ):
+            path = run / "searches" / profile / f"q{i}.json"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(body))
+    ours_hit = [True, True, False, False]
     base = ["CORRECT", "CORRECT", "INCORRECT", "INCORRECT"]
-    octen = ["INCORRECT", "INCORRECT", "CORRECT", "INCORRECT"]
-    merged = ["CORRECT", "CORRECT", "CORRECT", "CORRECT"]
+    merged = ["CORRECT", "INCORRECT", "CORRECT", "CORRECT"]
+    ours_eval = tmp_path / "ours.json"
+    ours_eval.write_text(json.dumps({"profiles": {"desearch-index": [judged(f"q{i}", h) for i, h in enumerate(ours_hit)]}}))
+    their_eval = tmp_path / "theirs.json"
+    their_eval.write_text(json.dumps({"profiles": {"octen": [judged(f"q{i}", i == 3) for i in range(4)]}}))
 
     def rows(profile, values):
-        return [
-            {"key": f"{profile}/q{i}", "grade": g, "response": "Confidence: 50%"}
-            for i, g in enumerate(values)
-        ]
+        return "".join(json.dumps({"key": f"{profile}/q{i}", "grade": g}) + "\n" for i, g in enumerate(values))
 
-    lines = rows("desearch-index", base) + rows("octen", octen)
-    (run / "answers" / "grades.jsonl").write_text(
-        "".join(json.dumps(r) + "\n" for r in lines)
-    )
-    (run / "answers" / "answers.jsonl").write_text(
-        "".join(json.dumps(r) + "\n" for r in lines)
-    )
-    (run / "answers" / "fallback_grades.jsonl").write_text(
-        "".join(json.dumps(r) + "\n" for r in rows("desearch-index+octen", merged))
-    )
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        ["x", "sweep", "--questions", str(qpath), "--run", str(run), "--rates", "0.5"],
-    )
+    (run / "answers" / "grades.jsonl").write_text(rows("desearch-index", base))
+    (run / "answers" / "fallback_grades.jsonl").write_text(rows("desearch-index+octen", merged))
+    misses = tmp_path / "misses.json"
+    misses.write_text(json.dumps([
+        {"qid": "q0", "page_hit": True, "snip_hit": True, "answering": {}},
+        {"qid": "q1", "page_hit": True, "snip_hit": True, "answering": {}},
+        {"qid": "q2", "page_hit": True, "snip_hit": False, "answering": {}},
+        {"qid": "q3", "page_hit": False, "snip_hit": False, "answering": {"u": ["exa"]}, "held": {"u": False}},
+    ]))
+    monkeypatch.setattr(sys, "argv", [
+        "x", "report", "--questions", str(qpath), "--run", str(run), "--base-eval", str(ours_eval),
+        "--fallback-eval", str(their_eval), "--misses", str(misses), "--rates", "0.5", "0.75",
+    ])
     fallback_sweep.main()
     out = capsys.readouterr().out
-    assert "desearch-index alone 50.0%; octen alone 25.0%" in out
-    half = [line for line in out.splitlines() if line.startswith("| coverage | 0.67")]
-    assert (
-        half and "| 50% | 75.0% | +1 / -0 | 100.0% | +2 / -0 | 500 ($0.50) |" in half[0]
-    )
-    everything = [
-        line for line in out.splitlines() if line.startswith("| coverage | all")
-    ]
-    assert "| 100% | 25.0% | +1 / -2 |" in everything[0]
+    assert "| term_coverage | 1.00 | 0.667 | 50% | 100% | 100% | 0% | 0% |" in out
+    assert "| 0.667 | 50% | 50.0% | 100.0% | +2 / -0 | 50% (0%) | $0.50 | 3.5s / 4.0s (1.75s) |" in out
+    assert "| 1 | 75% | 50.0% | 75.0% | +2 / -1 |" in out
+    assert "| 0.667 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | +1 / -0 | +1 / -0 |" in out
