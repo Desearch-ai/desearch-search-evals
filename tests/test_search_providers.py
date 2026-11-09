@@ -342,8 +342,11 @@ class DesearchRouterTests(unittest.IsolatedAsyncioTestCase):
                     "title": "A",
                     "published": "2026-09-10T08:00:00Z",
                     "highlights": ["first part", "second part"],
+                    "highlight_scores": [0.9, 0.4],
+                    "scores": {"fused": 0.5, "rerank": 0.8},
                 }
             ],
+            "candidates": {"found": 40, "union": 120},
             "ms": {"total": 900.0},
         }
         session = FakeSession(raw)
@@ -357,6 +360,9 @@ class DesearchRouterTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(result["results"][0]["text"], "first part\nseco")
         self.assertEqual(result["results"][0]["published"], "2026-09-10")
+        self.assertEqual(result["results"][0]["scores"]["rerank"], 0.8)
+        self.assertEqual(result["results"][0]["highlight_scores"], [0.9, 0.4])
+        self.assertEqual(result["candidates"]["found"], 40)
         self.assertNotIn("error", result)
 
     async def test_a_partial_index_answer_is_an_error(self):

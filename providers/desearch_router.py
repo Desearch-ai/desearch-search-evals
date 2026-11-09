@@ -39,6 +39,8 @@ def parse_results(raw, profile):
             "title": row.get("title") or "",
             "text": "\n".join(row.get("highlights") or [])[:limit],
             "published": (row.get("published") or "")[:10] or None,
+            "scores": row.get("scores"),
+            "highlight_scores": row.get("highlight_scores"),
         }
         for index, row in enumerate(
             (raw.get("results") or [])[: profile.get("max_results", 10)]
@@ -84,6 +86,7 @@ async def search(session, question, profile, router_url):
         else:
             result["results"] = parse_results(raw, profile)
             result["server_ms"] = raw.get("ms")
+            result["candidates"] = raw.get("candidates")
     except (aiohttp.ClientError, TimeoutError, ValueError) as error:
         result["error"] = f"{type(error).__name__}: {error}"
     result["elapsed_seconds"] = time.monotonic() - started
