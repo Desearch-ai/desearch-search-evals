@@ -24,15 +24,15 @@ def holders(text):
     return [l for l in lines if l.strip() and l.strip() != FREE]
 
 
-def acquire(path, line):
+def acquire(path, line, share=False):
     text = Path(path).read_text()
     if "## Holder" not in text:
         raise SystemExit(f"{path} has no '## Holder' section")
     taken = holders(text)
-    if taken:
+    if taken and not share:
         raise SystemExit("router is locked by: " + " / ".join(taken))
     head, _ = text.split("## Holder", 1)
-    Path(path).write_text(f"{head}## Holder\n{line}\n")
+    Path(path).write_text(f"{head}## Holder\n" + "".join(l + "\n" for l in [*taken, line]))
 
 
 def release(path, line):
@@ -215,7 +215,7 @@ def run_searches(args, n):
     if args.stop and Path(args.stop).exists():
         raise SystemExit(f"stop file present: {Path(args.stop).read_text().strip()}")
     if args.lock:
-        acquire(args.lock, line)
+        acquire(args.lock, line, args.share)
     try:
         command = [
             sys.executable,
@@ -306,6 +306,7 @@ def main():
         "--lock", help="router lock file; taken for the search phase and released after"
     )
     parser.add_argument("--stop", help="stop file; searches halt while it exists")
+    parser.add_argument("--share", action="store_true", help="add a line beside existing holders; only with the lead session's OK")
     parser.add_argument(
         "--owner", default="quick_eval", help="who holds the lock, written into it"
     )

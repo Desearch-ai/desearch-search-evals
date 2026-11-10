@@ -14,7 +14,10 @@ def test_lock_is_taken_then_released(tmp_path):
     assert quick_eval.holders(path.read_text()) == ["- me | run | 10:00"]
     with pytest.raises(SystemExit, match="locked by: - me"):
         quick_eval.acquire(path, "- other | run | 10:01")
+    quick_eval.acquire(path, "- other | run | 10:01", share=True)
     quick_eval.release(path, "- me | run | 10:00")
+    assert quick_eval.holders(path.read_text()) == ["- other | run | 10:01"]
+    quick_eval.release(path, "- other | run | 10:01")
     assert path.read_text() == LOCK
 
 
