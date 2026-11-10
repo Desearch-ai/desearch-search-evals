@@ -20,10 +20,16 @@ def validate_profile(profile):
         value = profile.get(name, default)
         if not isinstance(value, int) or isinstance(value, bool) or value < 1:
             raise ValueError(f"{name} must be a positive integer")
+    extra = profile.get("request", {})
+    if not isinstance(extra, dict) or {"query", "k"} & set(extra):
+        raise ValueError(
+            "request must be an object of extra router fields, without query or k"
+        )
 
 
 def build_request(question, profile):
     return {
+        **profile.get("request", {}),
         "query": question,
         "k": profile.get("max_results", 10),
         "contents": {"highlights": {"max_chars": profile.get("max_characters", 2000)}},

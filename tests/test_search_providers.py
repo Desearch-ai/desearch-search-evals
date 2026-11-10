@@ -6,7 +6,16 @@ import unittest.mock
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
-from providers import desearch, desearch_router, exa, parallel, octen, perplexity, search, tavily
+from providers import (
+    desearch,
+    desearch_router,
+    exa,
+    parallel,
+    octen,
+    perplexity,
+    search,
+    tavily,
+)
 
 QUESTION = "Which company acquired DoubleClick in 2008?"
 
@@ -314,7 +323,10 @@ class PerplexitySearchTests(unittest.IsolatedAsyncioTestCase):
                 "max_tokens": 30,
             },
         )
-        self.assertEqual([r["url"] for r in result["results"]], ["https://example.org/a", "https://example.org/b"])
+        self.assertEqual(
+            [r["url"] for r in result["results"]],
+            ["https://example.org/a", "https://example.org/b"],
+        )
         self.assertEqual(result["results"][0]["text"], "first page")
         self.assertEqual(result["results"][0]["published"], "2026-09-10")
         self.assertEqual(result["cost_usd"], 0.001)
@@ -350,8 +362,14 @@ class DesearchRouterTests(unittest.IsolatedAsyncioTestCase):
             "ms": {"total": 900.0},
         }
         session = FakeSession(raw)
-        profile = {"transport": "desearch_router", "mode": "standard", "max_characters": 15}
-        result = await desearch_router.search(session, QUESTION, profile, "http://router:1/")
+        profile = {
+            "transport": "desearch_router",
+            "mode": "standard",
+            "max_characters": 15,
+        }
+        result = await desearch_router.search(
+            session, QUESTION, profile, "http://router:1/"
+        )
         endpoint, request = session.calls[0]
         self.assertEqual(endpoint, "http://router:1/search")
         self.assertEqual(
@@ -365,11 +383,26 @@ class DesearchRouterTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["candidates"]["found"], 40)
         self.assertNotIn("error", result)
 
+    def test_router_profile_extra_request_fields(self):
+        profile = {
+            "transport": "desearch_router",
+            "mode": "standard",
+            "request": {"rerank": False},
+        }
+        desearch_router.validate_profile(profile)
+        self.assertEqual(desearch_router.build_request("q", profile)["rerank"], False)
+        for bad in ({"k": 50}, ["rerank"]):
+            with self.assertRaises(ValueError):
+                desearch_router.validate_profile({**profile, "request": bad})
+
     async def test_a_partial_index_answer_is_an_error(self):
         raw = {"failed": {"search": {"shard-11": "loading"}}, "results": []}
         with patch("providers.desearch_router.asyncio.sleep", AsyncMock()):
             result = await desearch_router.search(
-                FakeSession(raw), QUESTION, {"transport": "desearch_router", "mode": "standard"}, "http://r"
+                FakeSession(raw),
+                QUESTION,
+                {"transport": "desearch_router", "mode": "standard"},
+                "http://r",
             )
         self.assertTrue(result["error"].startswith("HTTP_503"))
         self.assertEqual(result["results"], [])
@@ -405,7 +438,11 @@ class OctenSearchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(request["headers"], {"x-api-key": "key"})
         self.assertEqual(
             request["json"],
-            {"query": QUESTION, "count": 10, "highlight": {"enable": True, "max_tokens": 100}},
+            {
+                "query": QUESTION,
+                "count": 10,
+                "highlight": {"enable": True, "max_tokens": 100},
+            },
         )
         self.assertEqual(result["results"][0]["text"], "first page")
         self.assertEqual(result["results"][0]["published"], "2024-10-15")
