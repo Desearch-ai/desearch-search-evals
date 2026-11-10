@@ -114,3 +114,32 @@ def test_classify_groups_spellings_and_ranks_matched_pages():
     search = lambda qid: {"results": [{"rank": 7, "url": "https://en.wikipedia.org/wiki/Rock_(band)"}], "failed": {}}
     misses.classify(case, page, lambda h, t: ("Rock_(band)", True, False), search)
     assert case["held"] == {"https://en.wikipedia.org/wiki/Rock_band": True} and case["rank"] == 7
+    assert set(case["matched_page"]["https://en.wikipedia.org/wiki/Rock_band"]) == {"fetched_at", "task", "domain", "day"}
+
+
+def test_pages_in_our_top_ten_need_no_lookup(tmp_path):
+    path = tmp_path / "searches" / "desearch-index" / "q.json"
+    path.parent.mkdir(parents=True)
+    path.write_text('{"results": [{"url": "https://huggingface.co/datasets/x"}, {"url": "https://www.a.org/x/"}]}')
+    top = misses.our_top(tmp_path, "q")
+    assert top == {"https://a.org/x": (2, "https://www.a.org/x/")}
+    case = {"qid": "q", "answering": {"https://a.org/x": ["exa"], "https://b.org/y": ["exa"]}}
+    asked = []
+
+    def page(url):
+        asked.append(url)
+        return {"found": True, "page": {"fetched_at": "2026-11-10T01:00:00Z", "live": True}}
+
+    def fail(*a):
+        raise AssertionError("no lookup or search expected")
+
+    misses.classify(case, page, fail, fail, top)
+    assert case["held"] == {"https://a.org/x": True} and case["rank"] == 2
+    assert asked == ["https://www.a.org/x/"] and case["matched_page"]["https://a.org/x"]["fetched_at"].startswith("2026-11-10")
+
+
+def test_label_refreshes_our_hits_from_newer_judging():
+    flag = {"hit": 1}
+    cases = [{"qid": "q", "page_hit": False, "snip_hit": False}]
+    profiles = {"desearch-index": [{"question_id": "q", "results": [{"page": flag, "snippet": {"hit": 0}}]}]}
+    assert misses.label(cases, profiles)[0] == {"qid": "q", "page_hit": True, "snip_hit": False}

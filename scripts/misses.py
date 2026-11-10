@@ -10,6 +10,7 @@ import urllib.parse
 import urllib.request
 from collections import Counter
 from functools import lru_cache
+from pathlib import Path
 
 OURS = "desearch-index"
 NOT_OURS = "not ours"
@@ -237,8 +238,36 @@ def collect(profiles):
     return cases
 
 
-def classify(case, page, resolve, search):
-    held, matched = {}, {}
+def our_top(run, qid, k=10):
+    """Canonical URL -> (rank, URL as we returned it) for our saved top k, mirrors left out."""
+    from evaluators.grade import is_mirror
+
+    path = Path(run) / "searches" / OURS / f"{qid}.json"
+    if not path.exists():
+        return {}
+    rows = json.loads(path.read_text()).get("results") or []
+    top = {}
+    for rank, row in enumerate(rows[:k], 1):
+        if not is_mirror(row):
+            top.setdefault(canon(row["url"]), (rank, row["url"]))
+    return top
+
+
+def page_record(page, url):
+    record = (page(url) or {}).get("page") or {}
+    return {f: record.get(f) for f in ("fetched_at", "task", "domain", "day")}
+
+
+def classify(case, page, resolve, search, top=None):
+    """Held status per answering page, and our best rank for a held one; pages already in our top 10 need no lookup."""
+    in_top = {k: v for k, v in (top or {}).items() if k in case["answering"]}
+    if in_top:
+        case["held"] = {k: True for k in in_top}
+        case["matched"] = {k: url for k, (_, url) in in_top.items()}
+        case["matched_page"] = {k: page_record(page, url) for k, (_, url) in in_top.items()}
+        case["rank"] = min(rank for rank, _ in in_top.values())
+        return case
+    held, matched, info = {}, {}, {}
     for key, urls in case["answering"].items():
         statuses = []
         for url in [key, *urls]:
@@ -246,68 +275,63 @@ def classify(case, page, resolve, search):
             statuses.append(status)
             if status is True:
                 matched[key] = hit
+                info[key] = page_record(page, hit)
                 break
         held[key] = next((s for s in (True, NOT_OURS, None) if s in statuses), False)
-    case["held"], case["matched"] = held, matched
+    case["held"], case["matched"], case["matched_page"] = held, matched, info
     if any(v is True for v in held.values()):
         response = search(case["qid"])
-        keys = {k for k, v in held.items() if v is True} | {
-            canon(u) for u in matched.values()
-        }
-        ranks = [
-            r["rank"]
-            for r in (response or {}).get("results", [])
-            if canon(r["url"]) in keys
-        ]
-        case["search_failed"] = (
-            None
-            if response is None
-            else {k: v for k, v in (response.get("failed") or {}).items() if v}
-        )
+        keys = {k for k, v in held.items() if v is True} | {canon(u) for u in matched.values()}
+        ranks = [r["rank"] for r in (response or {}).get("results", []) if canon(r["url"]) in keys]
+        case["search_failed"] = None if response is None else {k: v for k, v in (response.get("failed") or {}).items() if v}
         case["rank"] = min(ranks) if ranks else None
     return case
 
 
-def main():
+def label(cases, profiles):
+    """Refresh our page and text hits from a newer judging of the same searches."""
+    ours = {r["question_id"]: r for r in profiles[OURS]}
+    for case in cases:
+        row = ours.get(case["qid"]) or {"results": []}
+        case["page_hit"] = bool(hits(row["results"], "page"))
+        case["snip_hit"] = bool(hits(row["results"], "snippet"))
+    return cases
+
+
+def buckets(cases):
     from scripts.fallback_sweep import cause
 
+    for name, count in Counter(cause(c) for c in cases).most_common():
+        print(f"BUCKET {count:4d}  {name}")
+
+
+def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--run",
-        required=True,
-        help="run dir with evaluation/results.json and questions.jsonl",
-    )
-    parser.add_argument("--out", required=True)
+    parser.add_argument("command", choices=["lookup", "label"], help="lookup calls the router; label is offline")
+    parser.add_argument("--run", required=True, help="run dir with evaluation/results.json, questions.jsonl and our searches")
+    parser.add_argument("--out", required=True, help="the cases file: written by lookup, relabelled in place by label")
     args = parser.parse_args()
-    router = os.environ["DESEARCH_ROUTER_URL"].rstrip("/")
     profiles = json.load(open(f"{args.run}/evaluation/results.json"))["profiles"]
-    questions = {
-        json.loads(l)["id"]: json.loads(l)
-        for l in open(f"{args.run}/questions.jsonl")
-        if l.strip()
-    }
+    if args.command == "label":
+        cases = label(json.load(open(args.out)), profiles)
+        json.dump(cases, open(args.out, "w"), indent=1)
+        buckets(cases)
+        return
+    router = os.environ["DESEARCH_ROUTER_URL"].rstrip("/")
+    questions = {json.loads(l)["id"]: json.loads(l) for l in open(f"{args.run}/questions.jsonl") if l.strip()}
     page, resolve = router_page(router), wiki_resolver()
 
     def search(qid):
-        return fetch_json(
-            f"{router}/search", {"query": questions[qid]["question"], "k": 100}
-        )
+        return fetch_json(f"{router}/search", {"query": questions[qid]["question"], "k": 100})
 
     cases = collect(profiles)
-    todo = [c for c in cases if not c["page_hit"] and c["answering"]]
-    print(
-        f"{len(cases)} questions, ours page hit {sum(c['page_hit'] for c in cases)}, others only {len(todo)}",
-        flush=True,
-    )
+    todo = [c for c in cases if c["answering"]]
+    print(f"{len(cases)} questions, {len(todo)} with answering pages from others", flush=True)
     for i, case in enumerate(todo):
-        classify(case, page, resolve, search)
-        print(
-            f"{i + 1}/{len(todo)} {case['qid']} held={sum(v is True for v in case['held'].values())}/{len(case['held'])} rank={case.get('rank')}",
-            flush=True,
-        )
+        classify(case, page, resolve, search, our_top(args.run, case["qid"]))
+        print(f"{i + 1}/{len(todo)} {case['qid']} held={sum(v is True for v in case['held'].values())}/{len(case['held'])} rank={case.get('rank')}", flush=True)
     json.dump(cases, open(args.out, "w"), indent=1)
-    for name, count in Counter(cause(c) for c in cases).most_common():
-        print(f"BUCKET {count:4d}  {name}")
+    buckets(cases)
 
 
 if __name__ == "__main__":
