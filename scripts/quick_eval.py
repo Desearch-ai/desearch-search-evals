@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from scripts.fallback_sweep import top_hit
-from scripts.run_answers import NO_SEARCH, context
+from scripts.run_answers import NO_SEARCH, context, grades_name
 
 FREE = "(free)"
 
@@ -84,7 +84,7 @@ def reuse_answers(base, out, base_profile, profile, qids):
         q for q in qids if q in old and q in new and context(old[q]) == context(new[q])
     }
     kept = 0
-    for name in ("answers.jsonl", "grades.jsonl"):
+    for name in ("answers.jsonl", grades_name()):
         src, dst = Path(base) / "answers" / name, Path(out) / "answers" / name
         if not src.exists():
             continue
@@ -119,7 +119,7 @@ def judged(run, profile):
 
 
 def correct(run, profile):
-    path = Path(run) / "answers" / "grades.jsonl"
+    path = Path(run) / "answers" / grades_name()
     return (
         {
             r["key"].split("/", 1)[1]: r["grade"] == "CORRECT"
