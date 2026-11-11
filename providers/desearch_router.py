@@ -1,6 +1,7 @@
 """The Desearch web index router's /search: ranked pages with query-time highlights."""
 
 import asyncio
+import os
 import time
 
 import aiohttp
@@ -54,14 +55,45 @@ def parse_results(raw, profile):
     ]
 
 
-def failed_parts(raw):
+IGNORE_FAILED_ENV = "DESEARCH_ROUTER_IGNORE_FAILED"
+
+
+def ignored_nodes():
+    """Indexer process URLs whose failures a run tolerates, from DESEARCH_ROUTER_IGNORE_FAILED (comma-separated; unset: none)."""
+    return frozenset(
+        x.strip().rstrip("/")
+        for x in os.environ.get(IGNORE_FAILED_ENV, "").split(",")
+        if x.strip()
+    )
+
+
+def split_failed(raw, ignore=frozenset()):
+    """The failed parts that count, and the ignored nodes' failures by part."""
+    counted, ignored = {}, {}
+    for name, value in (raw.get("failed") or {}).items():
+        if not value:
+            continue
+        if isinstance(value, dict) and ignore:
+            kept = {k: v for k, v in value.items() if k.rstrip("/") not in ignore}
+            dropped = sorted(k for k in value if k.rstrip("/") in ignore)
+            if dropped:
+                ignored[name] = dropped
+            if kept:
+                counted[name] = kept
+        else:
+            counted[name] = value
+    return counted, ignored
+
+
+def failed_parts(raw, ignore=frozenset()):
     """Shards or lanes that did not answer; a partial index answer is not a result."""
-    return {name: value for name, value in (raw.get("failed") or {}).items() if value}
+    return split_failed(raw, ignore)[0]
 
 
 async def search(session, question, profile, router_url):
     validate_profile(profile)
     request = build_request(question, profile)
+    ignore = ignored_nodes()
     started = time.monotonic()
     result = {
         "query": question,
@@ -80,16 +112,19 @@ async def search(session, question, profile, router_url):
             ) as response:
                 raw = await response.json(content_type=None)
                 status = response.status
-            if status == 200 and isinstance(raw, dict) and failed_parts(raw):
+            if status == 200 and isinstance(raw, dict) and failed_parts(raw, ignore):
                 status = 503
             if status not in RETRYABLE or attempt == 3:
                 break
             await asyncio.sleep(2 ** (attempt + 1))
         result["attempts"] = attempt + 1
         if status != 200 or not isinstance(raw, dict):
-            failed = failed_parts(raw) if isinstance(raw, dict) else None
+            failed = failed_parts(raw, ignore) if isinstance(raw, dict) else None
             result["error"] = f"HTTP_{status}: {str(failed or raw)[:300]}"
         else:
+            ignored = split_failed(raw, ignore)[1]
+            if ignored:
+                result["ignored_failed"] = ignored
             result["results"] = parse_results(raw, profile)
             result["server_ms"] = raw.get("ms")
             result["candidates"] = raw.get("candidates")

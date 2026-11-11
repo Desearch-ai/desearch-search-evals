@@ -407,6 +407,56 @@ class DesearchRouterTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(result["error"].startswith("HTTP_503"))
         self.assertEqual(result["results"], [])
 
+    async def test_a_listed_reloading_node_is_ignored_and_marked(self):
+        profile = {"transport": "desearch_router", "mode": "standard"}
+        raw = {
+            "failed": {
+                "search": {
+                    "http://127.0.0.1:8707": "HTTPServiceUnavailable: Service Unavailable"
+                },
+                "fresh": {
+                    "http://127.0.0.1:8707": "HTTPServiceUnavailable: Service Unavailable"
+                },
+                "lanes": {},
+            },
+            "results": [
+                {"url": "https://example.org/a", "title": "A", "highlights": ["x"]}
+            ],
+        }
+        env = {
+            desearch_router.IGNORE_FAILED_ENV: "http://127.0.0.1:8707/, http://127.0.0.1:8799"
+        }
+        with (
+            patch.dict("os.environ", env),
+            patch("providers.desearch_router.asyncio.sleep", AsyncMock()),
+        ):
+            result = await desearch_router.search(
+                FakeSession(raw), QUESTION, profile, "http://r"
+            )
+        self.assertNotIn("error", result)
+        self.assertEqual(
+            result["ignored_failed"],
+            {"search": ["http://127.0.0.1:8707"], "fresh": ["http://127.0.0.1:8707"]},
+        )
+        self.assertEqual(result["results"][0]["url"], "https://example.org/a")
+        raw["failed"]["search"]["http://127.0.0.1:8708"] = "TimeoutError: "
+        with (
+            patch.dict("os.environ", env),
+            patch("providers.desearch_router.asyncio.sleep", AsyncMock()),
+        ):
+            result = await desearch_router.search(
+                FakeSession(raw), QUESTION, profile, "http://r"
+            )
+        self.assertTrue(result["error"].startswith("HTTP_503"))
+        self.assertIn("8708", result["error"])
+        self.assertNotIn("8707", result["error"])
+        with patch("providers.desearch_router.asyncio.sleep", AsyncMock()):
+            result = await desearch_router.search(
+                FakeSession(raw), QUESTION, profile, "http://r"
+            )
+        self.assertTrue(result["error"].startswith("HTTP_503"))
+        self.assertNotIn("ignored_failed", result)
+
 
 if __name__ == "__main__":
     unittest.main()
