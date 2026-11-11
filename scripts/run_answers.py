@@ -13,6 +13,7 @@ from pathlib import Path
 import aiohttp
 
 from evaluators.grade import is_mirror
+from evaluators.judge import priced, route
 from utils import read_jsonl
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "evaluators" / "templates"
@@ -51,6 +52,17 @@ GRADERS = {
     },
 }
 NO_SEARCH = "no-search"
+
+
+def grader_model(benchmark):
+    """GRADER_MODEL when set (one grader for every benchmark), else the benchmark's own."""
+    return os.environ.get("GRADER_MODEL") or GRADERS[benchmark]["model"]
+
+
+def grades_name():
+    """grades.jsonl, or grades-<model>.jsonl under GRADER_MODEL so old grades stay."""
+    model = os.environ.get("GRADER_MODEL")
+    return f"grades-{model.split('/')[-1]}.jsonl" if model else "grades.jsonl"
 
 READER_SYSTEM = """Today is {today}. Answer the question using the search results below. They may be incomplete, outdated or contradict each other: prefer the most recent reliable source, and answer from your own knowledge only when the results do not settle it.
 
@@ -187,23 +199,28 @@ def grader_request(benchmark, question, target, response):
     messages = [{"role": "user", "content": prompt}]
     if grader.get("system"):
         messages.insert(0, {"role": "system", "content": grader["system"]})
-    return {
-        "model": grader["model"],
+    body = {
+        "model": grader_model(benchmark),
         "messages": messages,
         "max_tokens": grader.get("max_tokens", 5),
         "temperature": 0,
         **grader.get("extra", {}),
     }
+    if os.environ.get("GRADER_MODEL"):
+        body["reasoning"] = {"effort": os.environ.get("GRADER_EFFORT", "none")}
+    return body
 
 
 async def grade(session, key, benchmark, question, target, response):
     body = grader_request(benchmark, question, target, response)
-    data = await post(session, OPENROUTER, key, body)
+    url, auth, sent = route(body["model"], key, body)
+    data = await post(session, url, auth, sent)
     reply = (data["choices"][0]["message"].get("content") or "").strip()
+    usage = data.get("usage") or {}
     return (
         GRADERS[benchmark].get("parse", letter_grade)(reply),
         reply,
-        (data.get("usage") or {}).get("cost"),
+        usage.get("cost") if usage.get("cost") is not None else priced(body["model"], usage),
     )
 
 
@@ -216,10 +233,11 @@ async def run(args):
     ] + [NO_SEARCH]
     out = run_dir / "answers"
     out.mkdir(parents=True, exist_ok=True)
-    answers, grades = Store(out / "answers.jsonl"), Store(out / "grades.jsonl")
+    answers, grades = Store(out / "answers.jsonl"), Store(out / grades_name())
     token, key = chutes_token(), os.environ.get("OPENROUTER_API_KEY")
-    if not key:
-        raise SystemExit("OPENROUTER_API_KEY is required for grading")
+    need = "OPENAI_API_KEY" if os.environ.get("GRADE_VIA") == "openai" else "OPENROUTER_API_KEY"
+    if not os.environ.get(need):
+        raise SystemExit(f"{need} is required for grading")
     today = args.today or date.today().isoformat()
     reader_slots, grader_slots = (
         asyncio.Semaphore(args.reader_concurrency),

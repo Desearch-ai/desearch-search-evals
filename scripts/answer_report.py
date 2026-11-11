@@ -2,11 +2,12 @@
 
 import argparse
 import json
+import os
 import random
 from collections import defaultdict
 from pathlib import Path
 
-from scripts.run_answers import GRADERS
+from scripts.run_answers import GRADERS, grader_model, grades_name
 from utils import read_jsonl
 
 BASE = "desearch-index"
@@ -69,7 +70,7 @@ def main():
     ] + ["no-search"]
     grades = {
         r["key"]: r["grade"]
-        for r in read_jsonl(Path(args.run) / "answers" / "grades.jsonl")
+        for r in read_jsonl(Path(args.run) / "answers" / grades_name())
     }
     lines = [
         "# Answer accuracy",
@@ -80,8 +81,8 @@ def main():
     for benchmark in sorted({q.get("benchmark") for q in questions} & set(GRADERS)):
         grader = GRADERS[benchmark]
         lines += [
-            f"Grader for {benchmark}: {grader['model']} with `{grader['template']}`."
-            + (f" {grader['note']}" if grader.get("note") else ""),
+            f"Grader for {benchmark}: {grader_model(benchmark)} with `{grader['template']}`."
+            + (f" {grader['note']}" if grader.get("note") and not os.environ.get("GRADER_MODEL") else ""),
             "",
         ]
     lines += table(questions, grades, profiles, "All")
@@ -103,7 +104,7 @@ def main():
         lines.append("A FRAMES question can carry several reasoning types, so it counts in each.\n")
     for name in sorted(kinds, key=lambda k: -len(kinds[k])):
         lines += table(kinds[name], grades, profiles, f"Reasoning: {name}")
-    out = Path(args.run) / "answers" / "report.md"
+    out = Path(args.run) / "answers" / grades_name().replace("grades", "report").replace(".jsonl", ".md")
     out.write_text("\n".join(lines))
     print(out.read_text())
 
