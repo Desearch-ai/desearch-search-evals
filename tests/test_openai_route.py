@@ -15,7 +15,7 @@ def test_openai_body_drops_openrouter_fields_and_keeps_effort():
     assert sent == {
         "model": "gpt-5.4-mini",
         "messages": [],
-        "max_completion_tokens": 5,
+        "max_completion_tokens": 16,
         "temperature": 0,
         "reasoning_effort": "none",
     }

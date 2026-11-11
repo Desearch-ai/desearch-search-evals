@@ -24,7 +24,7 @@ def openai_body(body) -> dict:
     out = {k: v for k, v in body.items() if k not in ("reasoning", "max_tokens")}
     out["model"] = body["model"].split("/", 1)[1]
     if "max_tokens" in body:
-        out["max_completion_tokens"] = body["max_tokens"]
+        out["max_completion_tokens"] = max(body["max_tokens"], 16)
     reasoning = body.get("reasoning") or {}
     effort = "none" if reasoning.get("enabled") is False else reasoning.get("effort")
     if effort:
