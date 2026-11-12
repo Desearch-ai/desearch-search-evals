@@ -1,4 +1,4 @@
-"""Bounded OpenRouter judge requests with per-attempt usage records."""
+"""Bounded judge requests, OpenAI direct by default or through OpenRouter, with per-attempt usage records."""
 
 import asyncio
 import hashlib
@@ -12,11 +12,27 @@ import aiohttp
 API = "https://openrouter.ai/api/v1/chat/completions"
 OPENAI_API = "https://api.openai.com/v1/chat/completions"
 PRICES = {"gpt-5.4-mini": (0.75e-6, 0.075e-6, 4.5e-6)}
+DEFAULT_GRADER = "openai/gpt-5.4-mini"
+ROUTES = ("openai", "openrouter")
+
+
+def grade_via() -> str:
+    """GRADE_VIA: "openai" (the default) or "openrouter"."""
+    via = os.environ.get("GRADE_VIA") or "openai"
+    if via not in ROUTES:
+        raise ValueError(f"GRADE_VIA must be one of {ROUTES}, not {via!r}")
+    return via
 
 
 def openai_direct(model) -> bool:
-    """Whether an openai/ model goes straight to OpenAI: GRADE_VIA=openai."""
-    return model.startswith("openai/") and os.environ.get("GRADE_VIA") == "openai"
+    """Whether an openai/ model goes straight to OpenAI, as it does unless GRADE_VIA=openrouter."""
+    return model.startswith("openai/") and grade_via() == "openai"
+
+
+def key_for(model) -> tuple[str, str]:
+    """The name and value of the API key a call to this model needs on the active route."""
+    name = "OPENAI_API_KEY" if openai_direct(model) else "OPENROUTER_API_KEY"
+    return name, os.environ.get(name, "")
 
 
 def openai_body(body) -> dict:

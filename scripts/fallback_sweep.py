@@ -371,7 +371,7 @@ async def answer(args):
     out = run / "answers"
     answers = run_answers.Store(out / "fallback_answers.jsonl")
     grades = run_answers.Store(out / "fallback_grades.jsonl")
-    token, key = run_answers.chutes_token(), os.environ["OPENROUTER_API_KEY"]
+    token, key = run_answers.chutes_token(), os.environ.get("OPENROUTER_API_KEY", "")
     today = args.today or date.today().isoformat()
     slots = asyncio.Semaphore(args.concurrency)
     spend = {"grader": 0.0, "reader": 0.0}

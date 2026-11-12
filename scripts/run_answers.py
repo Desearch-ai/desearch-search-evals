@@ -13,7 +13,7 @@ from pathlib import Path
 import aiohttp
 
 from evaluators.grade import is_mirror
-from evaluators.judge import priced, route
+from evaluators.judge import DEFAULT_GRADER, key_for, priced, route
 from utils import read_jsonl
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "evaluators" / "templates"
@@ -54,14 +54,20 @@ GRADERS = {
 NO_SEARCH = "no-search"
 
 
+def single_grader():
+    """The one grader for every benchmark (GRADER_MODEL, default gpt-5.4-mini); None under GRADER_MODEL=benchmark."""
+    model = os.environ.get("GRADER_MODEL") or DEFAULT_GRADER
+    return None if model == "benchmark" else model
+
+
 def grader_model(benchmark):
-    """GRADER_MODEL when set (one grader for every benchmark), else the benchmark's own."""
-    return os.environ.get("GRADER_MODEL") or GRADERS[benchmark]["model"]
+    """The single grader, or the benchmark's own under GRADER_MODEL=benchmark."""
+    return single_grader() or GRADERS[benchmark]["model"]
 
 
 def grades_name():
-    """grades.jsonl, or grades-<model>.jsonl under GRADER_MODEL so old grades stay."""
-    model = os.environ.get("GRADER_MODEL")
+    """grades-<model>.jsonl for the single grader, grades.jsonl for the benchmarks' own."""
+    model = single_grader()
     return f"grades-{model.split('/')[-1]}.jsonl" if model else "grades.jsonl"
 
 READER_SYSTEM = """Today is {today}. Answer the question using the search results below. They may be incomplete, outdated or contradict each other: prefer the most recent reliable source, and answer from your own knowledge only when the results do not settle it.
@@ -206,7 +212,7 @@ def grader_request(benchmark, question, target, response):
         "temperature": 0,
         **grader.get("extra", {}),
     }
-    if os.environ.get("GRADER_MODEL"):
+    if single_grader():
         body["reasoning"] = {"effort": os.environ.get("GRADER_EFFORT", "none")}
     return body
 
@@ -235,9 +241,10 @@ async def run(args):
     out.mkdir(parents=True, exist_ok=True)
     answers, grades = Store(out / "answers.jsonl"), Store(out / grades_name())
     token, key = chutes_token(), os.environ.get("OPENROUTER_API_KEY")
-    need = "OPENAI_API_KEY" if os.environ.get("GRADE_VIA") == "openai" else "OPENROUTER_API_KEY"
-    if not os.environ.get(need):
-        raise SystemExit(f"{need} is required for grading")
+    for benchmark in sorted({q.get("benchmark") for q in questions} & set(GRADERS)):
+        need, have = key_for(grader_model(benchmark))
+        if not have:
+            raise SystemExit(f"{need} is required for grading")
     today = args.today or date.today().isoformat()
     reader_slots, grader_slots = (
         asyncio.Semaphore(args.reader_concurrency),

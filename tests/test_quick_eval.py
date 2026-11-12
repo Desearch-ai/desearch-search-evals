@@ -3,6 +3,7 @@ import json
 import pytest
 
 from scripts import quick_eval
+from scripts.run_answers import grades_name
 
 LOCK = "# lock\n\nrules\n\n## Holder\n(free)\n"
 
@@ -57,18 +58,18 @@ def test_unchanged_contexts_reuse_the_baseline_answer_under_the_new_profile(tmp_
         write_search(out, "exp", qid, new)
     keys = ["desearch-index/q1", "desearch-index/q2", "no-search/q1", "exa-fast/q1"]
     write_rows(
-        base / "answers" / "grades.jsonl",
+        base / "answers" / grades_name(),
         [{"key": k, "profile": k.split("/")[0], "grade": "CORRECT"} for k in keys],
     )
     same = quick_eval.reuse_answers(base, out, "desearch-index", "exp", {"q1", "q2"})
     assert same == {"q1"}
     got = [
         json.loads(l)["key"]
-        for l in (out / "answers" / "grades.jsonl").read_text().splitlines()
+        for l in (out / "answers" / grades_name()).read_text().splitlines()
     ]
     assert got == ["exp/q1", "no-search/q1"]
     quick_eval.reuse_answers(base, out, "desearch-index", "exp", {"q1", "q2"})
-    assert len((out / "answers" / "grades.jsonl").read_text().splitlines()) == 2
+    assert len((out / "answers" / grades_name()).read_text().splitlines()) == 2
 
 
 def judged(qid, page, text, gold=False):
@@ -105,14 +106,14 @@ def test_summary_compares_against_the_baseline(tmp_path):
         )
     )
     write_rows(
-        base / "answers" / "grades.jsonl",
+        base / "answers" / grades_name(),
         [
             {"key": "desearch-index/q1", "grade": "INCORRECT"},
             {"key": "desearch-index/q2", "grade": "CORRECT"},
         ],
     )
     write_rows(
-        out / "answers" / "grades.jsonl",
+        out / "answers" / grades_name(),
         [{"key": "exp/q1", "grade": "CORRECT"}, {"key": "exp/q2", "grade": "CORRECT"}],
     )
     write_search(out, "exp", "q1", "x")

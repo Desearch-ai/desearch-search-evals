@@ -60,7 +60,8 @@ def test_frames_sample_is_seeded_and_keeps_dataset_order():
     )
 
 
-def test_frames_grader_uses_the_paper_prompt_and_parses_decisions():
+def test_frames_grader_uses_the_paper_prompt_and_parses_decisions(monkeypatch):
+    monkeypatch.setenv("GRADER_MODEL", "benchmark")
     body = run_answers.grader_request("frames", "Q?", "Jane Ballou", "It is Jane.")
     assert body["model"] == run_answers.GRADERS["frames"]["model"]
     assert body["messages"][0] == {
@@ -109,7 +110,7 @@ def test_answer_report_splits_frames_by_reasoning_type(tmp_path, monkeypatch, ca
         ("no-search/f1", "INCORRECT"),
         ("no-search/f2", "INCORRECT"),
     ]
-    (answers / "grades.jsonl").write_text(
+    (answers / run_answers.grades_name()).write_text(
         "".join(json.dumps({"key": k, "grade": g}) + "\n" for k, g in grades)
     )
     monkeypatch.setattr(
@@ -126,11 +127,13 @@ def test_answer_report_splits_frames_by_reasoning_type(tmp_path, monkeypatch, ca
         ],
     )
     answer_report.main()
-    report = (answers / "report.md").read_text()
+    report = (
+        answers / run_answers.grades_name().replace("grades", "report").replace(".jsonl", ".md")
+    ).read_text()
     assert "### Reasoning: Numerical reasoning (2 questions)" in report
     assert "### Reasoning: Tabular reasoning (1 questions)" in report
     numerical = report.split("### Reasoning: Numerical reasoning")[1].split("###")[0]
     assert "| desearch-index | 50.0%" in numerical
     assert "Freshness" not in report
-    assert "Grader for frames: google/gemini-2.5-flash" in report
-    assert "Gemini-Pro-1.5-0514" in report
+    assert f"Grader for frames: {run_answers.grader_model('frames')}" in report
+    assert ("Gemini-Pro-1.5-0514" in report) == (run_answers.single_grader() is None)

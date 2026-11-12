@@ -3,7 +3,6 @@
 import argparse
 import asyncio
 import json
-import os
 import re
 from collections import Counter
 from pathlib import Path
@@ -149,7 +148,7 @@ class Judge:
             if trace is None or trace.get("error"):
                 if not self.key:
                     raise ValueError(
-                        "OPENROUTER_API_KEY is required for uncached judgments"
+                        f"{judge.key_for(self.model)[0]} is required for uncached judgments"
                     )
                 messages = [
                     {"role": "system", "content": passages.JUDGE_SYSTEM},
@@ -257,7 +256,7 @@ async def execute(args):
     async with aiohttp.ClientSession() as session:
         judge_ = Judge(
             session,
-            os.environ.get("OPENROUTER_API_KEY", ""),
+            judge.key_for(args.model)[1],
             out,
             args.model,
             args.concurrency,

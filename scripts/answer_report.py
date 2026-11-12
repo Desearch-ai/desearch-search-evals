@@ -2,12 +2,11 @@
 
 import argparse
 import json
-import os
 import random
 from collections import defaultdict
 from pathlib import Path
 
-from scripts.run_answers import GRADERS, grader_model, grades_name
+from scripts.run_answers import GRADERS, grader_model, grades_name, single_grader
 from utils import read_jsonl
 
 BASE = "desearch-index"
@@ -82,7 +81,7 @@ def main():
         grader = GRADERS[benchmark]
         lines += [
             f"Grader for {benchmark}: {grader_model(benchmark)} with `{grader['template']}`."
-            + (f" {grader['note']}" if grader.get("note") and not os.environ.get("GRADER_MODEL") else ""),
+            + (f" {grader['note']}" if grader.get("note") and not single_grader() else ""),
             "",
         ]
     lines += table(questions, grades, profiles, "All")
