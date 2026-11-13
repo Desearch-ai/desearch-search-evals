@@ -1,0 +1,17 @@
+# questions dropped from decision sets: gold wrong, stale or ambiguous (splits/gold_audit.json)
+frames-137
+frames-545
+seal-hard-114
+seal-hard-141
+seal-hard-180
+seal-hard-181
+seal-hard-189
+seal-hard-191
+seal-hard-208
+seal-hard-219
+seal-hard-224
+seal-hard-235
+seal-hard-252
+seal-hard-33
+seal-hard-43
+sqav-3153

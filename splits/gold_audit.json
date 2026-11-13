@@ -1,0 +1,514 @@
+[
+ {
+  "qid": "frames-137",
+  "bench": "frames",
+  "gold": "45 years",
+  "providers_answer": "34 years",
+  "providers_agree": "7/9",
+  "verdict": "ambiguous",
+  "correct_answer": "45 if Mexico's 28 Sep 1821 Act of Independence is used; 34 if the 16 Sep 1810 Grito de Dolores is used",
+  "evidence": "1776 vs 1821 gives 45; Mexico celebrates independence on 16 Sep 1810, which gives 34. The formal declaration was 1821 (also an 1813 Chilpancingo declaration, giving 37), so the gold is defensible but not the only reading.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/Declaration_of_Independence_of_the_Mexican_Empire",
+   "https://en.wikipedia.org/wiki/Cry_of_Dolores"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "frames-356",
+  "bench": "frames",
+  "gold": "Red",
+  "providers_answer": "Blue",
+  "providers_agree": "7/9",
+  "verdict": "gold_right",
+  "correct_answer": "Red",
+  "evidence": "Danon The Kid debuted at Hanshin Racecourse (28 Jun 2020), which is in Takarazuka. The Takarazuka city flag is a red (#be0026) emblem on white.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/Danon_The_Kid",
+   "https://en.wikipedia.org/wiki/Takarazuka,_Hy%C5%8Dgo",
+   "https://commons.wikimedia.org/wiki/File:Flag_of_Takarazuka,_Hyogo.svg"
+  ],
+  "action": "keep"
+ },
+ {
+  "qid": "frames-545",
+  "bench": "frames",
+  "gold": "21",
+  "providers_answer": "30",
+  "providers_agree": "6/9",
+  "verdict": "gold_wrong",
+  "correct_answer": "about 27 per Wikipedia's list of works (~30 if every Cadernos de Lanzarote volume I-V is counted)",
+  "evidence": "Wikipedia's list of Saramago's works has 27 Portuguese titles published by 1998, and the full bibliography adds Cadernos II, III and V (1995-98). No count I found gives 21; low confidence because 'published literary works' is loosely defined.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/Jos%C3%A9_Saramago"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "frames-814",
+  "bench": "frames",
+  "gold": "Louison Bobet",
+  "providers_answer": "Federico Bahamontes",
+  "providers_agree": "6/9",
+  "verdict": "gold_right",
+  "correct_answer": "Louison Bobet",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-105",
+  "bench": "sealqa",
+  "gold": "2",
+  "providers_answer": "+1",
+  "providers_agree": "7/9",
+  "verdict": "gold_right",
+  "correct_answer": "2",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-114",
+  "bench": "sealqa",
+  "gold": "1",
+  "providers_answer": "0",
+  "providers_agree": "9/9",
+  "verdict": "ambiguous",
+  "correct_answer": "1 if DC counts as a state (~38%); 0 for the 50 states (Massachusetts is highest at ~22%)",
+  "evidence": "ACS S1501_C02_013E puts DC at ~38% and Massachusetts at ~22%, so only DC is above 25%. Wikipedia's 2021-ACS table shows MA at 28.27%, which conflicts with Census figures.",
+  "sources": [
+   "https://statspanda.com/graduate-degree-rate-by-state",
+   "https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_educational_attainment"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-116",
+  "bench": "sealqa",
+  "gold": "China",
+  "providers_answer": "India",
+  "providers_agree": "6/9",
+  "verdict": "gold_right",
+  "correct_answer": "China",
+  "evidence": "FAO data via OWID: in 2023 India produced 207.75 Mt of paddy and China (mainland) 206.60 Mt, so India is 1st and China 2nd. Caveat: FAO's 'China' aggregate, which includes Taiwan/HK/Macao, is 208.06 Mt.",
+  "sources": [
+   "https://ourworldindata.org/grapher/rice-production",
+   "https://www.fao.org/faostat/en/"
+  ],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-135",
+  "bench": "sealqa",
+  "gold": "There is no theory that supports this statement.",
+  "providers_answer": "Central Limit Theorem",
+  "providers_agree": "9/9",
+  "verdict": "gold_right",
+  "correct_answer": "There is no theory that supports this statement.",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-141",
+  "bench": "sealqa",
+  "gold": "1993",
+  "providers_answer": "1995",
+  "providers_agree": "9/9",
+  "verdict": "gold_wrong",
+  "correct_answer": "1995 (10 December 1995)",
+  "evidence": "India Post's Sant Tukdoji Maharaj stamp (Re 1) was issued 10 Dec 1995 per philatelic catalogues and the Wikipedia infobox ('1995 stamp'). The '1993' in Wikipedia's prose is an error.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/Tukdoji_Maharaj",
+   "https://indianphilatelics.com/stamps/commemorative-stamps/1992-1995/item/11164-sant-tukdoji-maharaj-click-for-stamp-information.html",
+   "https://istampgallery.com/?p=19410"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-162",
+  "bench": "sealqa",
+  "gold": "Francis Halzen",
+  "providers_answer": "John J. Hopfield",
+  "providers_agree": "7/9",
+  "verdict": "gold_right",
+  "correct_answer": "Francis Halzen",
+  "evidence": "Halzen, described as Belgian-American and IceCube PI, won the 2026 Physics prize (Oct 2026). This gold must postdate it; from Oct 2025 to Oct 2026 the answer was John Martinis. Hopfield is a theorist, so he was never right.",
+  "sources": [
+   "https://www.nobelprize.org/prizes/physics/",
+   "https://en.wikipedia.org/wiki/Francis_Halzen",
+   "https://www.nobelprize.org/prizes/physics/2025/press-release/"
+  ],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-164",
+  "bench": "sealqa",
+  "gold": "The Killing Fields",
+  "providers_answer": "Oppenheimer",
+  "providers_agree": "6/9",
+  "verdict": "gold_right",
+  "correct_answer": "The Killing Fields",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-174",
+  "bench": "sealqa",
+  "gold": "University of Padua",
+  "providers_answer": "University of Bologna",
+  "providers_agree": "9/9",
+  "verdict": "gold_right",
+  "correct_answer": "University of Padua",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-176",
+  "bench": "sealqa",
+  "gold": "Joe Biden, the most recent former president of the United States, hasn't been convicted of any state-level felonies.",
+  "providers_answer": "34",
+  "providers_agree": "9/9",
+  "verdict": "gold_right",
+  "correct_answer": "Joe Biden, the most recent former president of the United States, hasn't been convicted of any state-level felonies.",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-180",
+  "bench": "sealqa",
+  "gold": "7",
+  "providers_answer": "8",
+  "providers_agree": "8/9",
+  "verdict": "gold_stale",
+  "correct_answer": "8 (since 27 Sep 2026)",
+  "evidence": "Uzbekistan won the 2026 Samarkand Olympiad open section, its 2nd gold after 2022. That adds an 8th multi-gold nation to the USSR, USA, Russia, Hungary, Armenia, Ukraine and China.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/Chess_Olympiad",
+   "https://www.fide.com/uzbekistans-dream-finish-olympiad-gold-in-samarkand/"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-181",
+  "bench": "sealqa",
+  "gold": "4",
+  "providers_answer": "3",
+  "providers_agree": "9/9",
+  "verdict": "gold_wrong",
+  "correct_answer": "3 (Kishida, Ishiba, Takaichi)",
+  "evidence": "Abe was killed 8 Jul 2022 under PM Kishida; Ishiba followed on 1 Oct 2024 and Takaichi on 21 Oct 2025, and she is still PM in Nov 2026. No reading gives 4 (excluding Kishida gives 2).",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_prime_ministers_of_Japan",
+   "https://japan.kantei.go.jp/105/actions/202611/index.html"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-189",
+  "bench": "sealqa",
+  "gold": "8",
+  "providers_answer": "9",
+  "providers_agree": "6/9",
+  "verdict": "ambiguous",
+  "correct_answer": "7-10 depending on inclusion: 9 on RT's own 24-film Ghibli list; 8 if Ocean Waves (TV film) is excluded",
+  "evidence": "RT's Ghibli ranking has 9 films under 90%: Wind Rises, Howl, Cat Returns 88; Ocean Waves 89; Poppy Hill, Pom Poko 87; Yamadas 78; Earthsea 37; Earwig 29. Nausicaa (pre-Ghibli) now shows 87% on its page vs 91% in the list.",
+  "sources": [
+   "https://editorial.rottentomatoes.com/guide/all-studio-ghibli-movies-ranked-by-tomatometer/",
+   "https://www.rottentomatoes.com/m/nausicaa_of_the_valley_of_the_wind"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-191",
+  "bench": "sealqa",
+  "gold": "Uber",
+  "providers_answer": "Ola",
+  "providers_agree": "8/9",
+  "verdict": "ambiguous",
+  "correct_answer": "Uber (cab-hailing leader) or Rapido (most monthly active users since 2025-26); Ola is wrong either way",
+  "evidence": "Sensor Tower data cited in early 2026 puts Rapido at ~74M MAU vs Uber ~39M and Ola ~28M. Uber's CEO calls Ola a distant third, and 'most widely used' depends on the metric.",
+  "sources": [
+   "https://www.reddit.com/r/IndiaStatistics/comments/1rshx59/monthly_active_users_of_ridehailing_apps_in_india/",
+   "https://www.folo.one/deep-dives/rapido-india-largest-consumer-internet-platform",
+   "https://www.reuters.com/world/india/india-backs-new-ride-hailing-service-challenge-likes-uber-2026-02-24/"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-206",
+  "bench": "sealqa",
+  "gold": "2021",
+  "providers_answer": "2020",
+  "providers_agree": "8/9",
+  "verdict": "gold_right",
+  "correct_answer": "2021",
+  "evidence": "Wikipedia's top-30 most-liked tweets (as of Jul 8, 2026) include 14 from 2021 vs 9 from 2020.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_most-liked_tweets"
+  ],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-208",
+  "bench": "sealqa",
+  "gold": "January 05, 1981",
+  "providers_answer": "March 4, 2026",
+  "providers_agree": "9/9",
+  "verdict": "gold_wrong",
+  "correct_answer": "March 4, 2026 (-12.06%); before that Sept 12, 2001 (-12.02%)",
+  "evidence": "Reuters, CNBC and Al Jazeera report the 12.06% fall on 4 Mar 2026 as the worst day in KOSPI history, beating 12 Sep 2001. Later 2026 drops (e.g., -10.84% on 28 Jul) were smaller, and no source supports Jan 5, 1981.",
+  "sources": [
+   "https://www.aljazeera.com/economy/2026/3/4/south-koreas-stock-market-in-meltdown-amid-us-iran-war",
+   "https://www.reuters.com/world/asia-pacific/korean-stocks-dive-won-hits-17-year-low-iran-conflict-2026-03-04/",
+   "https://www.mk.co.kr/en/stock/12196891",
+   "https://en.wikipedia.org/wiki/KOSPI"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-213",
+  "bench": "sealqa",
+  "gold": "2",
+  "providers_answer": "1",
+  "providers_agree": "9/9",
+  "verdict": "gold_right",
+  "correct_answer": "2 (Hunga Tonga 2022, Chaiten 2008)",
+  "evidence": "Wikipedia's list of large 21st-century eruptions has only Hunga Tonga-Hunga Ha'apai (58 km) and Chaiten (30 km) at or above 29 km (18 mi). Kelud 2014 reached about 26 km.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_large_volcanic_eruptions_of_the_21st_century"
+  ],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-219",
+  "bench": "sealqa",
+  "gold": "2",
+  "providers_answer": "1 (Martin Van Buren)",
+  "providers_agree": "6/9",
+  "verdict": "ambiguous",
+  "correct_answer": "1 (Van Buren) on a strict general-election reading; 2 if Hoover's 1936/1940 nomination bids count",
+  "evidence": "Only Van Buren lost reelection (1840), ran again in a general election (1848, Free Soil) and lost; Cleveland and Trump won their comebacks. Hoover sought the GOP nomination in 1936 and 1940 but never reached the ballot.",
+  "sources": [
+   "https://history.howstuffworks.com/historical-figures/former-presidents-run-again.htm",
+   "https://www.pewresearch.org/fact-tank/2022/11/16/few-former-presidents-have-run-for-their-old-jobs-or-anything-else-after-leaving-office/"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-224",
+  "bench": "sealqa",
+  "gold": "7",
+  "providers_answer": "6",
+  "providers_agree": "6/9",
+  "verdict": "ambiguous",
+  "correct_answer": "7 ended PHEIC declarations (gold reading); 4 distinct diseases (H1N1, Zika, COVID-19, mpox) since Ebola is again a PHEIC from May 2026",
+  "evidence": "WHO has made 9 PHEIC declarations. Seven have ended (H1N1, Ebola 2014, Zika, Ebola 2019, COVID-19, mpox 2022, mpox 2024 ended 5 Sep 2025); polio and the Bundibugyo Ebola PHEIC (17 May 2026, reconfirmed Aug 2026) are ongoing.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/Public_health_emergency_of_international_concern",
+   "https://www.who.int/news/item/28-08-2026-second-meeting-of-the-ihr-emergency-committee-on-the-epidemic-of-ebola-bundibugyo-virus-disease-in-the-democratic-republic-of-the-congo---meeting-report"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-228",
+  "bench": "sealqa",
+  "gold": "1980",
+  "providers_answer": "2019",
+  "providers_agree": "8/9",
+  "verdict": "gold_right",
+  "correct_answer": "1980",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-235",
+  "bench": "sealqa",
+  "gold": "Shree Saini",
+  "providers_answer": "Audra Mari",
+  "providers_agree": "8/9",
+  "verdict": "ambiguous",
+  "correct_answer": "Audra Mari if 'Top 11' means that exact placement (2016); Shree Saini if it means top 11 or better (1st runner-up 2021)",
+  "evidence": "Audra Mari (2016) is the most recent titleholder placed exactly 'Top 11', and the modeling hint fits her (SI Swimsuit model). Shree Saini was 1st runner-up at Miss World 2021; 2025 and 2026 titleholders placed Top 20.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/Miss_World_America"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-245",
+  "bench": "sealqa",
+  "gold": "Babe Ruth",
+  "providers_answer": "Mickey Mantle",
+  "providers_agree": "7/9",
+  "verdict": "gold_right",
+  "correct_answer": "Babe Ruth",
+  "evidence": "Counting distinct cards over $1M, Wikipedia's list has 4 Ruth cards (1914 Baltimore News, 1933 Goudey #53 and #149, 1916 M101-4) vs 2 Mantle cards (1952 Topps, 1951 Bowman) at nominal price.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_most_expensive_sports_cards"
+  ],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-252",
+  "bench": "sealqa",
+  "gold": "Western Punjabi",
+  "providers_answer": "Punjabi",
+  "providers_agree": "6/9",
+  "verdict": "ambiguous",
+  "correct_answer": "Western Punjabi if Ethnologue splits Punjabi (90M); 'Punjabi' (~150M) if it is treated as one language — 3rd either way",
+  "evidence": "Ethnologue (2026) ranks Hindi 347M, Bengali 232M, Western Punjabi 90M, Marathi 83M. Wikipedia's Indo-Aryan article ranks Hindustani, Bengali, then Punjabi (~150M), so both answers name the same language at a different granularity.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_languages_by_number_of_native_speakers",
+   "https://en.wikipedia.org/wiki/Indo-Aryan_languages"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-33",
+  "bench": "sealqa",
+  "gold": "15",
+  "providers_answer": "14 (as of April 2026)",
+  "providers_agree": "7/9",
+  "verdict": "ambiguous",
+  "correct_answer": "15 if the unlisted Facebook ad (8.0B) counts as a YouTube video; 14 if not",
+  "evidence": "Wikipedia's top-30 table (as of Aug 30, 2026) has 15 entries at 5B+, one being an unlisted Facebook ad; its prose says 14 'as of April 2026'. Baa Baa Black Sheep (4.92B in Aug) may since have crossed 5B.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_most-viewed_YouTube_videos"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-43",
+  "bench": "sealqa",
+  "gold": "33",
+  "providers_answer": "32 seasons",
+  "providers_agree": "7/9",
+  "verdict": "ambiguous",
+  "correct_answer": "33 counting season 36's 4 Disney+ exclusives (22 eps); 32 counting Fox broadcasts only (18)",
+  "evidence": "Seasons 2-18 and 20-34 have >20 episodes (32); season 36 lists '18 (Fox), 4 (Disney+), 22 (total)'. Season 37 has 19, season 38 is ongoing.",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_The_Simpsons_episodes",
+   "https://en.wikipedia.org/wiki/The_Simpsons_season_36"
+  ],
+  "action": "drop"
+ },
+ {
+  "qid": "seal-hard-64",
+  "bench": "sealqa",
+  "gold": "David Cameron",
+  "providers_answer": "Keir Starmer",
+  "providers_agree": "8/9",
+  "verdict": "gold_right",
+  "correct_answer": "David Cameron",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-65",
+  "bench": "sealqa",
+  "gold": "Twitter Complaint Hotline Operator",
+  "providers_answer": "Chief Twit",
+  "providers_agree": "8/9",
+  "verdict": "gold_right",
+  "correct_answer": "Twitter Complaint Hotline Operator",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-66",
+  "bench": "sealqa",
+  "gold": "There won't be a FIFA's Women World Cup in 2026.",
+  "providers_answer": "Canada, Mexico, and the United States",
+  "providers_agree": "8/9",
+  "verdict": "gold_right",
+  "correct_answer": "There won't be a FIFA's Women World Cup in 2026.",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-78",
+  "bench": "sealqa",
+  "gold": "2023 St. Louis Film Critics Association Awards",
+  "providers_answer": "96th Academy Awards (Oscars)",
+  "providers_agree": "7/9",
+  "verdict": "gold_right",
+  "correct_answer": "2023 St. Louis Film Critics Association Awards",
+  "evidence": "The accolades list shows Best Film at St. Louis on Dec 17, 2023, ahead of every other Best Film/Picture win (Capri Jan 2, Golden Globes Jan 7, BAFTA Feb 18, Oscars Mar 10, 2024).",
+  "sources": [
+   "https://en.wikipedia.org/wiki/List_of_accolades_received_by_Oppenheimer_(film)"
+  ],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-79",
+  "bench": "sealqa",
+  "gold": "According to the Fermat's Last Theorem, it is impossible for a cube number to be a sum of two cube numbers.",
+  "providers_answer": "1729",
+  "providers_agree": "9/9",
+  "verdict": "gold_right",
+  "correct_answer": "According to the Fermat's Last Theorem, it is impossible for a cube number to be a sum of two cube numbers.",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-85",
+  "bench": "sealqa",
+  "gold": "Universal Pictures",
+  "providers_answer": "Walt Disney Studios (Disney)",
+  "providers_agree": "6/9",
+  "verdict": "gold_right",
+  "correct_answer": "Universal Pictures",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "seal-hard-91",
+  "bench": "sealqa",
+  "gold": "Lionel Messi",
+  "providers_answer": "Cristiano Ronaldo",
+  "providers_agree": "9/9",
+  "verdict": "gold_right",
+  "correct_answer": "Lionel Messi",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "sqav-1239",
+  "bench": "simpleqa-verified",
+  "gold": "H. D. Kumaraswamy",
+  "providers_answer": "D. K. Shivakumar",
+  "providers_agree": "6/9",
+  "verdict": "gold_right",
+  "correct_answer": "H. D. Kumaraswamy",
+  "evidence": "pre-judged",
+  "sources": [],
+  "action": "keep"
+ },
+ {
+  "qid": "sqav-3153",
+  "bench": "simpleqa-verified",
+  "gold": "60 livres (acceptable range: anything between 58 and 62 livres)",
+  "providers_answer": "200 livres",
+  "providers_agree": "8/9",
+  "verdict": "gold_wrong",
+  "correct_answer": "200 livres",
+  "evidence": "The 1911 Britannica (Wikipedia's source) says Sirois first bought Watteau's 'Departure of the Troops' for 60 livres, and 'Camp-Fire' was 'again bought by Sirois' with the price raised to 200 livres. The gold confuses the two paintings.",
+  "sources": [
+   "https://en.wikisource.org/wiki/1911_Encyclop%C3%A6dia_Britannica/Watteau,_Antoine",
+   "https://en.wikipedia.org/wiki/Antoine_Watteau"
+  ],
+  "action": "drop"
+ }
+]
