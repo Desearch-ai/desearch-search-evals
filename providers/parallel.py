@@ -1,9 +1,14 @@
 """Parallel's own /v1/search endpoint: ranked results with query-relevant excerpts."""
 
 import asyncio
+import json
 import time
+from functools import lru_cache
+from pathlib import Path
 
 import aiohttp
+
+from providers.common import timing_headers
 
 ENDPOINT = "https://api.parallel.ai/v1/search"
 RETRYABLE = {429, 500, 502, 503, 504}
@@ -27,13 +32,21 @@ def validate_profile(profile):
         for name in ("allowed_domains", "excluded_domains", "start_date", "end_date")
     ):
         raise ValueError("Filters are not part of the benchmark profiles")
+    if profile.get("queries_file") and not Path(profile["queries_file"]).exists():
+        raise ValueError(f"queries_file {profile['queries_file']} does not exist")
+
+
+@lru_cache(maxsize=4)
+def written_queries(path):
+    return json.loads(Path(path).read_text())
 
 
 def build_request(question, profile):
-    """The question goes verbatim as both objective and the only search query; nothing is rewritten."""
+    """The question is the objective and the only query, unless queries_file holds an objective and 1-3 queries written once for it."""
+    written = written_queries(profile["queries_file"]).get(question) if profile.get("queries_file") else None
     return {
-        "objective": question,
-        "search_queries": [question],
+        "objective": (written or {}).get("objective") or question,
+        "search_queries": (written or {}).get("search_queries") or [question],
         "mode": profile["mode"],
         "advanced_settings": {
             "max_results": profile.get("max_results", 10),
@@ -81,6 +94,7 @@ async def search(session, question, profile, api_key):
             ) as response:
                 raw = await response.json(content_type=None)
                 status = response.status
+                result["server_headers"] = timing_headers(getattr(response, "headers", {}) or {})
             if status not in RETRYABLE or attempt == 3:
                 break
             await asyncio.sleep(2 ** (attempt + 1))

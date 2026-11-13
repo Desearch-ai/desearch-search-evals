@@ -1,0 +1,2828 @@
+{
+ "How many airlines are members of IATA, the organization that supports airline activity and helps formulate industry policy and standards?": {
+  "objective": "Find the current number of member airlines in the International Air Transport Association (IATA) from official IATA sources or recent industry reports.",
+  "search_queries": [
+   "IATA member airlines count 2024",
+   "how many airlines are in IATA",
+   "current IATA membership statistics"
+  ]
+ },
+ "Which company most recently surpassed a $1 trillion market capitalization for the first time in its history?": {
+  "objective": "Identify the specific company that most recently crossed the $1 trillion market cap milestone for the first time, requiring recent financial news or market data sources.",
+  "search_queries": [
+   "most recent company to hit $1 trillion market cap",
+   "latest trillion dollar market cap company debut",
+   "which company just reached $1 trillion valuation"
+  ]
+ },
+ "What is the current age of the last American experimental physicist to win the Nobel Prize in Physics?": {
+  "objective": "Identify the most recent American experimental physicist to win the Nobel Prize in Physics and find their current age or birth date.",
+  "search_queries": [
+   "last American experimental physicist Nobel Prize Physics",
+   "recent Nobel Prize Physics winners nationality field",
+   "age of latest American experimental Nobel laureate"
+  ]
+ },
+ "What was the percentage increase in the number of people seeking cocaine treatment in the Republic of Ireland, according to the latest HRB report?": {
+  "objective": "Find the specific percentage increase in people seeking cocaine treatment in the Republic of Ireland as reported in the latest Health Research Board (HRB) report.",
+  "search_queries": [
+   "HRB report cocaine treatment Ireland percentage increase",
+   "latest HRB drug treatment statistics Ireland",
+   "Republic of Ireland cocaine treatment HRB data"
+  ]
+ },
+ "What is the total number of basis points by which the Federal Reserve has cut interest rates since October 2024?": {
+  "objective": "Find the cumulative total of Federal Reserve interest rate cuts implemented from October 2024 to the present, expressed in basis points, using official Fed announcements or reliable financial news reports.",
+  "search_queries": [
+   "total Fed rate cuts basis points since October 2024",
+   "Federal Reserve cumulative rate cuts 2024",
+   "sum of Fed rate cuts October 2024 to now"
+  ]
+ },
+ "What is the current age of the oldest singles champion of The ATP Finals?": {
+  "objective": "Identify the oldest player to win the ATP Finals singles title and find their current age in 2024.",
+  "search_queries": [
+   "oldest ATP Finals singles champion",
+   "age of Roger Federer 2024",
+   "ATP Finals oldest winner history"
+  ]
+ },
+ "How many books has Jamie Oliver published since 2020?": {
+  "objective": "Find the count of books published by Jamie Oliver from 2020 to the present, using official bibliographies or major book retailer listings to verify publication dates.",
+  "search_queries": [
+   "Jamie Oliver books published 2020",
+   "Jamie Oliver bibliography 2020-2024",
+   "Jamie Oliver new cookbooks 2021"
+  ]
+ },
+ "How many UNESCO World Heritage Cultural Sites are there in the country with the largest number of sites on the list, reflecting the country’s dedication to preserving its invaluable landmarks and wonders?": {
+  "objective": "Identify the country with the most UNESCO World Heritage Cultural Sites and determine the exact count of those sites.",
+  "search_queries": [
+   "country with most UNESCO World Heritage Cultural Sites",
+   "UNESCO World Heritage Cultural Sites by country count",
+   "list of countries by number of UNESCO World Heritage sites"
+  ]
+ },
+ "What was the highest-grossing animated film produced by Universal Studios last year?": {
+  "objective": "Identify the highest-grossing animated film released by Universal Pictures in 2023 and verify its box office earnings compared to other Universal animated releases that year.",
+  "search_queries": [
+   "highest grossing Universal animated film 2023",
+   "Universal Pictures animated movies box office 2023",
+   "top earning Universal animation last year"
+  ]
+ },
+ "How many NBA players have scored 60 or more points in a regular season game since 2023?": {
+  "objective": "Find the count of NBA players who scored 60+ points in a regular season game starting from the 2022-2023 season through the current date, using official NBA stats or reputable sports news archives.",
+  "search_queries": [
+   "NBA players 60+ points since 2023",
+   "list of NBA 60 point games 2023-2024",
+   "NBA regular season 60 point scorers 2023"
+  ]
+ },
+ "What is the most recent film to join the top 10 highest-grossing films of all time?": {
+  "objective": "Find the latest movie to enter the list of the top 10 highest-grossing films worldwide and confirm its ranking date.",
+  "search_queries": [
+   "top 10 highest grossing films all time 2024",
+   "latest film join top 10 box office",
+   "highest grossing movies list updated 2024"
+  ]
+ },
+ "How many Universal Studios films have grossed over $1 billion worldwide since 2020?": {
+  "objective": "Find the count of Universal Pictures films that exceeded $1 billion in worldwide box office revenue starting from January 1, 2020, using verified box office databases like Box Office Mojo or The Numbers.",
+  "search_queries": [
+   "Universal Pictures films over 1 billion since 2020",
+   "list of Universal movies grossed 1 billion 2020-2024",
+   "Universal Studios billion dollar club movies post 2020"
+  ]
+ },
+ "How many successfully predicted asteroid impacts have resulted in the recovery of meteorites in the last five years?": {
+  "objective": "Find the number of asteroid impacts predicted in the last five years where meteorite fragments were subsequently recovered on Earth.",
+  "search_queries": [
+   "predicted asteroid impact meteorite recovery 2019-2024",
+   "list of recovered meteorites from predicted asteroids",
+   "successfully predicted asteroid falls meteorite recovery"
+  ]
+ },
+ "What was the acceptance rate for the most recent Conference on Empirical Methods in Natural Language Processing (EMNLP), including both the main conference and Findings?": {
+  "objective": "Find the official acceptance statistics for the latest EMNLP conference, specifically distinguishing between main conference and Findings tracks to calculate the combined rate.",
+  "search_queries": [
+   "EMNLP 2024 acceptance rate main findings",
+   "EMNLP 2023 acceptance statistics main findings",
+   "EMNLP acceptance rate recent year"
+  ]
+ },
+ "Which institution most recently won the ICPC World Finals, topping institutional giants like Stanford, MIT, Cambridge, and Oxford?": {
+  "objective": "Identify the university that won the most recent ICPC World Finals and confirm it surpassed traditional powerhouses like Stanford and MIT.",
+  "search_queries": [
+   "most recent ICPC World Finals winner",
+   "ICPC World Finals 2024 champion institution",
+   "latest ICPC World Finals results"
+  ]
+ },
+ "What is the internal codename of the most recent version of Android that is currently no longer maintained?": {
+  "objective": "Find the internal codename of the latest Android version that has reached its end-of-life and is no longer receiving security updates.",
+  "search_queries": [
+   "Android version end of life",
+   "latest unsupported Android codename",
+   "Android security update history"
+  ]
+ },
+ "How many current and former Real Madrid players are ranked in the top 10 of the latest Forbes list of the world's highest-paid athletes?": {
+  "objective": "Find the latest Forbes list of the world's highest-paid athletes and count how many of the top 10 are current or former Real Madrid players.",
+  "search_queries": [
+   "Forbes highest paid athletes top 10 list 2024",
+   "Real Madrid players Forbes highest paid athletes ranking",
+   "current former Real Madrid players Forbes rich list"
+  ]
+ },
+ "How many of the top 10 highest-paid athletes in the latest Forbes list are professional golfers living in the U.S.?": {
+  "objective": "Find the latest Forbes highest-paid athletes list to count how many of the top 10 are U.S.-based professional golfers.",
+  "search_queries": [
+   "Forbes highest paid athletes 2024 top 10",
+   "top 10 highest paid athletes Forbes golfers",
+   "latest Forbes highest paid athletes list golfers"
+  ]
+ },
+ "Who holds the all-time record at the Grammys for the most wins in the album of the year category?": {
+  "objective": "Identify the artist with the most Grammy Album of the Year wins and the specific number of awards they have received to settle the record holder status.",
+  "search_queries": [
+   "most grammy album of the year wins",
+   "artist with most grammy album of the year awards",
+   "grammy album of the year all time record holder"
+  ]
+ },
+ "How many U.S. universities ranked in the top 20 of the latest QS World University Rankings?": {
+  "objective": "Find the number of U.S. universities in the top 20 of the most recent QS World University Rankings by consulting the official QS website or reputable news outlets reporting the latest results.",
+  "search_queries": [
+   "latest QS World University Rankings top 20 US universities",
+   "how many US universities in top 20 QS rankings",
+   "QS World University Rankings 2024 top 20 list"
+  ]
+ },
+ "How many of the top 10 highest-paid athletes in the world, according to the latest Forbes list, are from the United States?": {
+  "objective": "Find the most recent Forbes list of highest-paid athletes and count how many of the top 10 are from the United States.",
+  "search_queries": [
+   "Forbes highest paid athletes 2024 top 10",
+   "Forbes highest paid athletes 2023 top 10",
+   "Forbes highest paid athletes latest list nationality"
+  ]
+ },
+ "How many Mega Millions and Powerball jackpots with a single ticket in the United States have exceeded $1 billion?": {
+  "objective": "Find the total count of US Mega Millions and Powerball jackpots exceeding $1 billion won with a single ticket, relying on official lottery records or reputable news archives.",
+  "search_queries": [
+   "Mega Millions Powerball billion dollar single ticket wins",
+   "count of US lottery billion dollar single ticket jackpots",
+   "list of Mega Millions Powerball billion dollar winners"
+  ]
+ },
+ "What is the current age of the oldest person to sail solo across the Pacific Ocean?": {
+  "objective": "Identify the record holder for the oldest person to sail solo across the Pacific Ocean and determine their current age based on their birth date.",
+  "search_queries": [
+   "oldest person solo sail Pacific record",
+   "oldest solo Pacific Ocean sailor age",
+   "world record oldest solo Pacific crossing"
+  ]
+ },
+ "Among the 50 most-liked Instagram posts, how many were made by Cristiano Ronaldo’s account and received over 35 million likes?": {
+  "objective": "Find the count of Cristiano Ronaldo's posts in the top 50 most-liked Instagram posts that have more than 35 million likes.",
+  "search_queries": [
+   "top 50 most liked Instagram posts list",
+   "Cristiano Ronaldo Instagram posts over 35 million likes",
+   "most liked Instagram posts Cristiano Ronaldo count"
+  ]
+ },
+ "How many of the top 20 most-liked Instagram posts by non-football-related accounts—excluding footballers like Lionel Messi and Cristiano Ronaldo and football organizations—also appear in the overall top 20 most-liked posts? Note that Selena Gomez does not have any posts in the overall top 20 most-liked posts.": {
+  "objective": "Find the list of the overall top 20 most-liked Instagram posts and identify how many are from non-football accounts, excluding footballers and organizations, while noting Selena Gomez's absence.",
+  "search_queries": [
+   "top 20 most liked Instagram posts all time",
+   "most liked Instagram posts excluding football",
+   "Selena Gomez Instagram most liked posts ranking"
+  ]
+ },
+ "How many YouTube music videos have surpassed 7 billion views?": {
+  "objective": "Find the current count of YouTube music videos with over 7 billion views and a list of those specific videos to verify the number.",
+  "search_queries": [
+   "most viewed YouTube music videos 7 billion",
+   "list of YouTube videos over 7 billion views",
+   "how many music videos have 7 billion views"
+  ]
+ },
+ "How many of the top 50 most-followed Instagram accounts belong to individuals or entities based in the United States?": {
+  "objective": "Find a current list of the top 50 most-followed Instagram accounts and identify their country of origin to count how many are based in the United States.",
+  "search_queries": [
+   "top 50 most followed Instagram accounts 2024",
+   "Instagram top 50 followers nationality breakdown",
+   "most followed Instagram accounts by country 2024"
+  ]
+ },
+ "How many versions of the .NET platform have been released that have a support lifetime of more than 12 months?": {
+  "objective": "Find the total count of .NET platform versions with a support lifetime exceeding 12 months by consulting official Microsoft lifecycle documentation.",
+  "search_queries": [
+   ".NET version lifecycle support dates",
+   "Microsoft .NET release history support duration",
+   "list of .NET versions support length"
+  ]
+ },
+ "How many of the top 50 most-subscribed YouTube channels are based in India?": {
+  "objective": "Find a current list or report identifying the top 50 most-subscribed YouTube channels and count how many are headquartered in India.",
+  "search_queries": [
+   "top 50 most subscribed YouTube channels India",
+   "list of top 50 YouTube channels by country",
+   "most subscribed Indian YouTube channels 2024"
+  ]
+ },
+ "How many American movies are in the top 100 highest-grossing films at the French box office?": {
+  "objective": "Find a list of the top 100 highest-grossing films in France and count how many are American productions to determine the exact number.",
+  "search_queries": [
+   "top 100 highest grossing films France list",
+   "highest grossing movies in France all time",
+   "American movies top 100 French box office"
+  ]
+ },
+ "How many active players have won one or more ATP Finals singles titles? Please note that Andy Murray is no longer active.": {
+  "objective": "Find the number of currently active ATP players who have won at least one ATP Finals singles title, excluding retired players like Andy Murray.",
+  "search_queries": [
+   "list of ATP Finals singles champions active players",
+   "current active ATP players with ATP Finals titles",
+   "ATP Finals winners still active in 2024"
+  ]
+ },
+ "Across all released seasons, how many episodes of The Lord of the Rings: The Rings of Power were not directed solely by Charlotte Brändström?": {
+  "objective": "Find the total number of episodes released in all seasons of The Lord of the Rings: The Rings of Power and the count of episodes directed solely by Charlotte Brändström to calculate the difference.",
+  "search_queries": [
+   "The Rings of Power total episode count",
+   "Charlotte Brändström directed episodes Rings of Power",
+   "Rings of Power directors list all seasons"
+  ]
+ },
+ "How many accounts have exceeded 125 million followers on Instagram?": {
+  "objective": "Find the current count of Instagram accounts with over 125 million followers and identify which specific accounts meet this threshold to verify the total.",
+  "search_queries": [
+   "Instagram accounts over 125 million followers",
+   "most followed Instagram accounts 2024",
+   "list of Instagram accounts with 125M+ followers"
+  ]
+ },
+ "How many films released before 2020 are currently among the top 30 highest-grossing films worldwide?": {
+  "objective": "Identify the specific count of films released before 2020 that appear on the current global all-time box office top 30 list.",
+  "search_queries": [
+   "top 30 highest grossing films worldwide 2024",
+   "all time highest grossing movies list wikipedia",
+   "highest grossing films before 2020 box office"
+  ]
+ },
+ "How many of the top 30 most-liked YouTube videos belong to MrBeast?": {
+  "objective": "Find the current list of the top 30 most-liked YouTube videos and identify how many are uploaded by MrBeast to determine the exact count.",
+  "search_queries": [
+   "top 30 most liked YouTube videos 2024",
+   "most liked YouTube videos MrBeast count",
+   "list of most liked YouTube videos all time"
+  ]
+ },
+ "How many of the 50 most-subscribed YouTube channels use only English as their primary language?": {
+  "objective": "Find a list of the top 50 most-subscribed YouTube channels and identify their primary language to count how many use only English.",
+  "search_queries": [
+   "top 50 most subscribed YouTube channels list",
+   "primary language of top YouTube channels",
+   "most subscribed YouTube channels by country"
+  ]
+ },
+ "How many 20th-century paintings have been sold for at least $100 million (in nominal sale price) at Christie’s New York since 2020?": {
+  "objective": "Find the count of 20th-century paintings sold at Christie's New York for $100 million or more in nominal terms since 2020, using official auction results or reputable art market reports.",
+  "search_queries": [
+   "Christie's New York paintings sold over $100 million since 2020",
+   "list of paintings sold for $100 million at Christie's New York",
+   "Christie's New York auction records 20th century paintings $100m"
+  ]
+ },
+ "How many videos on YouTube have received more than 31 million likes?": {
+  "objective": "Find the current count of YouTube videos with over 31 million likes using real-time data tracking sites or official statistics.",
+  "search_queries": [
+   "youtube videos over 31 million likes count",
+   "most liked youtube videos list 2024",
+   "how many youtube videos have 31m likes"
+  ]
+ },
+ "Which Meta Quest models released after 2023 use Touch Plus controllers and have 6 cameras?": {
+  "objective": "Identify Meta Quest headsets launched in 2024 or later that feature Touch Plus controllers and a 6-camera inside-out tracking system.",
+  "search_queries": [
+   "Meta Quest models 2024 Touch Plus",
+   "Meta Quest 6 camera tracking specs",
+   "Meta Quest Pro 2 release date"
+  ]
+ },
+ "How many seasons of The Simpsons include more than 20 episodes?": {
+  "objective": "Determine the number of The Simpsons seasons that have aired more than 20 episodes by checking official episode counts per season.",
+  "search_queries": [
+   "The Simpsons episodes per season list",
+   "how many episodes in each Simpsons season",
+   "Simpsons seasons with over 20 episodes"
+  ]
+ },
+ "Of the drivers who have won consecutive World Drivers' Championships, how many competed in this year's Championship?": {
+  "objective": "Identify the list of Formula 1 drivers who have won consecutive World Drivers' Championships and determine how many of them are competing in the 2024 F1 season.",
+  "search_queries": [
+   "list of consecutive F1 world champions",
+   "2024 Formula 1 driver lineup",
+   "F1 drivers with back-to-back titles"
+  ]
+ },
+ "How many films released this year have grossed over $150 million worldwide?": {
+  "objective": "Find the current count of films released in the current year that have achieved a worldwide box office gross exceeding $150 million, using authoritative box office tracking sources.",
+  "search_queries": [
+   "films released this year grossed over $150 million worldwide",
+   "2024 box office movies over 150 million worldwide",
+   "list of highest grossing films 2024 over 150 million"
+  ]
+ },
+ "How many YouTube videos have surpassed 5 billion views?": {
+  "objective": "Find the current count of YouTube videos that have exceeded 5 billion views and identify the specific videos on that list to verify the total number.",
+  "search_queries": [
+   "list of YouTube videos over 5 billion views",
+   "how many YouTube videos have 5 billion views",
+   "most viewed YouTube videos 5 billion count"
+  ]
+ },
+ "How many individuals have won the Oscar for Best Animated Feature?": {
+  "objective": "Find the total count of unique individuals who have won the Academy Award for Best Animated Feature to date.",
+  "search_queries": [
+   "list of Best Animated Feature winners",
+   "how many people won Best Animated Feature Oscar",
+   "Academy Award Best Animated Feature winners list"
+  ]
+ },
+ "How many films released before 2020 are currently among the top 20 highest-grossing films worldwide?": {
+  "objective": "Find the current list of the top 20 highest-grossing films worldwide and count how many were released before 2020.",
+  "search_queries": [
+   "top 20 highest grossing films worldwide 2024",
+   "highest grossing movies of all time list",
+   "box office mojo all time highest grossing films"
+  ]
+ },
+ "How many non-American publicly traded companies currently have a market capitalization above $500 billion?": {
+  "objective": "Find the current list of non-US publicly traded companies with a market cap exceeding $500 billion to determine the total count.",
+  "search_queries": [
+   "largest non US companies market cap",
+   "global companies market cap over 500 billion",
+   "non american stock market capitalization ranking"
+  ]
+ },
+ "How many non-brand TikTok accounts have reached more than 50 million followers?": {
+  "objective": "Identify the count of TikTok accounts with over 50 million followers that are not official brand or celebrity accounts, using recent top-follower lists and account verification data.",
+  "search_queries": [
+   "TikTok accounts over 50 million followers list",
+   "most followed non brand TikTok accounts",
+   "top TikTok creators by follower count 2024"
+  ]
+ },
+ "Who is the most recent NBA player to score 60 or more points in a regular-season game and lead their team to a win by at least 10 points?": {
+  "objective": "Identify the most recent NBA player who scored 60+ points in a regular-season game while winning by at least 10 points, using official game logs or news archives to verify the date and margin of victory.",
+  "search_queries": [
+   "NBA player 60 points win by 10",
+   "recent NBA 60 point games list",
+   "NBA 60 point game win margin history"
+  ]
+ },
+ "How many American artists have received more than 40 Grammy nominations?": {
+  "objective": "Find a definitive list of American artists with over 40 Grammy nominations to determine the exact count of such individuals.",
+  "search_queries": [
+   "American artists most Grammy nominations list",
+   "artists with over 40 Grammy nominations",
+   "list of Grammy nominees by count"
+  ]
+ },
+ "What was Coco Gauff's WTA ranking points total immediately after last year's US Open – Women's Singles?": {
+  "objective": "Find the exact WTA ranking points Coco Gauff held immediately following the 2023 US Open Women's Singles final.",
+  "search_queries": [
+   "Coco Gauff WTA points after 2023 US Open",
+   "Coco Gauff ranking points September 2023",
+   "WTA rankings update after 2023 US Open"
+  ]
+ },
+ "What is the name of the most recent typhoon in Southeast Asia to reach the equivalent of Category 5 on the Saffir–Simpson scale?": {
+  "objective": "Identify the name of the most recent typhoon in Southeast Asia that reached Category 5 intensity on the Saffir-Simpson scale, using meteorological records or news archives.",
+  "search_queries": [
+   "recent Category 5 typhoon Southeast Asia",
+   "strongest typhoon Southeast Asia 2023 2024",
+   "latest Saffir Simpson Category 5 typhoon"
+  ]
+ },
+ "Among women’s soccer players with 100 or more international goals, who has the highest goals-per-match ratio?": {
+  "objective": "Identify women's soccer players with 100+ international goals and find their goals-per-match ratios to determine who has the highest.",
+  "search_queries": [
+   "women soccer players 100+ goals list",
+   "highest goals per match ratio women international",
+   "women soccer all time top scorers stats"
+  ]
+ },
+ "Which North Atlantic tropical storm, whose peak intensity remained at tropical storm level, caused the highest number of deaths last year?": {
+  "objective": "Identify the North Atlantic tropical storm from 2023 that remained at tropical storm intensity and caused the most fatalities, using official NOAA or NHC reports to confirm death tolls and peak status.",
+  "search_queries": [
+   "2023 North Atlantic tropical storm deaths",
+   "deadliest tropical storm 2023 Atlantic basin",
+   "2023 Atlantic hurricane season fatality list"
+  ]
+ },
+ "Among this year's films that have grossed over $150 million worldwide, which has earned the least revenue?": {
+  "objective": "Find the list of films released in 2024 with worldwide box office gross exceeding $150 million to identify the one with the lowest total revenue.",
+  "search_queries": [
+   "2024 films worldwide box office over 150 million",
+   "lowest grossing 2024 movies over 150 million",
+   "2024 movie box office rankings worldwide"
+  ]
+ },
+ "What is the name of the largest wildfire in Northern California last year?": {
+  "objective": "Find the name of the largest wildfire by acreage in Northern California during 2023, using official fire reports or news archives.",
+  "search_queries": [
+   "largest wildfire Northern California 2023",
+   "biggest fire NorCal 2023 acreage",
+   "2023 California wildfire season largest fire"
+  ]
+ },
+ "How many documentary films produced by Sahitya Akademi to date have a duration of less than 30 minutes?": {
+  "objective": "Find the total count of Sahitya Akademi-produced documentary films with a runtime under 30 minutes by consulting official film catalogs or detailed lists of their media publications.",
+  "search_queries": [
+   "Sahitya Akademi documentary films list",
+   "Sahitya Akademi short documentary duration",
+   "Sahitya Akademi filmography under 30 minutes"
+  ]
+ },
+ "Google is significantly expanding its presence in the Asia-Pacific region, with Singapore as their current Asia Pacific headquarters. How many office locations does the company currently operate across Asian countries?": {
+  "objective": "Find the current number of Google office locations specifically within Asian countries, excluding offices in other regions like Europe or the Americas.",
+  "search_queries": [
+   "Google office locations in Asia count",
+   "number of Google offices in Asian countries",
+   "Google Asia Pacific office locations list"
+  ]
+ },
+ "What is the dine-in price in VND at Tan Son Nhat International Airport for a large cup of corn kernels from McDonald's?": {
+  "objective": "Find the current dine-in price in Vietnamese Dong (VND) for a large cup of corn kernels at McDonald's locations within Tan Son Nhat International Airport.",
+  "search_queries": [
+   "McDonalds Tan Son Nhat airport menu prices VND",
+   "McDonalds Vietnam corn kernels price large",
+   "McDonalds TSN airport food cost VND"
+  ]
+ },
+ "What is the current age of the youngest grandmaster of chess?": {
+  "objective": "Identify the chess player who achieved the Grandmaster title at the youngest age and determine their current age in 2024.",
+  "search_queries": [
+   "youngest chess grandmaster history",
+   "Abhimanyu Mishra current age 2024",
+   "youngest grandmaster chess title age"
+  ]
+ },
+ "How many total offices has Google opened across the Asia–Pacific, Africa, and Middle East regions since January 1, 2022?": {
+  "objective": "Find the count of new Google offices opened in Asia-Pacific, Africa, and the Middle East from January 1, 2022, to present using official news or reputable tech media.",
+  "search_queries": [
+   "Google new offices opened 2022 Asia Pacific",
+   "Google new offices opened 2023 Africa Middle East",
+   "Google global office expansion 2022 2023 2024"
+  ]
+ },
+ "What is the total number of civilian awards conferred in the Arts discipline in India from 2015 to 2025?": {
+  "objective": "Find the total count of civilian awards (specifically Padma awards) given in the Arts category in India between 2015 and 2025, using official government gazette notifications or reliable databases like the Padma Awards portal.",
+  "search_queries": [
+   "Padma awards Arts category list 2015-2025",
+   "total civilian awards India Arts 2015 2025",
+   "Padma Shri Vibhushan Bhushan Arts winners count"
+  ]
+ },
+ "What is the total number of documentary films produced by Sahitya Akademi?": {
+  "objective": "Find the exact count of documentary films produced by Sahitya Akademi, ideally from official publications or verified cultural records.",
+  "search_queries": [
+   "Sahitya Akademi total documentary films count",
+   "Sahitya Akademi film production statistics",
+   "list of Sahitya Akademi documentaries"
+  ]
+ },
+ "How many albums have received more than 140 million streams in a single day on Spotify?": {
+  "objective": "Find the specific count of albums that have surpassed 140 million streams in a single day on Spotify, using official Spotify records or reputable music industry news sources.",
+  "search_queries": [
+   "Spotify albums over 140 million streams single day",
+   "most streamed albums in one day Spotify history",
+   "Spotify daily stream records albums list"
+  ]
+ },
+ "Which three North American countries will host the 2026 FIFA's Women World Cup, the first to be co-hosted by three nations and the first North American World Cup since 1994?": {
+  "objective": "Identify the three specific North American countries selected to co-host the 2026 FIFA Women's World Cup.",
+  "search_queries": [
+   "2026 FIFA Women's World Cup host countries",
+   "North American hosts 2026 Women's World Cup"
+  ]
+ },
+ "Who was previously appointed prime minister of the United Kingdom, becoming the first one to win a general election since Tony Blair in 2005?": {
+  "objective": "Identify the UK Prime Minister who won a general election, ending the streak of unelected PMs since Tony Blair's 2005 victory. Official election results and historical records of UK PMs will confirm this.",
+  "search_queries": [
+   "first UK PM win general election since 2005",
+   "who became UK prime minister after winning general election",
+   "UK prime minister elected 2024 general election"
+  ]
+ },
+ "Which female political leader's nickname \"Iron Lady\" has been criticized as problematic because of her pro-European stance?": {
+  "objective": "Identify a female political leader nicknamed 'Iron Lady' who is pro-European and has faced criticism regarding this nickname, distinguishing her from Margaret Thatcher.",
+  "search_queries": [
+   "female leader nickname Iron Lady pro-European",
+   "\"Iron Lady\" nickname criticized pro-European stance",
+   "who is called Iron Lady besides Thatcher"
+  ]
+ },
+ "Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his Twitter bio just days after closing the acquisition deal to take over the platform?": {
+  "objective": "Find the specific title Elon Musk added to his Twitter/X bio shortly after acquiring the platform in 2022.",
+  "search_queries": [
+   "Elon Musk Twitter bio title after acquisition",
+   "Elon Musk declared himself what on Twitter",
+   "Elon Musk X bio title 2022"
+  ]
+ },
+ "How many females are there in the top 50 of the Forbes World’s Billionaires List?": {
+  "objective": "Find the exact count of female billionaires in the top 50 of the most recent Forbes World's Billionaires List using official Forbes data or reputable news summaries.",
+  "search_queries": [
+   "Forbes World's Billionaires List top 50 women count",
+   "number of female billionaires in Forbes top 50",
+   "Forbes richest people list 2024 top 50 females"
+  ]
+ },
+ "Which tropical rainforest represents a quarter of the total area of remaining tropical forests on Earth and comprises one of the largest and most biodiverse tracts of tropical rainforest in the world?": {
+  "objective": "Identify the specific tropical rainforest that accounts for approximately 25% of the world's remaining tropical forest area and is known for high biodiversity.",
+  "search_queries": [
+   "tropical rainforest 25 percent global area",
+   "largest biodiverse tropical rainforest world",
+   "Amazon rainforest percentage of global tropical forests"
+  ]
+ },
+ "What is the sum of all three-letter Roman numerals that read the same forwards and backwards?": {
+  "objective": "Identify all valid three-letter Roman numerals that are palindromes and calculate their total sum. Sources should list valid Roman numeral combinations or explain the rules for constructing them to ensure only valid numbers are included.",
+  "search_queries": [
+   "valid three letter Roman numerals palindrome",
+   "sum of palindromic Roman numerals",
+   "list of three character Roman numerals"
+  ]
+ },
+ "What is the name of the in-place, stable comparison sorting algorithm with a worst-case time complexity of O(n log n) and a best-case time complexity of O(n)?": {
+  "objective": "Identify the specific in-place, stable comparison sorting algorithm that has O(n log n) worst-case and O(n) best-case time complexity, verifying against standard algorithm references.",
+  "search_queries": [
+   "in-place stable sort O(n log n)",
+   "stable sorting algorithm best case O(n)",
+   "TimSort in-place stable comparison sort"
+  ]
+ },
+ "Which U.S. airline had the highest percentage of delayed flights over the full calendar year of 2024, according to the U.S. Department of Transportation's Air Travel Consumer Report?": {
+  "objective": "Find the U.S. airline with the highest percentage of delayed flights in 2024 based on the DOT Air Travel Consumer Report data.",
+  "search_queries": [
+   "DOT Air Travel Consumer Report 2024 delayed flights",
+   "U.S. airlines highest delay percentage 2024 DOT",
+   "2024 airline on-time performance statistics DOT"
+  ]
+ },
+ "In which year since 1880 did the global temperature anomaly exceed 1 degree Celsius and 2 degrees Fahrenheit simultaneously for the first time in recorded history?": {
+  "objective": "Find the first year since 1880 where global temperature anomaly exceeded both 1 degree Celsius and 2 degrees Fahrenheit simultaneously, using authoritative climate data sources like NASA GISS or NOAA.",
+  "search_queries": [
+   "first year global temp anomaly exceeded 1C",
+   "year global temperature anomaly 1 degree Celsius first",
+   "global temperature anomaly 1C 2F simultaneous first year"
+  ]
+ },
+ "Which two countries share the longest continuous international border in the world by total length?": {
+  "objective": "Identify the two countries with the longest continuous international border and verify the total length against other major borders like Canada-US or Russia-Kazakhstan.",
+  "search_queries": [
+   "longest international border in the world",
+   "countries with longest shared border length",
+   "Canada US border vs Russia Kazakhstan length"
+  ]
+ },
+ "Who is the only female artist to have topped Spotify's list of most-streamed artists in three consecutive years (2020–2022)?": {
+  "objective": "Identify the female artist who was the most-streamed on Spotify for the years 2020, 2021, and 2022. Reliable sources include Spotify's official annual Wrapped reports or reputable music industry news outlets covering these yearly statistics.",
+  "search_queries": [
+   "Spotify most streamed artist 2020 2021 2022",
+   "only female artist top Spotify three years",
+   "Spotify top artist 2020 2021 2022 female"
+  ]
+ },
+ "How many countries did both Donald Trump (during his first term) and Joe Biden visit during their presidencies, including the West Bank?": {
+  "objective": "Identify the specific list of countries visited by Donald Trump during his first term and Joe Biden during his presidency to calculate the intersection of these two sets, ensuring the West Bank is treated as a distinct location or included in the relevant country count as specified.",
+  "search_queries": [
+   "Donald Trump first term foreign travel list",
+   "Joe Biden presidency foreign travel list",
+   "countries visited by both Trump and Biden"
+  ]
+ },
+ "At which awards ceremony did the film Oppenheimer, a solemn three-hour biopic that became an unlikely billion-dollar box-office sensation, first win the Best Film award?": {
+  "objective": "Identify the specific awards ceremony where Oppenheimer first won the Best Film award, distinguishing it from the Oscars or other later ceremonies.",
+  "search_queries": [
+   "Oppenheimer first Best Film award win",
+   "Oppenheimer Best Film awards history",
+   "Oppenheimer awards timeline Best Film"
+  ]
+ },
+ "Which superhero appeared in American comic books published by Marvel Comics and later became leader of the superhero team, the Avengers, alongside Thor, Ant-Man, the Wasp, and the Hulk?": {
+  "objective": "Identify the Marvel superhero who co-founded the Avengers with Thor, Ant-Man, Wasp, and Hulk and subsequently became the team's leader.",
+  "search_queries": [
+   "Avengers original members leader",
+   "who led Avengers after founding",
+   "Marvel superhero leader Avengers Thor Hulk"
+  ]
+ },
+ "How many countries did Donald Trump visit during his first presidency that Joe Biden did not visit during his presidency?": {
+  "objective": "Identify the specific list of countries visited by Donald Trump and Joe Biden during their respective presidencies to determine the count of countries visited exclusively by Trump.",
+  "search_queries": [
+   "list of countries visited by Donald Trump presidency",
+   "list of countries visited by Joe Biden presidency",
+   "countries visited by Trump but not Biden"
+  ]
+ },
+ "Who is the first Republican president of the United States to serve non-consecutive terms?": {
+  "objective": "Identify the first Republican U.S. president who served non-consecutive terms and confirm if any Republican has achieved this, as the only president with non-consecutive terms was a Democrat.",
+  "search_queries": [
+   "first Republican president non-consecutive terms",
+   "only president non-consecutive terms party",
+   "Grover Cleveland political party"
+  ]
+ },
+ "What is the smallest cube number which can be expressed as the sum of two different positive cube numbers in two different ways?": {
+  "objective": "Find the smallest cube number that is the sum of two distinct positive cubes in two different ways, identifying the specific number and the pairs of cubes.",
+  "search_queries": [
+   "smallest cube sum two cubes two ways",
+   "taxicab number cube sum distinct positive",
+   "smallest number sum two cubes twice"
+  ]
+ },
+ "In which year did California experience its second instance of wildfires burning more than 2 million acres, destroying scores of homes and other buildings?": {
+  "objective": "Find the year California had its second wildfire season exceeding 2 million acres burned, likely following the record 2020 season.",
+  "search_queries": [
+   "California wildfire seasons over 2 million acres",
+   "year second California wildfire season 2 million acres",
+   "California wildfire history largest acreage burned"
+  ]
+ },
+ "What is the smallest positive integer that can be written as the sum of two perfect squares, with both of these perfect squares being prime numbers?": {
+  "objective": "Find the smallest positive integer that is the sum of two prime perfect squares. Identify the specific primes and their sum to verify the minimum value.",
+  "search_queries": [
+   "smallest sum of two prime squares",
+   "prime perfect squares sum minimum",
+   "integers sum of two prime squares"
+  ]
+ },
+ "Which studio was the first to release more than two billion-dollar films in one year?": {
+  "objective": "Identify the film studio that first achieved releasing more than two movies with over $2 billion in global box office revenue within a single calendar year, using industry box office records and news reports.",
+  "search_queries": [
+   "first studio two billion dollar films one year",
+   "studio most billion dollar movies single year",
+   "Disney Marvel billion dollar films year record"
+  ]
+ },
+ "United Kingdom is among the most commonly visited foreign countries by US presidents. How many international presidential trips to United Kingdom did Donald Trump make within one year before the end of his first presidency?": {
+  "objective": "Find the number of official state visits or international trips Donald Trump made to the United Kingdom during the final year of his presidency (January 2020 to January 2021).",
+  "search_queries": [
+   "Donald Trump UK visits 2020",
+   "Trump presidential trips to UK count",
+   "Donald Trump international travel 2020"
+  ]
+ },
+ "How many times did Blake Shelton win as a coach on The Voice (U.S.) between 2015 and his departure in 2023?": {
+  "objective": "Determine the total number of seasons Blake Shelton won as a coach on The Voice U.S. from 2015 through 2023, using reliable entertainment databases or news archives.",
+  "search_queries": [
+   "Blake Shelton The Voice wins 2015-2023",
+   "Blake Shelton coaching wins The Voice",
+   "The Voice US season winners list"
+  ]
+ },
+ "Who was the first person to win the Best Romance category at the Goodreads Choice Awards for three consecutive years?": {
+  "objective": "Identify the author who won the Best Romance category at the Goodreads Choice Awards for three consecutive years and verify if they were the first to achieve this feat.",
+  "search_queries": [
+   "Goodreads Choice Awards Best Romance three consecutive winners",
+   "first author three consecutive Goodreads Romance wins",
+   "Goodreads Choice Awards Best Romance history winners"
+  ]
+ },
+ "Who was the last French player to finish in the top three for the FIFA Ballon d'Or?": {
+  "objective": "Identify the most recent French footballer to place in the top three of the FIFA Ballon d'Or awards, verifying the year and rank from official historical records.",
+  "search_queries": [
+   "last French player top 3 FIFA Ballon d'Or",
+   "French players FIFA Ballon d'Or podium history",
+   "recent French FIFA Ballon d'Or finalists"
+  ]
+ },
+ "Which team became the first team to claim back-to-back Asian Cup titles?": {
+  "objective": "Identify the national football team that won consecutive AFC Asian Cup tournaments to determine the first back-to-back champions.",
+  "search_queries": [
+   "first team back-to-back Asian Cup titles",
+   "AFC Asian Cup consecutive winners history",
+   "which country won two Asian Cups in a row first"
+  ]
+ },
+ "Which Vietnamese celebrity was accused of delaying the disbursement of nearly 10 billion VND in charitable donations they had collected for flood victims in 2020?": {
+  "objective": "Identify the Vietnamese celebrity accused in 2020 of withholding approximately 10 billion VND in flood relief funds collected for victims.",
+  "search_queries": [
+   "Vietnamese celebrity 10 billion VND flood charity scandal 2020",
+   "Who accused of delaying 10 billion VND flood donations 2020",
+   "Vietnamese influencer charity fraud 10 billion VND 2020"
+  ]
+ },
+ "The FIFA Ballon d'Or (\"Golden Ball\") was an annual association football award presented to the world's best men's player. How many FIFA Ballon d'Or ceremonies took place between 2010 and 2020, including the 2010 ceremony?": {
+  "objective": "Determine the exact number of FIFA Ballon d'Or award ceremonies held from 2010 to 2020 inclusive, verifying which years the award was presented under that specific name.",
+  "search_queries": [
+   "FIFA Ballon d'Or winners list 2010-2015",
+   "years FIFA Ballon d'Or was awarded",
+   "FIFA Ballon d'Or ceremony history 2010 to 2020"
+  ]
+ },
+ "Who was the second non-Asian men's soccer player to pass 100 international goals, and has long since passed the previous record international goalscorer, Iran's Ali Daei (109)?": {
+  "objective": "Identify the non-Asian male footballer who became the second person to score 100+ international goals and has surpassed Ali Daei's record of 109 goals.",
+  "search_queries": [
+   "second non-Asian player 100 international goals",
+   "men's soccer player most international goals record",
+   "who surpassed Ali Daei 109 international goals"
+  ]
+ },
+ "What was the sale price of Italian artist Maurizio Cattelan's \"Comedian\", a conceptual artwork comprising a banana stuck to a wall with duct tape, at its initial sale?": {
+  "objective": "Find the initial sale price of Maurizio Cattelan's artwork 'Comedian' sold by Peres Projects in 2019.",
+  "search_queries": [
+   "Maurizio Cattelan Comedian initial sale price",
+   "Comedian banana artwork first sale price",
+   "Maurizio Cattelan Comedian 2019 sale price"
+  ]
+ },
+ "Erling Haaland, the Manchester City forward, has been rewriting soccer record books. How many goals did he score for Man City in total during January 2024?": {
+  "objective": "Find the exact number of goals Erling Haaland scored for Manchester City during January 2024 across all competitions.",
+  "search_queries": [
+   "Erling Haaland goals January 2024",
+   "Haaland Man City January 2024 stats",
+   "Erling Haaland goal tally Jan 2024"
+  ]
+ },
+ "What is the largest work by Italian artist Leonardo da Vinci that is considered an archetypal masterpiece of the Italian Renaissance?": {
+  "objective": "Identify the largest painting by Leonardo da Vinci that is widely recognized as a quintessential masterpiece of the Italian Renaissance, likely The Last Supper, and confirm its dimensions and status.",
+  "search_queries": [
+   "largest Leonardo da Vinci painting",
+   "Leonardo da Vinci archetypal Renaissance masterpiece",
+   "dimensions of The Last Supper"
+  ]
+ },
+ "Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his X (formerly Twitter) bio just before closing his deal to acquire the platform, which once again stirred the online world?": {
+  "objective": "Find the specific self-proclaimed title Elon Musk added to his Twitter bio immediately before finalizing the acquisition deal, which caused significant online discussion.",
+  "search_queries": [
+   "Elon Musk Twitter bio title before acquisition",
+   "Elon Musk declared himself what before buying Twitter",
+   "Elon Musk Twitter bio change acquisition deal"
+  ]
+ },
+ "In which month and year did the COVID-19 toll across the world reach 1 million deaths, a number equivalent to the population of San Jose, California — the tenth largest city in the U.S. at that time?": {
+  "objective": "Find the specific month and year when global COVID-19 deaths reached 1 million, verifying the context regarding San Jose's population rank.",
+  "search_queries": [
+   "when did global covid deaths reach 1 million",
+   "date world covid deaths hit 1 million",
+   "1 million covid deaths month year"
+  ]
+ },
+ "What percentage of Samsung's total sales in Q1 2010 came from Dell as a major client?": {
+  "objective": "Find the specific percentage of Samsung's Q1 2010 revenue attributed to Dell, likely by locating financial reports or news articles from that period detailing Samsung's client concentration.",
+  "search_queries": [
+   "Samsung Q1 2010 revenue Dell percentage",
+   "Dell Samsung sales dependency 2010",
+   "Samsung major clients Q1 2010 financials"
+  ]
+ },
+ "What is the smallest positive integer that can be written as the sum of two prime numbers, with both of these prime numbers being perfect squares?": {
+  "objective": "Find if any prime numbers are perfect squares to determine if a sum of two such primes exists.",
+  "search_queries": [
+   "prime numbers that are perfect squares",
+   "smallest prime perfect square",
+   "sum of two prime perfect squares"
+  ]
+ },
+ "On what date did the world record 100 million covid cases, a milestone that signifies the sheer amount of transmission that has occurred around this virus?": {
+  "objective": "Find the specific date when global confirmed COVID-19 cases reached 100 million, using reliable data sources like WHO or major news archives.",
+  "search_queries": [
+   "date world reached 100 million covid cases",
+   "when did global covid cases hit 100 million"
+  ]
+ },
+ "How many jersey numbers had the Houston Astros officially retired in the 21st century before the retirement of Billy Wagner's No. 13?": {
+  "objective": "Find the list of Houston Astros retired jersey numbers and determine how many were retired between the year 2000 and the date Billy Wagner's number 13 was retired in 2019.",
+  "search_queries": [
+   "Houston Astros retired jersey numbers list",
+   "Billy Wagner number 13 retirement date",
+   "Astros jersey numbers retired 21st century"
+  ]
+ },
+ "In what year did the deadliest Philippine typhoon of the first decade of the 21st century occur?": {
+  "objective": "Identify the deadliest typhoon to hit the Philippines between 2000 and 2009 and determine the specific year it occurred.",
+  "search_queries": [
+   "deadliest Philippine typhoon 2000-2009",
+   "Philippines typhoon death toll 2000s",
+   "Typhoon Haiyan year"
+  ]
+ },
+ "How many of the heaviest living animals can reach a maximum mass exceeding 60 tonnes?": {
+  "objective": "Identify living animal species with a maximum recorded mass over 60 tonnes and count how many exist.",
+  "search_queries": [
+   "heaviest living animals over 60 tonnes",
+   "list of animals by maximum weight",
+   "blue whale maximum mass tonnes"
+  ]
+ },
+ "How many countries were not listed as offering only paid access to YouTube Music at the time of its initial expansion in 2018?": {
+  "objective": "Find the total number of countries where YouTube Music launched in 2018 and the specific count of those that did not offer a paid-only model, likely by identifying the initial launch regions and their access policies.",
+  "search_queries": [
+   "countries YouTube Music launched 2018",
+   "initial YouTube Music expansion countries list",
+   "YouTube Music 2018 launch paid vs free"
+  ]
+ },
+ "What is the valency of mercury in Mercury(I) chloride?": {
+  "objective": "Find the oxidation state or valency of mercury in Mercury(I) chloride (Hg2Cl2) from reliable chemical databases or textbooks.",
+  "search_queries": [
+   "valency of mercury in Mercury(I) chloride",
+   "oxidation state of Hg in Hg2Cl2",
+   "Mercury(I) chloride chemical formula valency"
+  ]
+ },
+ "Who is the Vietnamese Nobel Peace Prize nominee after whom a meeting room in UC San Diego's University Centers is named?": {
+  "objective": "Identify the Vietnamese Nobel Peace Prize nominee honored by a meeting room at UC San Diego University Centers.",
+  "search_queries": [
+   "UC San Diego University Centers meeting rooms named",
+   "Vietnamese Nobel Peace Prize nominee UCSD",
+   "UCSD University Center Vietnamese namesake"
+  ]
+ },
+ "According to racial distribution data from 2005, which country in Latin America had the highest percentage of the Asian population?": {
+  "objective": "Find 2005 demographic statistics for Latin American countries to identify which nation had the highest percentage of Asian residents.",
+  "search_queries": [
+   "Latin America highest Asian population percentage 2005",
+   "2005 racial distribution data Latin America Asian",
+   "percentage Asian population by country Latin America 2005"
+  ]
+ },
+ "According to the documented shipbuilding records from 1966 to 1982, how many Grisha I class corvettes were produced for the Soviet Navy?": {
+  "objective": "Find the exact number of Grisha I class corvettes (Project 1135) built for the Soviet Navy between 1966 and 1982 using official shipbuilding records or naval history databases.",
+  "search_queries": [
+   "Grisha I class corvette production numbers",
+   "Soviet Navy Project 1135 ships built",
+   "Grisha I class corvette total built"
+  ]
+ },
+ "For Yunnan Province, how many cities had a 2020 urban area population between 500,000 and 1 million?": {
+  "objective": "Find the number of cities in Yunnan Province with an urban area population between 500,000 and 1 million based on 2020 census data.",
+  "search_queries": [
+   "Yunnan cities urban population 2020 census",
+   "Yunnan province urban area population statistics",
+   "list of Yunnan cities by population 2020"
+  ]
+ },
+ "How many films was Brad Pitt credited as both an actor and a producer (excluding executive producer roles) before the Covid-19 pandemic?": {
+  "objective": "Find the count of films where Brad Pitt is credited as both an actor and a producer (non-executive) released before 2020.",
+  "search_queries": [
+   "Brad Pitt actor producer credits list",
+   "Brad Pitt producing credits before 2020",
+   "Brad Pitt filmography actor producer roles"
+  ]
+ },
+ "According to the ICT Development Index (IDI) 2024, how many countries scored below 25?": {
+  "objective": "Find the official ITU ICT Development Index 2024 report or summary to determine the count of countries with a score below 25.",
+  "search_queries": [
+   "ITU ICT Development Index 2024 report",
+   "IDI 2024 country scores below 25",
+   "ITU IDI 2024 statistics countries"
+  ]
+ },
+ "As reported by the Food and Agriculture Organization of the United Nations, which nation ranked as the world’s second‑largest rice producer in 2023?": {
+  "objective": "Identify the country ranked as the second-largest rice producer in 2023 according to FAO statistics.",
+  "search_queries": [
+   "FAO world rice production 2023 ranking",
+   "largest rice producing countries 2023 FAO",
+   "global rice production statistics 2023 FAO"
+  ]
+ },
+ "According to United Nations data from 2015, what percentage of national parliamentary seats in Northern America were held by women?": {
+  "objective": "Find the specific percentage of women in national parliaments in Northern America according to UN data from 2015.",
+  "search_queries": [
+   "UN data 2015 women parliament Northern America",
+   "percentage women national parliaments Northern America 2015",
+   "UN Women 2015 parliamentary seats North America"
+  ]
+ },
+ "As of 2022, how many Indian states had any political party win more than 50% of the vote in assembly elections exactly twice?": {
+  "objective": "Find the list of Indian states where a political party won more than 50% of the vote share in assembly elections exactly twice up to 2022, and count them.",
+  "search_queries": [
+   "Indian states party won 50% vote twice assembly",
+   "political party vote share 50% twice India states",
+   "assembly election results 50% vote share twice India"
+  ]
+ },
+ "How many hotels in the United States have more than 3,500 rooms?": {
+  "objective": "Find the specific count of US hotels with over 3,500 rooms and identify the names of these properties to verify the number.",
+  "search_queries": [
+   "largest hotels in US by room count",
+   "hotels in United States with more than 3500 rooms",
+   "list of biggest hotels in America rooms"
+  ]
+ },
+ "What is the name of the hotel that features over 7,000 rooms and one of the biggest casino gaming floors on the Las Vegas strip?": {
+  "objective": "Identify the Las Vegas Strip hotel with over 7,000 rooms and a massive casino floor, likely the MGM Grand, by verifying current room counts and gaming space statistics from official resort websites or major travel guides.",
+  "search_queries": [
+   "Las Vegas hotel over 7000 rooms",
+   "biggest casino gaming floor Las Vegas",
+   "MGM Grand room count and casino size"
+  ]
+ },
+ "What percentage of the global mobile population is covered by 2G networks in 2024, according to the International Telecommunication Union (ITU)?": {
+  "objective": "Find the specific percentage of the global mobile population covered by 2G networks in 2024 as reported by the International Telecommunication Union (ITU).",
+  "search_queries": [
+   "ITU 2G coverage percentage 2024",
+   "global mobile population 2G coverage ITU",
+   "ITU ICT indicators 2G network coverage"
+  ]
+ },
+ "How many smoke grenade models listed in the Polish Land Forces equipment originate exclusively from the Soviet Union?": {
+  "objective": "Identify the specific smoke grenade models used by the Polish Land Forces and determine their country of origin to count how many are exclusively of Soviet design.",
+  "search_queries": [
+   "Polish Land Forces smoke grenade inventory",
+   "Soviet origin smoke grenades Poland military",
+   "Polish army smoke grenade models list"
+  ]
+ },
+ "What was the official retail price per liter (in VND, inclusive of VAT and environmental tax) of RON 92-III gasoline on April 24, 2025, according to PetroVietnam Oil Corporation (PVOIL)?": {
+  "objective": "Find the official retail price per liter of RON 92-III gasoline in Vietnam on April 24, 2025, including VAT and environmental tax, as announced by PetroVietnam Oil Corporation.",
+  "search_queries": [
+   "PVOIL RON 92-III price April 24 2025",
+   "Vietnam gasoline price April 24 2025 VND",
+   "PetroVietnam oil price announcement April 2025"
+  ]
+ },
+ "I am a father of two undergraduate sons enrolling in Virginia Tech's Virtual Campus for Summer 2025. One is a Virginia resident taking 6 credit hours, and the other is a non-resident taking 8 credit hours. What is the total tuition I need to pay for both?": {
+  "objective": "Find the Summer 2025 tuition rates per credit hour for Virginia residents and non-residents at Virginia Tech's Virtual Campus to calculate the total cost for 6 and 8 credit hours respectively.",
+  "search_queries": [
+   "Virginia Tech Virtual Campus Summer 2025 tuition rates",
+   "VT Online tuition per credit hour 2025",
+   "Virginia Tech summer tuition resident non-resident 2025"
+  ]
+ },
+ "According to the U.S. Census Bureau 2022 data, how many states had more than 25% of their population aged 25 and older holding an advanced degree?": {
+  "objective": "Find the specific number of U.S. states where the percentage of the population aged 25 and older with an advanced degree exceeded 25% based on 2022 Census Bureau data.",
+  "search_queries": [
+   "2022 census states advanced degree percentage",
+   "states over 25% advanced degree 2022 census",
+   "U.S. Census 2022 advanced degree by state"
+  ]
+ },
+ "According to United Nations data from 2021, what percentage of national parliamentary seats in Northern Africa were held by women?": {
+  "objective": "Find the specific percentage of women in national parliaments in Northern Africa for the year 2021, based on official United Nations or Inter-Parliamentary Union statistics.",
+  "search_queries": [
+   "UN data women parliament Northern Africa 2021",
+   "percentage women national parliaments North Africa 2021",
+   "Inter-Parliamentary Union women MPs Northern Africa 2021"
+  ]
+ },
+ "How much did the infant mortality rate (per 1,000 live births) decline in Northern Africa between 2010 and 2021, according to United Nations data?": {
+  "objective": "Find the specific infant mortality rate per 1,000 live births for Northern Africa in 2010 and 2021 from United Nations sources to calculate the decline.",
+  "search_queries": [
+   "UN data infant mortality Northern Africa 2010",
+   "UN data infant mortality Northern Africa 2021",
+   "United Nations demographic yearbook infant mortality"
+  ]
+ },
+ "According to Vietcombank's exchange rate table on May 1, 2025, what was the cash buying rate for the US dollar (USD)?": {
+  "objective": "Find the specific cash buying exchange rate for USD at Vietcombank on May 1, 2025, using official bank records or reliable financial news archives.",
+  "search_queries": [
+   "Vietcombank USD cash buying rate May 1 2025",
+   "Vietcombank exchange rate table May 1 2025",
+   "USD VND cash buy rate Vietcombank 1 May 2025"
+  ]
+ },
+ "What was the average 911 call answer time in Washington D.C. on April 30, 2025?": {
+  "objective": "Find the specific average 911 call answer time for Washington D.C. on April 30, 2025, using official emergency services reports or news archives from that date.",
+  "search_queries": [
+   "Washington DC 911 answer time April 30 2025",
+   "MPD 911 call statistics April 2025",
+   "Washington DC emergency response times April 30 2025"
+  ]
+ },
+ "Which Vietnamese professor explained the mysterious case of two monks said to have been meditating for over 400 years, as shown in a YouTube video posted on April 4, 2023?": {
+  "objective": "Identify the Vietnamese professor featured in a specific YouTube video uploaded on April 4, 2023, that discusses the legend of two monks meditating for over 400 years.",
+  "search_queries": [
+   "Vietnamese professor two monks meditating 400 years",
+   "April 4 2023 YouTube video two monks meditation",
+   "Vietnamese expert explains 400 year old monks"
+  ]
+ },
+ "Among the female competitive swimmers who won the most Olympic gold medals in a single games from 1989 to 2019, who achieved this feat at a younger age?": {
+  "objective": "Identify the female swimmers who won the most Olympic gold medals in a single Games between 1989 and 2019, and determine their ages at the time of those victories to find the youngest.",
+  "search_queries": [
+   "female swimmer most Olympic golds single games",
+   "youngest female swimmer most Olympic golds",
+   "female swimmers Olympic gold medal records 1989-2019"
+  ]
+ },
+ "Among all U.S. states and incorporated territories with land area between 1,000 and 10,000 square miles, which had the highest median household income in 2021?": {
+  "objective": "Identify U.S. states and incorporated territories with land areas between 1,000 and 10,000 square miles and determine which had the highest median household income in 2021 based on Census Bureau data.",
+  "search_queries": [
+   "US states land area 1000 to 10000 sq miles",
+   "2021 median household income by state Census",
+   "highest median income small US states 2021"
+  ]
+ },
+ "As of June 2024, according to Pensions & Investments magazine, how many private funds following hedge fund strategies and with assets under management of at least $43 billion are headquartered in New York?": {
+  "objective": "Find the specific count of New York-headquartered private funds with at least $43 billion AUM using hedge fund strategies, as reported by Pensions & Investments in June 2024.",
+  "search_queries": [
+   "Pensions & Investments June 2024 hedge fund AUM",
+   "New York hedge funds $43 billion AUM Pensions & Investments",
+   "Pensions & Investments largest hedge funds by location June 2024"
+  ]
+ },
+ "Of the top ten colleges in America's Top Colleges 2024, how many also ranked among the top ten global universities in the QS World University Rankings 2025?": {
+  "objective": "Identify the list of top ten colleges in America's Top Colleges 2024 and the top ten global universities in QS World University Rankings 2025 to determine the number of overlapping institutions.",
+  "search_queries": [
+   "America's Top Colleges 2024 top 10 list",
+   "QS World University Rankings 2025 top 10",
+   "America's Top Colleges 2024 vs QS 2025 overlap"
+  ]
+ },
+ "Based on data from the U.S. Environmental Protection Agency, which year between 2010 and 2020 saw the highest CO₂ emissions from crop cultivation in the United States?": {
+  "objective": "Find the specific year between 2010 and 2020 with the highest CO2 emissions from crop cultivation in the US according to EPA data.",
+  "search_queries": [
+   "EPA CO2 emissions crop cultivation 2010-2020",
+   "US crop cultivation CO2 emissions by year EPA",
+   "highest CO2 emissions farming US EPA data"
+  ]
+ },
+ "If I randomly select i.i.d. samples from a distribution n times, the distribution of the sampled variables will approximately follow a normal distribution as n becomes very large. This statement is based on which theory?": {
+  "objective": "Identify the statistical theorem that states the distribution of the sum or average of i.i.d. random variables approaches a normal distribution as the sample size increases.",
+  "search_queries": [
+   "theorem i.i.d. samples normal distribution large n",
+   "central limit theorem definition i.i.d.",
+   "statistical theory sum of random variables normal"
+  ]
+ },
+ "Which country was affected by Black Monday and experienced a prolonged recession, continuing its decline for an extended period after other global markets had recovered?": {
+  "objective": "Identify the country that suffered a prolonged recession after Black Monday, continuing its economic decline long after other global markets recovered.",
+  "search_queries": [
+   "country prolonged recession after Black Monday",
+   "Black Monday economic decline longest recovery",
+   "which country suffered most from Black Monday"
+  ]
+ },
+ "According to 2023 data from the U.S. Environmental Protection Agency, which sector produced the lowest CO₂ emissions in the state of Indiana?": {
+  "objective": "Find the 2023 EPA data on CO2 emissions by sector in Indiana to identify the lowest emitting sector.",
+  "search_queries": [
+   "2023 EPA CO2 emissions by sector Indiana",
+   "Indiana CO2 emissions lowest sector 2023",
+   "EPA GHG emissions inventory Indiana 2023"
+  ]
+ },
+ "In which year did the Indian Postal Department issue a commemorative stamp in honor of Rashtrasant?": {
+  "objective": "Find the specific year the Indian Postal Department issued a commemorative stamp honoring Rashtrasant Tukadoji Maharaj.",
+  "search_queries": [
+   "Indian Postal Department Rashtrasant stamp year",
+   "Rashtrasant Tukadoji Maharaj commemorative stamp issue date",
+   "India Post Rashtrasant stamp release year"
+  ]
+ },
+ "Between 2016 and 2024, which badminton player won an Olympic medal (any color) in women's singles at the third-youngest age?": {
+  "objective": "Identify the badminton player who won an Olympic women's singles medal between 2016 and 2024 at the third-youngest age among all medalists in that period and event. Reliable sources include official Olympic results and badminton player profiles with birth dates.",
+  "search_queries": [
+   "Olympic women's singles badminton medalists 2016 2020 2024",
+   "youngest Olympic badminton women's singles medalists history",
+   "age of Olympic badminton women's singles medalists 2016-2024"
+  ]
+ },
+ "What is the supercomputer that has the fastest speed outside the US and can help transform scientific research by accelerating breakthroughs across various fields?": {
+  "objective": "Identify the fastest supercomputer located outside the United States, specifically looking for recent TOP500 rankings and descriptions of its scientific impact.",
+  "search_queries": [
+   "fastest supercomputer outside US 2024",
+   "top supercomputers outside USA ranking",
+   "fastest non-US supercomputer scientific breakthroughs"
+  ]
+ },
+ "What was the age of Bablu the elephant at Sangli's Ganesh temple at the time of its death?": {
+  "objective": "Find the specific age of Bablu, the elephant associated with Sangli's Ganesh temple, at the time of its death by consulting news reports or temple records.",
+  "search_queries": [
+   "Bablu elephant Sangli death age",
+   "Bablu elephant Sangli Ganesh temple death",
+   "Sangli Bablu elephant age at death"
+  ]
+ },
+ "According to Private Equity International's 2024 ranking, among all non-U.S.-based private equity firms with at least $30 billion raised over the past five years, which firm has the latest founding date?": {
+  "objective": "Find the 2024 Private Equity International ranking of non-US firms with $30B+ raised over 5 years and identify the one with the most recent founding date.",
+  "search_queries": [
+   "PEI 2024 top non US PE firms",
+   "Private Equity International 2024 global rankings",
+   "non US private equity firms $30 billion raised"
+  ]
+ },
+ "Who was the first spouse of the current President of the United States?": {
+  "objective": "Identify the current President of the United States and determine the name of their first spouse to verify marital history.",
+  "search_queries": [
+   "current US President first spouse",
+   "Joe Biden first wife name",
+   "US President marital history"
+  ]
+ },
+ "Before 2024, among her own record-breaking streaks, in which Olympic event has Katie Ledecky broken the world record the second most times?": {
+  "objective": "Identify the specific Olympic swimming event where Katie Ledecky has broken the world record the second most frequently, excluding any records set in or after 2024.",
+  "search_queries": [
+   "Katie Ledecky world record count by event",
+   "Katie Ledecky most world records broken event",
+   "Katie Ledecky Olympic event world record history"
+  ]
+ },
+ "Who holds the record for being the fastest men's soccer player to score 100 international goals?": {
+  "objective": "Identify the male footballer who reached 100 international goals in the fewest matches and verify the record from reliable sports statistics sources.",
+  "search_queries": [
+   "fastest men's soccer player 100 international goals",
+   "record fewest matches 100 international goals men",
+   "fastest to 100 goals men's football history"
+  ]
+ },
+ "What age range is used for endangered runaway children in the 2024 report \"The Missing Children Crisis: Current Situation, Challenges and Policy Recommendations in Turkey and the World\" by the Society and Science Research Association?": {
+  "objective": "Find the specific age range defined for endangered runaway children in the 2024 TAM report by the Society and Science Research Association.",
+  "search_queries": [
+   "TAM 2024 missing children report age range",
+   "Society and Science Research Association 2024 report",
+   "endangered runaway children age definition TAM 2024"
+  ]
+ },
+ "According to 2021 world population data, how many continents account for less than 10% of the world’s population?": {
+  "objective": "Find the 2021 world population distribution by continent to identify which continents have less than 10% of the total global population.",
+  "search_queries": [
+   "2021 world population by continent percentage",
+   "continents with less than 10% population 2021",
+   "global population distribution by continent 2021"
+  ]
+ },
+ "According to the International Telecommunication Union (ITU), which country had the highest number of mobile cellular subscribers (per 100 people) worldwide in 1990?": {
+  "objective": "Find the ITU statistic for mobile cellular subscriptions per 100 inhabitants in 1990 to identify the country with the highest rate.",
+  "search_queries": [
+   "ITU mobile cellular subscribers per 100 people 1990",
+   "highest mobile penetration rate 1990 ITU",
+   "ITU historical mobile statistics 1990 by country"
+  ]
+ },
+ "Who is currently the most highly decorated IOI contestant with 5 golds and 1 bronze medal?": {
+  "objective": "Identify the International Olympiad in Informatics (IOI) participant who holds exactly five gold medals and one bronze medal, verifying their current standing as the most highly decorated with this specific record.",
+  "search_queries": [
+   "IOI contestant 5 gold 1 bronze",
+   "most decorated IOI participant history",
+   "IOI medal count records all time"
+  ]
+ },
+ "What is the name of the fastest supercomputer in the world that runs on Red Hat Enterprise Linux (RHEL) and is hosted outside the United States?": {
+  "objective": "Identify the fastest supercomputer hosted outside the US that uses Red Hat Enterprise Linux, likely by checking recent TOP500 lists and vendor announcements for RHEL deployments.",
+  "search_queries": [
+   "fastest supercomputer outside US Red Hat Linux",
+   "TOP500 fastest supercomputer RHEL non-US",
+   "largest HPC cluster running Red Hat Enterprise Linux"
+  ]
+ },
+ "I'd like to dine at The Fish Market in Palo Alto, which is known for its fresh seafood. What do you recommend?": {
+  "objective": "Find the most recommended dishes at The Fish Market in Palo Alto to suggest to a diner seeking fresh seafood.",
+  "search_queries": [
+   "The Fish Market Palo Alto best dishes",
+   "recommended menu items The Fish Market",
+   "The Fish Market Palo Alto signature seafood"
+  ]
+ },
+ "How many U.S. states and territories experienced a negative percentage change in population between 2010 and 2020?": {
+  "objective": "Find the exact count of U.S. states and territories with negative population growth from 2010 to 2020 using official Census Bureau data or reputable demographic analyses.",
+  "search_queries": [
+   "US states negative population growth 2010 2020",
+   "Census 2020 population decline states territories",
+   "list of states population loss 2010 to 2020"
+  ]
+ },
+ "Which country was the first outside of Africa to detect a case of mpox in the most recent outbreak? Note that the first human cases were diagnosed in 1970.": {
+  "objective": "Identify the first non-African country to report an mpox case during the most recent outbreak (2022-2023), distinguishing it from historical cases in Africa.",
+  "search_queries": [
+   "first non African country mpox case 2022",
+   "mpox outbreak first case outside Africa",
+   "which country detected first mpox case 2022"
+  ]
+ },
+ "How many former Prime Ministers of New Zealand are still alive?": {
+  "objective": "Find the current count of living former Prime Ministers of New Zealand by consulting an up-to-date list of office holders and their vital status from reliable sources like Wikipedia or government archives.",
+  "search_queries": [
+   "living former Prime Ministers New Zealand",
+   "list of New Zealand Prime Ministers status",
+   "how many ex NZ PMs alive"
+  ]
+ },
+ "In what month and year was the water level of Lake Powell last above 3550 feet?": {
+  "objective": "Find the most recent date when Lake Powell's water level exceeded 3550 feet elevation to determine the specific month and year.",
+  "search_queries": [
+   "Lake Powell water level history 3550 feet",
+   "Lake Powell elevation above 3550 last time",
+   "Lake Powell water level data 3550 ft"
+  ]
+ },
+ "What was the most recent award did Yann LeCun, Geoffrey Hinton, and Yoshua Bengio win together for their work on deep neural networks?": {
+  "objective": "Identify the most recent major award jointly received by Yann LeCun, Geoffrey Hinton, and Yoshua Bengio for deep learning, specifically checking if they received a joint prize after the 2018 Turing Award.",
+  "search_queries": [
+   "Yann LeCun Hinton Bengio joint awards",
+   "most recent award LeCun Hinton Bengio",
+   "did LeCun Hinton Bengio win award after 2018"
+  ]
+ },
+ "Which non-American agency has the most followers on X?": {
+  "objective": "Identify the non-US government agency with the highest follower count on X (formerly Twitter) by checking recent rankings or leaderboards of official government accounts.",
+  "search_queries": [
+   "most followed government agency X",
+   "top non-US agency followers Twitter",
+   "largest government X accounts by country"
+  ]
+ },
+ "How many full-fledged alpha Kappa Delta Phi chapters in California are currently inactive?": {
+  "objective": "Find the current number of inactive full-fledged Alpha Kappa Delta Phi chapters specifically located in California by consulting official fraternity records or chapter directories.",
+  "search_queries": [
+   "Alpha Kappa Delta Phi inactive chapters California",
+   "AKDP California chapter status list",
+   "Alpha Kappa Delta Phi chapter roster"
+  ]
+ },
+ "Which organization is the world's largest card payment processing organization, providing credit cards, debit cards, and electronic payment systems?": {
+  "objective": "Identify the global leader in card payment processing by transaction volume or value to confirm if it is Visa, Mastercard, or another entity.",
+  "search_queries": [
+   "world largest card payment processing organization",
+   "biggest credit and debit card network globally",
+   "Visa vs Mastercard market share comparison"
+  ]
+ },
+ "What is the title of the latest concert documentary film featuring Kendrick Lamar?": {
+  "objective": "Identify the title of the most recent concert documentary film starring Kendrick Lamar by checking recent film releases and official artist announcements.",
+  "search_queries": [
+   "Kendrick Lamar latest concert documentary",
+   "new Kendrick Lamar film 2024",
+   "Kendrick Lamar movie release date"
+  ]
+ },
+ "How many times has a U.S. team won the ICPC World Finals after 1997—a period largely dominated by Russian and Chinese teams?": {
+  "objective": "Find the count of U.S. team victories at the ICPC World Finals from 1998 to the present to verify the dominance of Russian and Chinese teams during this period.",
+  "search_queries": [
+   "ICPC World Finals winners list by year",
+   "US teams ICPC World Finals wins after 1997",
+   "history of ICPC World Finals champions"
+  ]
+ },
+ "Which food allergens require mandatory labeling in the UK but not in the US, Canada, and Australia?": {
+  "objective": "Identify specific food allergens that are legally required to be labeled in the UK but are excluded from mandatory labeling lists in the US, Canada, and Australia.",
+  "search_queries": [
+   "UK vs US mandatory food allergen labeling",
+   "allergens mandatory UK not US Canada Australia",
+   "difference UK and US food allergen laws"
+  ]
+ },
+ "Which country has the largest number of UNESCO World Heritage Natural Sites following the annual announcement of new additions by the committee responsible for the World Heritage List?": {
+  "objective": "Find the country with the highest count of UNESCO World Heritage Natural Sites after the most recent annual inscriptions.",
+  "search_queries": [
+   "countries most UNESCO natural heritage sites 2024",
+   "UNESCO World Heritage Natural Sites by country ranking",
+   "which country has most natural world heritage sites"
+  ]
+ },
+ "Which nation most recently joined the trillion-dollar economy club, with a nominal GDP exceeding $1 trillion per year?": {
+  "objective": "Identify the most recent country to achieve a nominal GDP exceeding $1 trillion and verify the year this milestone was reached using recent economic reports.",
+  "search_queries": [
+   "latest country join trillion dollar GDP club",
+   "recent nations with nominal GDP over 1 trillion",
+   "newest trillion dollar economy nominal GDP"
+  ]
+ },
+ "How many seasons are there in the Indonesian version of the game show \"Name That Tune\"?": {
+  "objective": "Find the total number of seasons aired for the Indonesian adaptation of the game show 'Name That Tune', likely titled 'Tebak Lagu' or similar, by checking official broadcast records or Wikipedia.",
+  "search_queries": [
+   "Indonesian Name That Tune seasons count",
+   "Tebak Lagu Indonesia number of seasons",
+   "How many seasons Name That Tune Indonesia"
+  ]
+ },
+ "Which country has hosted the most Olympic Games—both Summer and Winter—in the past 20 years?": {
+  "objective": "Identify the country that hosted the highest number of Summer and Winter Olympic Games between 2004 and 2024, using official Olympic historical records.",
+  "search_queries": [
+   "list of Olympic host countries 2004-2024",
+   "countries hosting most Olympics last 20 years",
+   "Summer and Winter Olympic hosts 2004 to 2024"
+  ]
+ },
+ "Which American airline has most recently filed for Chapter 7 bankruptcy protection?": {
+  "objective": "Identify the American airline that most recently filed for Chapter 7 bankruptcy, distinguishing it from Chapter 11 filings, using recent financial news or legal records.",
+  "search_queries": [
+   "American airline Chapter 7 bankruptcy 2024",
+   "recent US airline Chapter 7 filing",
+   "list of US airlines Chapter 7 bankruptcy"
+  ]
+ },
+ "Which position has won the most MVP World Series awards since 2010?": {
+  "objective": "Identify the baseball position with the highest number of World Series MVP awards from 2010 to the present, using official MLB records or comprehensive sports statistics databases.",
+  "search_queries": [
+   "World Series MVP winners by position since 2010",
+   "most World Series MVP awards by position 2010-2024",
+   "list of World Series MVPs 2010 to present positions"
+  ]
+ },
+ "How many active players are currently in the top 10 of all-time men’s international goal scorers in soccer?": {
+  "objective": "Identify the current top 10 all-time men's international goal scorers and determine which of them are still active players.",
+  "search_queries": [
+   "top 10 all time men's international goal scorers",
+   "active players in top 10 international goal scorers",
+   "current list of men's international football top scorers"
+  ]
+ },
+ "Which set of scientific prizes is considered among the most prestigious in their fields and offers the highest monetary award?": {
+  "objective": "Identify the scientific prize with the highest monetary award among prestigious international awards and verify its status as the most lucrative.",
+  "search_queries": [
+   "highest monetary award scientific prize",
+   "most lucrative scientific prizes ranking",
+   "Breakthrough Prize vs Nobel Prize money"
+  ]
+ },
+ "Who was the first spouse of the current Governor of California?": {
+  "objective": "Identify the current Governor of California and determine the name of their first spouse to answer the question accurately.",
+  "search_queries": [
+   "current Governor of California",
+   "Gavin Newsom first wife",
+   "Gavin Newsom spouses history"
+  ]
+ },
+ "Who is the most recent American experimental physicist to win the Nobel Prize in Physics for foundational discoveries and inventions?": {
+  "objective": "Identify the most recent American experimental physicist who won the Nobel Prize in Physics, specifically for foundational discoveries or inventions, to determine the winner's name and year.",
+  "search_queries": [
+   "recent American experimental Nobel Physics winners",
+   "Nobel Physics prize experimental discoveries list",
+   "latest Nobel Physics prize American winners"
+  ]
+ },
+ "What is the name of the Australian novelist who is one of only five writers to have won the Booker Prize twice and also won the Jerusalem Prize?": {
+  "objective": "Identify the Australian novelist who is a two-time Booker Prize winner and a Jerusalem Prize laureate.",
+  "search_queries": [
+   "Australian novelist two time Booker Prize winner",
+   "Jerusalem Prize winner Australian author",
+   "five writers won Booker Prize twice"
+  ]
+ },
+ "Which is the most recent film to dominate the British Academy Film Awards by winning more than seven awards while also having the most total wins and nominations in its award year?": {
+  "objective": "Identify the most recent BAFTA film that won over 7 awards, held the record for most wins and nominations in its year, and confirm its release date.",
+  "search_queries": [
+   "most recent BAFTA film over 7 wins",
+   "BAFTA record most wins and nominations year",
+   "Oppenheimer BAFTA wins nominations record"
+  ]
+ },
+ "Who was the oldest Miss Universe titleholder at the time of her crowning, cheered as a triumph over ageism in a youth-obsessed world?": {
+  "objective": "Identify the oldest Miss Universe winner in history and confirm if her victory was characterized as a win against ageism.",
+  "search_queries": [
+   "oldest Miss Universe winner history",
+   "Miss Universe ageism triumph story",
+   "oldest woman to win Miss Universe"
+  ]
+ },
+ "How many players from Asian nations are currently ranked among the top 10 all-time leading goal scorers in men's international soccer?": {
+  "objective": "Identify the number of Asian players in the top 10 all-time men's international goal scorers by consulting authoritative football statistics sources like RSSSF or FIFA.",
+  "search_queries": [
+   "top 10 all time men international goalscorers",
+   "Asian players top international goal scorers list",
+   "RSSSF all time international goalscorers ranking"
+  ]
+ },
+ "Which is the most recent NBA season in which the Raptors finished with a winning record and ranked above the Celtics in the Eastern Conference standings?": {
+  "objective": "Find the last NBA season where the Toronto Raptors had a winning record and finished with a better conference standing than the Boston Celtics.",
+  "search_queries": [
+   "Raptors winning record above Celtics standings history",
+   "last season Raptors beat Celtics Eastern Conference",
+   "NBA standings Raptors vs Celtics historical comparison"
+  ]
+ },
+ "Who holds the record as the most-nominated artist for Album of the Year in GRAMMY history?": {
+  "objective": "Identify the artist with the most Grammy nominations for Album of the Year and verify the specific count from official Grammy records.",
+  "search_queries": [
+   "most nominated artist Grammy Album of the Year",
+   "Grammy Album of the Year nomination record holder",
+   "artist with most Album of the Year nominations"
+  ]
+ },
+ "Which is the last Premier League season in which Man United finished above Man City?": {
+  "objective": "Find the final season Manchester United finished with a higher league position than Manchester City, requiring recent Premier League table data.",
+  "search_queries": [
+   "last season Man United above Man City",
+   "Man United vs Man City league finish history",
+   "recent Premier League standings Man United Man City"
+  ]
+ },
+ "How many nations have won multiple gold medals in the Open section of the Chess Olympiad, excluding virtual and unofficial events?": {
+  "objective": "Find the list of countries that have won more than one gold medal in the official FIDE Chess Olympiad Open section to determine the total count.",
+  "search_queries": [
+   "Chess Olympiad Open section gold medal winners list",
+   "countries multiple gold medals Chess Olympiad Open",
+   "FIDE Chess Olympiad Open section historical champions"
+  ]
+ },
+ "How many individuals from the Liberal Democratic Party have served as Prime Minister of Japan since the assassination of Shinzo Abe?": {
+  "objective": "Identify the Prime Ministers of Japan who served after Shinzo Abe's assassination in July 2022 and verify their political party affiliation to count those from the Liberal Democratic Party.",
+  "search_queries": [
+   "Japanese Prime Ministers after Shinzo Abe",
+   "LDP Prime Ministers since 2022",
+   "list of Japanese Prime Ministers 2022 2024"
+  ]
+ },
+ "Which is the oldest university in continuous operation in Italy that began as a faculty-led institution? It played a central role in the sciences during the medieval period and the Italian Renaissance, educating Nicholas Copernicus and numerous other Renaissance mathematicians.": {
+  "objective": "Identify the oldest continuously operating university in Italy that started as a faculty-led institution and educated Copernicus, verifying its history and role in medieval/Renaissance sciences.",
+  "search_queries": [
+   "oldest university Italy continuous operation",
+   "university that educated Nicholas Copernicus",
+   "faculty led university Italy Renaissance sciences"
+  ]
+ },
+ "Which Schengen Area country implemented the Schengen Agreement the soonest after signing it?": {
+  "objective": "Identify the Schengen Area member state that ratified or implemented the Schengen Agreement earliest after the initial signing in 1985, distinguishing between signing date and implementation/ratification dates.",
+  "search_queries": [
+   "Schengen Agreement implementation dates by country",
+   "first country to implement Schengen Agreement",
+   "Schengen Convention ratification timeline 1990"
+  ]
+ },
+ "How many times in history has the PDC World Darts Championship final featured two English players?": {
+  "objective": "Find the total count of PDC World Darts Championship finals where both finalists were from England, using official historical records or reputable darts statistics databases.",
+  "search_queries": [
+   "PDC World Darts Championship all English finals count",
+   "history of PDC finals both players English",
+   "list of PDC World Darts Championship finals by nationality"
+  ]
+ },
+ "How many Studio Ghibli feature films have been released with a runtime of 119 minutes or longer?": {
+  "objective": "Find a complete list of Studio Ghibli feature films with their specific runtimes to count how many are 119 minutes or longer.",
+  "search_queries": [
+   "Studio Ghibli film list runtime",
+   "longest Studio Ghibli movies duration",
+   "Studio Ghibli movies over 119 minutes"
+  ]
+ },
+ "Who was the last Bayern Munich player to finish in the top three for the Ballon d'Or?": {
+  "objective": "Identify the most recent Bayern Munich player to place in the top three of the Ballon d'Or voting and verify their ranking year.",
+  "search_queries": [
+   "last Bayern Munich player Ballon d'Or top 3",
+   "Bayern Munich Ballon d'Or podium finishers history",
+   "recent Ballon d'Or top 3 Bayern Munich players"
+  ]
+ },
+ "How many times has a Scottish player defeated an English player in the final of the PDC World Darts Championship?": {
+  "objective": "Find the total count of PDC World Darts Championship finals where a Scottish player defeated an English player, using official tournament archives or sports statistics databases.",
+  "search_queries": [
+   "PDC World Darts Championship finals results history",
+   "Scottish player beat English player PDC final",
+   "Phil Taylor vs Scottish players PDC final"
+  ]
+ },
+ "How many times in the history of the Summer Olympic Games has the United States not topped the medal table?": {
+  "objective": "Find the total count of Summer Olympic Games where the United States did not have the highest number of gold medals or total medals, depending on the standard used for topping the table.",
+  "search_queries": [
+   "US not top medal table Summer Olympics",
+   "Years US failed to lead Olympic medal count",
+   "History of US Olympic medal table rankings"
+  ]
+ },
+ "Which player has the third-highest goals-per-match ratio among the top 15 all-time goalscorers in UEFA European Championship history?": {
+  "objective": "Find the list of the top 15 all-time goalscorers in UEFA European Championship history and their goals-per-match ratios to identify the player ranked third.",
+  "search_queries": [
+   "top 15 uefa euro all-time goalscorers",
+   "uefa european championship top scorers list",
+   "euro history best goals per game ratio"
+  ]
+ },
+ "How many NFL players have recorded 450 or more completions in a single season multiple times after turning 35?": {
+  "objective": "Identify NFL quarterbacks who achieved 450+ completions in a single season multiple times after age 35 and count them.",
+  "search_queries": [
+   "NFL players 450 completions season over 35",
+   "quarterbacks 450 completions multiple times age 35",
+   "NFL single season completion records age 35"
+  ]
+ },
+ "How many Los Angeles Metro Rail stations are served by both the A Line and at least one other Metro Rail line?": {
+  "objective": "Find the number of Los Angeles Metro Rail stations that are transfer points between the A Line and at least one other line, using official Metro maps or station lists.",
+  "search_queries": [
+   "LA Metro A Line transfer stations",
+   "stations served by A Line and other lines",
+   "Los Angeles Metro Rail interchange stations A Line"
+  ]
+ },
+ "How many Studio Ghibli feature films have received a Rotten Tomatoes Tomatometer score below 90%?": {
+  "objective": "Find the complete list of Studio Ghibli feature films and their corresponding Rotten Tomatoes Tomatometer scores to count how many are below 90%.",
+  "search_queries": [
+   "Studio Ghibli films Rotten Tomatoes scores list",
+   "Studio Ghibli movies Tomatometer scores below 90",
+   "complete list Studio Ghibli films RT ratings"
+  ]
+ },
+ "What is the most widely used ride booking application in India that offers a wide variety of vehicle choices and prices?": {
+  "objective": "Identify the leading ride-hailing app in India known for diverse vehicle options and pricing tiers, using market share data or consumer reports.",
+  "search_queries": [
+   "most popular ride booking app India",
+   "India ride hailing market share 2024",
+   "Uber vs Ola India user base"
+  ]
+ },
+ "How many state-level felonies has the most recent former president of the United States been convicted of?": {
+  "objective": "Find the exact number of state felony convictions for Donald Trump, the most recent former US president, from reliable legal news sources.",
+  "search_queries": [
+   "Donald Trump state felony convictions count",
+   "how many felonies Trump convicted New York",
+   "Donald Trump criminal conviction verdicts summary"
+  ]
+ },
+ "In NFL history, how many games have been won after overcoming a deficit of more than 25 points, either in the regular season or postseason?": {
+  "objective": "Find the total count of NFL games (regular season and playoffs) where a team won after trailing by more than 25 points, using reliable historical statistics or reputable sports databases.",
+  "search_queries": [
+   "NFL history comebacks from down 26 points",
+   "number of NFL games won after 25 point deficit",
+   "NFL largest comebacks in history list"
+  ]
+ },
+ "During how many presidential terms in the 21st century has the office of Peru's first vice president been vacant?": {
+  "objective": "Determine the number of 21st-century Peruvian presidential terms where the First Vice President position was vacant for the duration of the term, using official government records or reliable historical databases.",
+  "search_queries": [
+   "Peru first vice president vacant 21st century",
+   "Peruvian vice presidents list 2000 to 2024",
+   "Peru presidential terms without vice president"
+  ]
+ },
+ "How many players have officially worn the No. 10 shirt for Barcelona's men's first team since Diego Maradona left the club in 1984?": {
+  "objective": "Identify the list of players who wore the number 10 shirt for FC Barcelona's men's first team from 1984 to the present to count them.",
+  "search_queries": [
+   "FC Barcelona number 10 shirt history",
+   "players wore number 10 for Barcelona",
+   "Barcelona squad number 10 wearers list"
+  ]
+ },
+ "How many teams have competed in every Women's Rugby World Cup Final tournament?": {
+  "objective": "Identify the number of national teams that have participated in every Women's Rugby World Cup final tournament since its inception, verifying the participation history of each nation.",
+  "search_queries": [
+   "teams in every Women's Rugby World Cup",
+   "list of all WRWC finalists history",
+   "which teams played in all WRWC finals"
+  ]
+ },
+ "How many teams have entered the qualifying stages of the Women's Rugby World Cup at least three times without ever reaching the Final Tournament?": {
+  "objective": "Identify the number of national teams that have participated in Women's Rugby World Cup qualifying rounds on three or more occasions but have never qualified for the final tournament.",
+  "search_queries": [
+   "WRWC teams qualified final tournament list",
+   "WRWC qualifying participants never reached final",
+   "Women's Rugby World Cup qualification history stats"
+  ]
+ },
+ "Who was the most recent Sheriff of Los Angeles County killed in the line of duty?": {
+  "objective": "Identify the name of the most recent Los Angeles County Sheriff's Department deputy or sheriff killed in the line of duty and verify the date of the incident.",
+  "search_queries": [
+   "most recent LASD officer killed line of duty",
+   "Los Angeles County Sheriff deputy killed 2024",
+   "LASD line of duty deaths list"
+  ]
+ },
+ "How many Fields medalists were affiliated with a French institution at the time they received the award?": {
+  "objective": "Find the total count of Fields Medal winners who were employed by a French university or research institute at the time of their award.",
+  "search_queries": [
+   "Fields medalists affiliated with French institutions",
+   "list of Fields medalists by country",
+   "Fields medal winners French affiliation count"
+  ]
+ },
+ "Which country has won the most bronze medals in the history of the World Pastry Cup?": {
+  "objective": "Find the historical medal table or winner list for the World Pastry Cup to identify the country with the highest number of bronze medals.",
+  "search_queries": [
+   "World Pastry Cup all time medal table",
+   "World Pastry Cup winners history by country",
+   "most bronze medals World Pastry Cup"
+  ]
+ },
+ "Which was the third Asian country to report a case of clade Ib mpox during the most recent outbreak?": {
+  "objective": "Identify the third Asian country to confirm a case of clade Ib mpox in the 2024 outbreak by finding a chronological list of initial cases reported by Asian nations.",
+  "search_queries": [
+   "third Asian country clade Ib mpox",
+   "chronology Asian countries mpox clade Ib cases",
+   "list Asian countries mpox outbreak 2024"
+  ]
+ },
+ "How many Kannada films have grossed at least ₹100 crore worldwide and also earned at least ₹50 crore during their opening week?": {
+  "objective": "Identify the specific list of Kannada films that have crossed the ₹100 crore worldwide gross milestone and verify which of those also achieved at least ₹50 crore in their opening week box office collection.",
+  "search_queries": [
+   "Kannada films 100 crore club list",
+   "Kannada movies opening week collection records",
+   "Kannada films 100 crore worldwide 50 crore opening"
+  ]
+ },
+ "According to the Emissions Database for Global Atmospheric Research, which country has experienced the largest percentage drop in per capita fossil carbon emissions since 2000?": {
+  "objective": "Find the country with the largest percentage decrease in per capita fossil carbon emissions from 2000 to the present according to the EDGAR database.",
+  "search_queries": [
+   "EDGAR per capita fossil carbon emissions drop since 2000",
+   "largest percentage drop per capita emissions EDGAR 2000",
+   "EDGAR database country lowest per capita emissions 2023"
+  ]
+ },
+ "For exactly how many days did the Instagram post by Kendall Jenner's account that once held the record for most-liked post on the platform remain at the top?": {
+  "objective": "Find the exact number of days Kendall Jenner's most-liked Instagram post held the record before being surpassed by another post.",
+  "search_queries": [
+   "Kendall Jenner most liked post record days held",
+   "how long did Kendall Jenner hold most liked Instagram post record",
+   "Kendall Jenner Instagram record broken days later"
+  ]
+ },
+ "Who is the most recent recipient of a Nobel Prize in one of the sciences who held Asian citizenship at the time of the award?": {
+  "objective": "Identify the most recent Nobel Prize winner in Physics, Chemistry, or Physiology/Medicine who held Asian citizenship at the time of the award, verifying their nationality status during the award year.",
+  "search_queries": [
+   "Nobel Prize science Asian citizenship recent",
+   "list Nobel laureates Asian nationality",
+   "most recent Asian Nobel Prize science winner"
+  ]
+ },
+ "For exactly how many days did the Instagram post by Justin Bieber's account that once held the record for most-liked post on the platform remain at the top?": {
+  "objective": "Find the specific number of days Justin Bieber's record-breaking Instagram post held the title of most-liked post before being surpassed.",
+  "search_queries": [
+   "Justin Bieber most liked Instagram post days record",
+   "how long did Justin Bieber hold most liked post record",
+   "Justin Bieber Instagram record broken days"
+  ]
+ },
+ "Among artists with multiple wins for Album of the Year at the Grammys, who has received the most nominations for this award, with each nomination occurring in a different year?": {
+  "objective": "Identify the artist with the most Grammy Album of the Year nominations among those who have won the award multiple times, ensuring each nomination was in a distinct year.",
+  "search_queries": [
+   "most Album of the Year Grammy nominations",
+   "artists with multiple Album of the Year wins",
+   "Grammy Album of the Year record nominations"
+  ]
+ },
+ "How many artists have performed in more than 90 episodes of the Paris by Night variety show?": {
+  "objective": "Find the specific number of artists who have appeared in over 90 episodes of the Paris by Night variety show, likely by consulting official production records or comprehensive fan databases.",
+  "search_queries": [
+   "Paris by Night artists 90 episodes",
+   "Paris by Night most frequent performers",
+   "Paris by Night artist appearance statistics"
+  ]
+ },
+ "Which year has the highest number of posts among the 30 most-liked tweets on Twitter/X?": {
+  "objective": "Identify the specific year with the most entries among the top 30 most-liked tweets in history by finding a reliable ranking list of these tweets and their posting dates.",
+  "search_queries": [
+   "top 30 most liked tweets list",
+   "most liked tweets on x history",
+   "highest engagement tweets ever posted"
+  ]
+ },
+ "How many stadiums in the United States have a seating capacity of 85,000 or more?": {
+  "objective": "Find the number of stadiums in the United States with a seating capacity of 85,000 or more, ideally from a recent list of largest stadiums by capacity.",
+  "search_queries": [
+   "US stadiums seating capacity over 85000",
+   "list of largest US stadiums by capacity",
+   "how many US stadiums hold 85000 people"
+  ]
+ },
+ "Which engine manufacturer holds the third-highest number of World Drivers' Championship titles?": {
+  "objective": "Identify the engine manufacturer with the third-most Formula 1 World Constructors' Championship titles to determine the correct ranking.",
+  "search_queries": [
+   "F1 engine manufacturer championship titles ranking",
+   "most successful F1 engine suppliers history",
+   "list of F1 constructor champions by engine"
+  ]
+ },
+ "Who was the latest woman to pull off a stunning win at the CMA Awards when she was crowned Entertainer of the Year for the second time?": {
+  "objective": "Identify the female country music artist who won the CMA Entertainer of the Year award for the second time, specifically looking for the most recent occurrence of this event.",
+  "search_queries": [
+   "female CMA Entertainer of the Year two wins",
+   "latest woman to win CMA Entertainer of the Year twice",
+   "CMA Awards Entertainer of the Year female winners list"
+  ]
+ },
+ "How many times has the Turing Award been given to multiple winners in the same year?": {
+  "objective": "Find the total count of years in which the ACM Turing Award was shared by two or more recipients, using official ACM records or comprehensive historical lists.",
+  "search_queries": [
+   "how many times Turing Award multiple winners",
+   "list of Turing Award co-recipients by year",
+   "ACM Turing Award shared winners count"
+  ]
+ },
+ "How many volcanic eruptions in the 21st century have produced a plume height of at least 18 miles?": {
+  "objective": "Find the count of volcanic eruptions since 2001 that reached a plume height of at least 18 miles (approx. 29 km), using authoritative databases like the Smithsonian Global Volcanism Program or NOAA.",
+  "search_queries": [
+   "volcanic eruptions plume height over 18 miles 21st century",
+   "list of volcanic eruptions with plume height greater than 29 km",
+   "highest volcanic eruption plumes 2001 to present"
+  ]
+ },
+ "How many former US presidents ran again for president after losing a general election and lost on their second attempt?": {
+  "objective": "Identify US presidents who lost a general election, ran again, and lost a second time, specifically focusing on Grover Cleveland and any others.",
+  "search_queries": [
+   "US presidents who lost general election then ran again",
+   "Grover Cleveland 1888 election loss",
+   "presidents who lost election twice"
+  ]
+ },
+ "How many mountain peaks over 7,200 metres (23,622 feet) are there in Pakistan?": {
+  "objective": "Find the exact count of mountain peaks in Pakistan exceeding 7,200 meters in elevation, ideally from a geological survey or mountaineering database.",
+  "search_queries": [
+   "number of peaks over 7200m Pakistan",
+   "list of Pakistani mountains above 7200 meters",
+   "how many 7200m peaks in Pakistan"
+  ]
+ },
+ "What is the name of the steel roller coaster that most recently lost its title as the tallest operating steel roller coaster in the world?": {
+  "objective": "Identify the steel roller coaster that held the record for tallest operating steel coaster immediately before the current record holder, Kingda Ka or Fury 325.",
+  "search_queries": [
+   "tallest steel roller coaster history",
+   "previous tallest steel roller coaster world",
+   "Kingda Ka predecessor tallest coaster"
+  ]
+ },
+ "How many Super Bowl games had an attendance of more than 70,000?": {
+  "objective": "Find the official attendance figures for all Super Bowl games to count how many exceeded 70,000 spectators.",
+  "search_queries": [
+   "Super Bowl attendance list history",
+   "Super Bowl attendance over 70000",
+   "highest Super Bowl attendance records"
+  ]
+ },
+ "How many national flags of countries recognized as United Nations (UN) member or observer states have had their most recent official adoption date since 2010?": {
+  "objective": "Identify the specific number of UN member or observer states that officially adopted or modified their national flags after January 1, 2010, by consulting authoritative records of flag adoption dates.",
+  "search_queries": [
+   "list of national flags adopted after 2010",
+   "UN member states new flags since 2010",
+   "countries that changed national flag after 2010"
+  ]
+ },
+ "Among active male soccer players with over 50 international goals, who has the highest goals-per-match ratio?": {
+  "objective": "Identify active male soccer players with over 50 international goals and calculate their goals-per-match ratio to find the highest one.",
+  "search_queries": [
+   "active male soccer players over 50 international goals",
+   "highest goals per match ratio active footballers",
+   "list of active footballers with most international goals"
+  ]
+ },
+ "On what date did the KOSPI (Korea Composite Stock Price Index) experience its largest relative single-day drop?": {
+  "objective": "Find the specific date when the KOSPI recorded its highest percentage decline in a single trading day, using historical financial records or stock market archives.",
+  "search_queries": [
+   "KOSPI largest single day percentage drop date",
+   "biggest KOSPI crash history date",
+   "Korea Composite Stock Price Index worst day"
+  ]
+ },
+ "What is the second-fastest operating roller coaster in the U.S., with a top speed exceeding 150 km/h?": {
+  "objective": "Identify the second-fastest operating roller coaster in the United States that exceeds 150 km/h by consulting current rankings of roller coaster speeds.",
+  "search_queries": [
+   "fastest roller coasters in US 2024",
+   "second fastest roller coaster USA speed",
+   "roller coaster speed ranking United States"
+  ]
+ },
+ "How many diseases were previously declared Public Health Emergencies of International Concern (PHEIC) by the WHO but are no longer classified as such?": {
+  "objective": "Find the total count of diseases that have been declared as PHEIC by the WHO and have since been terminated, excluding any currently active declarations.",
+  "search_queries": [
+   "list of terminated WHO PHEIC",
+   "WHO PHEIC declarations history count",
+   "past Public Health Emergencies International Concern"
+  ]
+ },
+ "Who is the most recent NBA player to score 60 or more points in a regular-season game and lead their team to a win by at least 40 points?": {
+  "objective": "Identify the most recent NBA player to score 60+ points in a regular-season game where their team won by 40+ points, using official NBA game logs or historical records.",
+  "search_queries": [
+   "NBA player 60 points win by 40",
+   "most recent 60 point game 40 point win",
+   "NBA regular season 60 points blowout win"
+  ]
+ },
+ "On what date did the latest eruption of the world's most active composite volcano begin, which spewed fiery lava and ash thousands of feet into the sky?": {
+  "objective": "Identify the specific start date of the most recent eruption of Mount Etna, widely recognized as the world's most active composite volcano, focusing on events with significant ash and lava emissions.",
+  "search_queries": [
+   "latest Mount Etna eruption start date",
+   "most active composite volcano recent eruption",
+   "Mount Etna fiery lava ash eruption date"
+  ]
+ },
+ "According to the WHO, in which year were the highest number of measles cases recorded worldwide?": {
+  "objective": "Find the specific year with the highest global measles case count according to World Health Organization data.",
+  "search_queries": [
+   "WHO highest measles cases year",
+   "worldwide measles cases peak year WHO",
+   "WHO global measles incidence highest year"
+  ]
+ },
+ "What is the total number of parent-child pairs who have shared a Nobel Prize?": {
+  "objective": "Find the exact count of parent-child pairs who have jointly won a Nobel Prize to answer the specific quantity requested.",
+  "search_queries": [
+   "number of parent-child Nobel laureates",
+   "how many families won Nobel Prize",
+   "list of relatives who won Nobel Prize"
+  ]
+ },
+ "How many African nations made their debut in the men's FIFA World Cup during the 21st century?": {
+  "objective": "Identify African nations that played in their first-ever men's FIFA World Cup between 2002 and 2022, excluding those who debuted in 1998 or earlier.",
+  "search_queries": [
+   "African nations first World Cup debut 21st century",
+   "list of African countries first FIFA World Cup appearance",
+   "which African teams debuted in 2002 2010 World Cup"
+  ]
+ },
+ "Which has the highest number of viewers among the films that surpassed 9 million but did not reach 10 million viewers in the South Korean box office?": {
+  "objective": "Identify the South Korean film with the highest viewership between 9 and 10 million, using authoritative box office databases like Box Office Mojo or Korean Film Council statistics.",
+  "search_queries": [
+   "South Korean box office 9-10 million viewers",
+   "highest grossing Korean films 9 million viewers",
+   "Korean movie viewership statistics 9 to 10 million"
+  ]
+ },
+ "Which constructor holds the second-highest number of World Drivers' Championship titles?": {
+  "objective": "Identify the Formula 1 constructor with the second-most World Constructors' Championship titles to determine if it matches the second-most successful driver constructor, or clarify the specific ranking of constructors by title count.",
+  "search_queries": [
+   "F1 constructors championship titles ranking",
+   "most successful F1 constructors by titles",
+   "second most F1 constructor titles"
+  ]
+ },
+ "How many U.S. presidents issued only a single federal executive order throughout their presidency?": {
+  "objective": "Find a definitive count or list of U.S. presidents who issued exactly one federal executive order during their entire tenure, relying on historical databases or scholarly articles.",
+  "search_queries": [
+   "US presidents issued only one executive order",
+   "list of presidents with single executive order",
+   "presidents with exactly one executive order"
+  ]
+ },
+ "How many Formula One drivers appear on both the top 10 youngest and top 10 oldest World Drivers' Championship winners lists?": {
+  "objective": "Identify the specific drivers who hold records for being among the youngest and oldest F1 World Champions to find any overlap between these two distinct lists.",
+  "search_queries": [
+   "youngest Formula 1 World Champions list",
+   "oldest Formula 1 World Champions list",
+   "drivers youngest and oldest F1 champions"
+  ]
+ },
+ "What was the deadliest earthquake in history, with the highest direct death toll, and one of the deadliest natural disasters in China?": {
+  "objective": "Identify the specific earthquake in Chinese history with the highest confirmed direct death toll to verify it as the deadliest in recorded history.",
+  "search_queries": [
+   "deadliest earthquake in history death toll",
+   "highest death toll earthquake China history",
+   "1556 Shaanxi earthquake death toll"
+  ]
+ },
+ "How many movies have surpassed 9 million viewers but not reached 10 million in the South Korean box office?": {
+  "objective": "Find the exact count of South Korean movies with attendance figures between 9 million and 10 million viewers, using official box office records or comprehensive lists of South Korean film attendance.",
+  "search_queries": [
+   "South Korean movies 9 to 10 million viewers",
+   "list of Korean films 9 million attendance",
+   "Korean box office attendance 9 million to 10 million"
+  ]
+ },
+ "Who is the most recent living NBA player to score 60 or more points in a regular-season game and be inducted into the Naismith Memorial Basketball Hall of Fame?": {
+  "objective": "Identify the most recent living NBA player who scored 60+ points in a regular-season game and was subsequently inducted into the Basketball Hall of Fame, verifying their induction year and living status.",
+  "search_queries": [
+   "Hall of Fame players 60 point games",
+   "recent Hall of Famers 60 points career",
+   "living NBA players 60 points Hall of Fame"
+  ]
+ },
+ "As of now, which country or countries have won a single medal in the history of the Winter Olympic Games—and it was a gold?": {
+  "objective": "Identify Winter Olympic nations that have won exactly one medal in history and confirm that this sole medal is gold.",
+  "search_queries": [
+   "countries one gold medal winter olympics",
+   "nations single medal winter olympics history",
+   "list countries one gold winter olympics"
+  ]
+ },
+ "According to the Food and Agriculture Organization of the United Nations, which year marked the lowest tea leaf exports from India since 1961?": {
+  "objective": "Find the specific year with the lowest tea leaf exports from India since 1961 according to FAO statistics.",
+  "search_queries": [
+   "FAO India tea leaf exports lowest year since 1961",
+   "India tea export minimum year FAO data",
+   "FAOSTAT India tea exports historical low"
+  ]
+ },
+ "How many badminton athletes have won Olympic Gold and more than 2 Olympic medals in total?": {
+  "objective": "Find the number of badminton athletes who have won at least one Olympic gold medal and have a total medal count strictly greater than two.",
+  "search_queries": [
+   "badminton athletes multiple Olympic gold medals",
+   "list badminton players with most Olympic medals",
+   "badminton Olympic medalists gold and total count"
+  ]
+ },
+ "What is the planned bed capacity of Vietnam - Sweden Uong Bi Hospital?": {
+  "objective": "Find the official planned bed capacity of the Vietnam-Sweden Uong Bi Hospital, likely cited in government health plans or project inauguration reports.",
+  "search_queries": [
+   "Vietnam Sweden Uong Bi Hospital planned bed capacity",
+   "Uong Bi Hospital 500 bed project",
+   "Vietnam Sweden Uong Bi Hospital official capacity"
+  ]
+ },
+ "Who is the most recent female middle school student to represent China in the International Mathematical Olympiad (IMO) contest?": {
+  "objective": "Identify the most recent female middle school student who represented China in the IMO and verify her participation details to confirm she was the youngest or most recent junior representative.",
+  "search_queries": [
+   "China IMO female middle school student",
+   "youngest female IMO participant China",
+   "recent Chinese IMO team female junior"
+  ]
+ },
+ "According to the menu on the website of the Dau Homemade restaurant in Vietnam, what is the listed price in VND for the Special Homemade Bun Dau?": {
+  "objective": "Find the current price of the Special Homemade Bun Dau dish on the official Dau Homemade restaurant website in Vietnam.",
+  "search_queries": [
+   "Dau Homemade Vietnam menu price",
+   "Special Homemade Bun Dau VND price",
+   "Dau Homemade official website menu"
+  ]
+ },
+ "How many movies with an estimated net budget of $350 million or more were not the highest-grossing film of their release year?": {
+  "objective": "Find a list of movies with production budgets of $350 million or more and verify which ones did not rank as the highest-grossing film in their respective release years.",
+  "search_queries": [
+   "most expensive movies budget 350 million",
+   "highest grossing films by year list",
+   "did Avatar 2 gross most 2022"
+  ]
+ },
+ "Whose baseball sports cards have been sold for over a million dollars the most times? For the same card, only the highest sale value is counted.": {
+  "objective": "Identify the baseball player with the highest number of distinct cards that have sold for over one million dollars, ensuring only the highest sale price per card is considered.",
+  "search_queries": [
+   "baseball cards sold over million times",
+   "most million dollar baseball card sales",
+   "baseball players highest number million dollar cards"
+  ]
+ },
+ "In which year did a team achieve the highest score in a World Baseball Classic (WBC) championship game, leading them to victory in their first-ever WBC final?": {
+  "objective": "Find the year a team won its first World Baseball Classic title and verify if that game had the highest score in WBC championship history.",
+  "search_queries": [
+   "highest score WBC championship game",
+   "first WBC title team year",
+   "World Baseball Classic finals scores history"
+  ]
+ },
+ "Who broke the short course world record in women's 400m freestyle at the youngest age from 2010 to now?": {
+  "objective": "Identify the female swimmer who set the short course world record in the 400m freestyle at the youngest age between 2010 and the present, verifying the record holder's age and date of the record using official World Aquatics data.",
+  "search_queries": [
+   "women's 400m freestyle short course world record history",
+   "youngest female 400m freestyle short course world record holder",
+   "World Aquatics 400m freestyle SC women record holders"
+  ]
+ },
+ "What is the total number of branches of the Akhil Bharatiya Marathi Sahitya Mahamandal?": {
+  "objective": "Find the official count of regional branches or units under the Akhil Bharatiya Marathi Sahitya Mahamandal from their official website or recent annual reports.",
+  "search_queries": [
+   "Akhil Bharatiya Marathi Sahitya Mahamandal total branches",
+   "ABMSM branch count official website",
+   "Akhil Bharatiya Marathi Sahitya Mahamandal units"
+  ]
+ },
+ "Which interstate war has had the highest estimated number of combat deaths since World War II?": {
+  "objective": "Identify the interstate war with the highest estimated combatant fatalities since 1945 and verify the specific death toll figures from authoritative conflict databases.",
+  "search_queries": [
+   "interstate war highest combat deaths since WWII",
+   "most deadly interstate war after World War II",
+   "conflict mortality database interstate wars post 1945"
+  ]
+ },
+ "Who was the purchaser in the largest confirmed merger or acquisition that ultimately failed to complete?": {
+  "objective": "Identify the acquiring company in the largest merger or acquisition deal that was announced but never finalized, based on deal value at the time of announcement.",
+  "search_queries": [
+   "largest failed merger acquisition history",
+   "biggest aborted merger deal purchaser",
+   "largest collapsed acquisition target acquirer"
+  ]
+ },
+ "Which language, within the Indo-Aryan branch of the Indo-European family, has the third largest number of native speakers?": {
+  "objective": "Identify the Indo-Aryan language with the third highest number of native speakers, distinguishing it from Hindi and Bengali, using demographic data from reliable linguistic sources.",
+  "search_queries": [
+   "Indo-Aryan languages native speakers ranking",
+   "third largest Indo-Aryan language by speakers",
+   "list of Indo-Aryan languages by native speakers"
+  ]
+ },
+ "Which dish or dishes of beef phở are the cheapest on the official website of Phở 10 Lý Quốc Sư?": {
+  "objective": "Find the official menu and prices for beef phở dishes on the Phở 10 Lý Quốc Sư website to identify the lowest-priced options.",
+  "search_queries": [
+   "Phở 10 Lý Quốc Sư official website menu",
+   "Phở 10 Lý Quốc Sư beef pho prices",
+   "Phở 10 Lý Quốc Sư cheapest beef pho"
+  ]
+ },
+ "Which Indo-European language has more native speakers than Javanese but fewer than Indonesian?": {
+  "objective": "Find the specific Indo-European language with native speaker counts between Javanese and Indonesian to identify the correct answer.",
+  "search_queries": [
+   "Indo-European language native speakers count",
+   "Javanese vs Indonesian native speakers",
+   "languages by native speakers list"
+  ]
+ },
+ "The oldest extant football team in Italy plays in a stadium.   The stadium is named after a person.   Who was the emperor of China when that person was 5 years old?": {
+  "objective": "Identify the oldest extant football team in Italy and its stadium's namesake, then determine the Chinese emperor reigning when that person was five years old.",
+  "search_queries": [
+   "oldest extant football team Italy",
+   "Stadio Luigi Ferraris namesake birth year",
+   "Chinese emperor 1894"
+  ]
+ },
+ "How many years earlier would Punxsutawney Phil have to be canonically alive to have made a Groundhog Day prediction in the same state as the US capitol?": {
+  "objective": "Find the year the US Capitol was built or established and the year Punxsutawney Phil made his first prediction in Pennsylvania to calculate the difference.",
+  "search_queries": [
+   "year US Capitol building established",
+   "Punxsutawney Phil first prediction year",
+   "history of Punxsutawney Phil groundhog"
+  ]
+ },
+ "How old was Harvard University, when the person whom the longest river in British Columbia is named after, was born?  The river in question only flows within the confines of British Columbia and does not enter any other province or territory.  ": {
+  "objective": "Identify the longest river entirely within British Columbia and the person it is named after, then determine that person's birth year and Harvard University's founding year to calculate the age difference.",
+  "search_queries": [
+   "longest river entirely within British Columbia",
+   "who is Fraser River named after",
+   "Harvard University founding year"
+  ]
+ },
+ "Which football player got 15 or more assists in La Liga during the 2010-2011 season and also played for Arsenal at one point in his career?": {
+  "objective": "Find the La Liga player with 15+ assists in the 2010-2011 season who also had a career spell at Arsenal.",
+  "search_queries": [
+   "La Liga assists 2010-2011 season",
+   "Arsenal former players La Liga",
+   "football player 15 assists La Liga 2010-11 Arsenal"
+  ]
+ },
+ "In series six of Downton Abbey, Lord Merton is diagnosed with a terminal condition. A deficiency in which vitamin causes this condition?": {
+  "objective": "Find the specific terminal illness diagnosed for Lord Merton in Downton Abbey Series 6 and identify the vitamin deficiency associated with it.",
+  "search_queries": [
+   "Downton Abbey series 6 Lord Merton illness",
+   "Lord Merton terminal condition vitamin deficiency",
+   "what vitamin deficiency causes Lord Merton's disease"
+  ]
+ },
+ "What is the middle name of the U.S. president who died on the same day of the year as Virginia Woolf?": {
+  "objective": "Identify the U.S. president who died on January 28, the same date as Virginia Woolf, and determine their middle name.",
+  "search_queries": [
+   "Virginia Woolf death date",
+   "US president died January 28",
+   "Calvin Coolidge middle name"
+  ]
+ },
+ "According to the population data in their respective Wikipedia articles in August 2024, what is the difference between the population of Seattle, WA, and Portland, OR, according to the data from 2020?": {
+  "objective": "Find the 2020 census population figures for Seattle, WA, and Portland, OR as listed in their Wikipedia articles during August 2024 to calculate the difference.",
+  "search_queries": [
+   "Seattle Washington 2020 census population Wikipedia",
+   "Portland Oregon 2020 census population Wikipedia",
+   "Seattle vs Portland population 2020 census"
+  ]
+ },
+ "Of the four main characters on Seinfeld, which actor is the oldest?": {
+  "objective": "Find the birth dates of Jerry Seinfeld, Julia Louis-Dreyfus, Jason Alexander, and Michael Richards to determine who is the oldest.",
+  "search_queries": [
+   "Seinfeld main cast birth dates",
+   "Jerry Seinfeld birth date",
+   "Julia Louis-Dreyfus birth date"
+  ]
+ },
+ "Who was the last Miss World America to place in the Top 11 at Miss World? Hint: She has pursued a modeling career.": {
+  "objective": "Identify the last representative from the USA (Miss World USA) to place in the Top 11 at the Miss World pageant and confirm she is a model.",
+  "search_queries": [
+   "last Miss World USA Top 11",
+   "Miss World USA finalists history",
+   "Miss World USA model career"
+  ]
+ },
+ "This individual won a Best Director Award at the 33rd Japan Academy Prize ceremony and is known for having directed a film that briefly surpassed the Godfather as the highest-grossing film in Japan for a short time. Which film was longer - The Godfather or his film - and by how many minutes?": {
+  "objective": "Identify the director who won Best Director at the 33rd Japan Academy Prize and directed the film that briefly topped The Godfather's box office in Japan, then find the runtime difference between that film and The Godfather.",
+  "search_queries": [
+   "33rd Japan Academy Prize Best Director winner",
+   "film surpassed Godfather box office Japan",
+   "The Godfather runtime minutes"
+  ]
+ },
+ "How many years was the first vessel Stephen Etnier commanded constructed after the novel that first inspired him to pursue painting was published?": {
+  "objective": "Identify the first vessel commanded by Stephen Etnier and the novel that inspired him to paint, then find their respective construction and publication years to calculate the difference.",
+  "search_queries": [
+   "Stephen Etnier first commanded vessel",
+   "novel inspired Stephen Etnier to paint",
+   "Stephen Etnier biography naval career"
+  ]
+ },
+ "As of now, which country or countries have won a single medal in the history of the Summer Olympic Games—and it was a gold?": {
+  "objective": "Identify all nations that have won exactly one medal in the history of the Summer Olympics and confirm that this sole medal was gold.",
+  "search_queries": [
+   "countries with exactly one summer olympic gold medal",
+   "list of nations with single olympic gold medal",
+   "olympic countries with only one gold medal ever"
+  ]
+ },
+ "As of January 1, 2024, what was the warmest decade, since the 17th century, around the ocean that surrounds Litke Deep?": {
+  "objective": "Identify the ocean surrounding Litke Deep and determine which decade since the 17th century had the highest average sea surface temperatures as of January 1, 2024, using historical climate data from authoritative sources like NASA or NOAA.",
+  "search_queries": [
+   "ocean surrounding Litke Deep",
+   "warmest decade global ocean temperature since 17th century",
+   "NOAA historical sea surface temperature anomalies by decade"
+  ]
+ },
+ "Which event predates the other: the amalgamation of the Province of Betanzos with Mondonedo or the completion of a cathedral marking the destination of a prominent Spanish Catholic pilgrimage in the same province? Provide the year of the earlier event.": {
+  "objective": "Find the year the Province of Betanzos was amalgamated with Mondoñedo and the year the Santiago de Compostela Cathedral was completed to determine which event occurred first.",
+  "search_queries": [
+   "Province of Betanzos amalgamation with Mondoñedo year",
+   "Santiago de Compostela Cathedral completion date",
+   "history of Betanzos and Mondoñedo provinces merger"
+  ]
+ },
+ "What is the price in VND of the spicy garlic shrimp spaghetti dish, available exclusively at Pizza 4P’s in Da Nang, Vietnam?": {
+  "objective": "Find the current price in Vietnamese Dong for the spicy garlic shrimp spaghetti dish at Pizza 4P's in Da Nang, using official menus or recent customer reviews.",
+  "search_queries": [
+   "Pizza 4Ps Da Nang menu price",
+   "spicy garlic shrimp spaghetti Pizza 4Ps",
+   "Pizza 4Ps Da Nang spaghetti cost"
+  ]
+ },
+ "In square KM, how much bigger is the total area of La Casita-Garciasville, Texas compared to that of the independent state that was recognised in the 1929 Lateran Treaty?": {
+  "objective": "Find the area of the La Casita-Garciasville CSD in Texas in square kilometers and the area of Vatican City in square kilometers to calculate the difference.",
+  "search_queries": [
+   "La Casita-Garciasville Texas area km2",
+   "Vatican City area square kilometers",
+   "Lateran Treaty 1929 independent state"
+  ]
+ },
+ "What is the total number of railroad tracks currently used for passenger service in Arlington County, Virginia, according to the Bureau of Transportation?": {
+  "objective": "Find the specific count of railroad tracks in Arlington County, Virginia, used for passenger service as reported by the Bureau of Transportation Statistics or related federal transportation databases.",
+  "search_queries": [
+   "Arlington County VA passenger railroad tracks count",
+   "Bureau of Transportation Statistics Arlington rail",
+   "Virginia passenger rail infrastructure statistics"
+  ]
+ },
+ "Who was the author of the novel whose film adaptation lead singer Mark Arm took the name of his band from?": {
+  "objective": "Identify the author of the novel that inspired the band name of the group fronted by Mark Arm, likely Mudhoney or Green River.",
+  "search_queries": [
+   "Mark Arm band name origin",
+   "Mudhoney band name meaning",
+   "Green River band name origin"
+  ]
+ },
+ "If we consider their inception being the date of declared independence, how many years older is the US than Mexico?": {
+  "objective": "Find the exact dates of declared independence for the United States and Mexico to calculate the difference in years between them.",
+  "search_queries": [
+   "US declared independence date",
+   "Mexico declared independence date",
+   "years difference US Mexico independence"
+  ]
+ },
+ "Who won the World series the year Happy Days premiered?": {
+  "objective": "Find the premiere year of the TV show Happy Days and the winner of the World Series in that same year.",
+  "search_queries": [
+   "Happy Days premiere year",
+   "1974 World Series winner",
+   "who won World Series 1974"
+  ]
+ },
+ "In the George Eliot novel described by Virginia Woolf as \"one of the few English novels written for grown-up people\", one of the main characters shares a first name with a former prime minister of Burkino Faso who went on the join the board of a Canadian mining company. What forename do they share?": {
+  "objective": "Identify the George Eliot novel Virginia Woolf praised as written for grown-ups and find the main character whose first name matches a former Prime Minister of Burkina Faso who joined a Canadian mining company board.",
+  "search_queries": [
+   "Virginia Woolf George Eliot novel grown-up people",
+   "former Prime Minister Burkina Faso Canadian mining board",
+   "George Eliot character name Burkina Faso PM"
+  ]
+ },
+ "Multiple the number of Tony's won by the guest host of SNL 12/6/1997 by the number of Oscar nominations received by the 2023 film directed by Greta Gerwig. Then divide this number by the number of Grammy's won by the band behind the 1979 album \"Tusk\".": {
+  "objective": "Identify the guest host of SNL on 12/6/1997 and their Tony wins, the 2023 Greta Gerwig film and its Oscar nominations, and the band behind the 1979 album 'Tusk' and their Grammy wins to perform the calculation.",
+  "search_queries": [
+   "SNL guest host December 6 1997",
+   "Greta Gerwig 2023 film Oscar nominations",
+   "1979 album Tusk band Grammy wins"
+  ]
+ },
+ "What member of the 1992 Unified Olympic women's gymnastics team scored a 9.975 in the qualifier for floor and competed under three different flags in her Olympic career?": {
+  "objective": "Identify the gymnast from the 1992 Unified Team who scored 9.975 on floor in qualifiers and competed under three different national flags.",
+  "search_queries": [
+   "gymnast competed under three flags",
+   "1992 Unified Team gymnast 9.975 floor",
+   "gymnast competed USSR CIS Russia Olympics"
+  ]
+ },
+ "As of 1st june 2024 Which Jonas brother has a wife who narrated a nature documentary released under the Disneynature label?": {
+  "objective": "Identify the Jonas brother whose wife narrated a Disneynature documentary released by June 1, 2024, to determine which brother fits the criteria.",
+  "search_queries": [
+   "Disneynature documentaries narrated by Jonas wives",
+   "Joe Jonas wife Sophie Turner documentary narrator",
+   "Nick Jonas wife Priyanka Chopra documentary narrator"
+  ]
+ },
+ "What year was the person born who was Prime Minister of The United Kingdom during the year that the first African American ran for president of the United States?": {
+  "objective": "Identify the year the first African American ran for US President, find the UK Prime Minister serving that year, and determine that Prime Minister's birth year.",
+  "search_queries": [
+   "first African American presidential candidate year",
+   "UK Prime Minister 1984",
+   "Margaret Thatcher birth year"
+  ]
+ },
+ "The man who owned The Washington Post in 1932 broke the trust established by his father to gain control of the paper, only to run into the ground, lose it, and get committed to a psychiatric hospital where he died. How many days after his death did the man who purchased it in 1933 die?": {
+  "objective": "Identify the owner of The Washington Post in 1932 who died in a psychiatric hospital and the buyer who acquired it in 1933, then determine the number of days between their deaths.",
+  "search_queries": [
+   "Washington Post owner 1932 psychiatric hospital death",
+   "who bought Washington Post in 1933",
+   "Philip Graham death date"
+  ]
+ },
+ "Human activity by employees of a certain company caused Lake Peigneur in Louisiana to become completely drained of water. How many years passed between the founding of that company and Lake Peigneur's collapse? Convert this number to Roman numerals.": {
+  "objective": "Identify the company responsible for draining Lake Peigneur, find its founding year, and determine the year of the lake's collapse to calculate the time difference.",
+  "search_queries": [
+   "company responsible for Lake Peigneur collapse",
+   "Avondale Shipyards founding year",
+   "year Lake Peigneur drained"
+  ]
+ },
+ "What are the first three letters of the capital city of the country where Shakespeare's longest play is set?": {
+  "objective": "Identify the country where Shakespeare's longest play is set and find the first three letters of that country's capital city.",
+  "search_queries": [
+   "Shakespeare longest play setting",
+   "capital of Denmark first three letters"
+  ]
+ },
+ "How much older was the songwriter of 'The Twist' when he wrote it than Chubby Checker was when he recorded the song?": {
+  "objective": "Find the birth years and the year 'The Twist' was written and recorded to calculate the age difference between songwriter Hank Ballard and Chubby Checker at those specific times.",
+  "search_queries": [
+   "Hank Ballard birth year",
+   "Chubby Checker birth year",
+   "year The Twist written recorded"
+  ]
+ },
+ "I'm thinking of an Actor that won an Oscar for Best Supporting Actor two years after being nominated for the same award, but not winning.  The same year that the actor won the Oscar, the Actor also won a BAFTA in the same category and for the same film.  The Actor also won a Tony award in 1974.  ": {
+  "objective": "Identify an actor who won a Tony Award in 1974, was nominated for Best Supporting Actor Oscar two years prior to winning, and won both the Oscar and BAFTA for Best Supporting Actor in the same year.",
+  "search_queries": [
+   "actors who won Tony Award 1974",
+   "Best Supporting Actor Oscar winner same year BAFTA",
+   "actor nominated Oscar Supporting Actor lost then won"
+  ]
+ },
+ "Which month had the third-lowest mean daily minimum temperature (recorded from 1876–1905) in the Japanese city which in 1720 was estimated to be the largest in the world?": {
+  "objective": "Identify the Japanese city that was the largest in the world in 1720 (Edo/Tokyo) and find the month with the third-lowest mean daily minimum temperature based on records from 1876 to 1905.",
+  "search_queries": [
+   "largest city in world 1720 Japan",
+   "Tokyo mean daily minimum temperature 1876 1905",
+   "Edo climate data 1876 1905 monthly minimums"
+  ]
+ },
+ "Which political leader of the countries where the Potsdam agreement and the Wellington Convention were signed was older on the 1st of July 1905?": {
+  "objective": "Identify the countries that signed the Potsdam Agreement and the Wellington Convention, find the political leaders of those countries on July 1, 1905, and determine their ages to compare who was older.",
+  "search_queries": [
+   "countries signed Potsdam Agreement",
+   "countries signed Wellington Convention 1899",
+   "political leaders July 1 1905 ages"
+  ]
+ },
+ "How many days did it take for World War 2 to end after the death of Alois Burgstaller?": {
+  "objective": "Find the exact date of Alois Burgstaller's death and the official end date of World War II to calculate the difference in days.",
+  "search_queries": [
+   "Alois Burgstaller death date",
+   "World War II end date",
+   "days between Alois Burgstaller death and WWII end"
+  ]
+ },
+ "As of August 3, 2024, excluding white, what colour features on the flag of the city that houses the racecourse where Danon The Kid made his racing debut?": {
+  "objective": "Identify the city where Danon The Kid made his racing debut and determine the colors on that city's flag excluding white.",
+  "search_queries": [
+   "Danon The Kid racing debut racecourse",
+   "flag of Tokyo Japan colors",
+   "flag of Nakayama City colors"
+  ]
+ },
+ "Excluding blue, what other colour appears on the 2004 flag of the region in which Alastair Galbraith's home city is situated?": {
+  "objective": "Identify Alastair Galbraith's home city and its region, then find the colors on that region's 2004 flag excluding blue.",
+  "search_queries": [
+   "Alastair Galbraith home city",
+   "2004 flag of Alastair Galbraith region colors",
+   "colors on 2004 regional flag excluding blue"
+  ]
+ },
+ "Houston, Texas had dozens of airports as of January 1, 2024. Find the three-letter IATA code of the airport in which the longest runway was exactly 7000 feet long, and rearrange those letters to match that of another airport at that time.  Here are your hints: The last letter of the re-arranged code is \"J\". The new airport was located in China.   With this information, what was the IATA code of this airport?": {
+  "objective": "Find the IATA code of a Houston airport with a 7000ft runway, then find a Chinese airport with a code that is an anagram of it ending in J.",
+  "search_queries": [
+   "Houston airports runway length 7000 feet",
+   "Chinese airports IATA code ends with J",
+   "IATA code anagrams Houston China"
+  ]
+ },
+ "What two cities hosted the Summer Olympic Games between when the television shows featuring characters Olivia Benson and Meredith Grey started airing?": {
+  "objective": "Identify the premiere years of Law & Order: SVU and Grey's Anatomy to determine the time range, then find which cities hosted the Summer Olympics during that period.",
+  "search_queries": [
+   "Law & Order SVU premiere year",
+   "Grey's Anatomy premiere year",
+   "Summer Olympic Games host cities list"
+  ]
+ },
+ "As of August 3rd 2024, how many Emmy Award nominations does the main cast member that was introduced in Season 2 of It's Always Sunny in Philadelphia have?": {
+  "objective": "Identify the main cast member introduced in Season 2 of It's Always Sunny in Philadelphia and find their total Emmy Award nominations as of August 3, 2024.",
+  "search_queries": [
+   "It's Always Sunny Season 2 new cast member",
+   "Glenn Howerton Emmy nominations count 2024",
+   "Dee Reynolds Emmy nominations count 2024"
+  ]
+ },
+ "What sea borders the Irish County where the author of the short story Foster was born?": {
+  "objective": "Identify the birth county of the author of the short story 'Foster' and determine which sea borders that specific Irish county.",
+  "search_queries": [
+   "author of short story Foster",
+   "W.B. Yeats birthplace county",
+   "sea bordering County Sligo"
+  ]
+ },
+ "How old would James Logan have been when the estate of his descendent donated Neshaminy State Park land to the Commonwealth of Pennsylvania?": {
+  "objective": "Find the date when James Logan's descendant donated Neshaminy State Park land to Pennsylvania and James Logan's birth year to calculate his hypothetical age.",
+  "search_queries": [
+   "Neshaminy State Park land donation history",
+   "James Logan birth year",
+   "descendant of James Logan Neshaminy donation"
+  ]
+ },
+ "I'm a concert venue in Washington, D.C. Blink-182 played here on their tour the same year Brazil won their fifth FIFA World Cup. What was my name in 2010?": {
+  "objective": "Identify the Washington D.C. concert venue that hosted Blink-182 in 2002 and determine its official name in 2010.",
+  "search_queries": [
+   "Blink-182 Washington DC concert 2002 venue",
+   "Washington DC concert venue name change 2010",
+   "MCI Center name history 2010"
+  ]
+ },
+ "What was the word that featured the least in the longest recorded quotation by the chimpanzee named after the recipient of the 2011 Sydney Peace Prize?   ": {
+  "objective": "Identify the chimpanzee named after the 2011 Sydney Peace Prize recipient, find its longest recorded quotation, and determine the least frequent word in that text.",
+  "search_queries": [
+   "2011 Sydney Peace Prize recipient",
+   "chimpanzee named after Shirin Ebadi",
+   "Koko the gorilla longest quotation word frequency"
+  ]
+ },
+ "The screenwriter of the film, which received nominations for Best Screenplay and Best Actor in a Motion Picture - Drama at the 1995 Golden Globes, attended which Michigan university?": {
+  "objective": "Identify the film that received Best Screenplay and Best Actor Drama nominations at the 1995 Golden Globes, find its screenwriter, and determine which Michigan university they attended.",
+  "search_queries": [
+   "1995 Golden Globes Best Screenplay Drama nominees",
+   "1995 Golden Globes Best Actor Drama nominees",
+   "screenwriter of 1995 Golden Globe nominated film Michigan university"
+  ]
+ },
+ "A 1986 song by Peter Gabriel shares the name with a tool. What is the name of the tool and how does it look?": {
+  "objective": "Identify the 1986 Peter Gabriel song that shares its name with a physical tool and find a visual description or image of that tool.",
+  "search_queries": [
+   "Peter Gabriel 1986 song tool name",
+   "Sledgehammer Peter Gabriel song tool",
+   "what does a sledgehammer look like"
+  ]
+ },
+ "As of August 1, 2024, which NFL players were both league MVP and Super Bowl MVP in the same season?": {
+  "objective": "Find a list of NFL players who won both the regular season MVP and Super Bowl MVP in the same year, verifying if any achieved this feat in the 2023-2024 season.",
+  "search_queries": [
+   "NFL players league MVP and Super Bowl MVP same season",
+   "who won NFL MVP and Super Bowl MVP same year",
+   "list of players with regular season and Super Bowl MVP"
+  ]
+ },
+ "By what amount was the budget of Peter Jackson's King Kong higher than the budget of John Guillermin's version of King Kong?": {
+  "objective": "Find the production budgets for Peter Jackson's 2005 King Kong and John Guillermin's 1976 King Kong to calculate the difference.",
+  "search_queries": [
+   "Peter Jackson King Kong 2005 budget",
+   "John Guillermin King Kong 1976 budget"
+  ]
+ },
+ "Which of the following albums came out on a date closest to the date that Nancy Kerrigan was assaulted? What about which album was closest to the date of Harding's plea deal? Awake by Dream Theater Inside Out by Fates Warning Promised Land by Queensryche Dreamspace by Stratovarius": {
+  "objective": "Find the exact date of Nancy Kerrigan's assault and the date of Tonya Harding's plea deal, then determine the release dates of the specified albums by Dream Theater, Fates Warning, Queensryche, and Stratovarius to compare proximity.",
+  "search_queries": [
+   "Nancy Kerrigan assault date",
+   "Tonya Harding plea deal date",
+   "Dream Theater Awake release date"
+  ]
+ },
+ "Which president featured on a U.S. coin in 1972 served the longest as President of the United States of America?": {
+  "objective": "Identify which U.S. presidents appeared on coins in 1972 and determine which of them served the longest term.",
+  "search_queries": [
+   "US coins issued in 1972",
+   "longest serving US president",
+   "presidents on 1972 US coins"
+  ]
+ },
+ "A United States women's national soccer team player scored her first career international goal during the semi-final match of the 2015 FIFA Women's World Cup. This same player scored her second goal the next year. Tell me the difference in attendance between these two games.": {
+  "objective": "Identify the USWNT player who scored her first international goal in the 2015 World Cup semi-final and her second in 2016, then find the attendance figures for both matches to calculate the difference.",
+  "search_queries": [
+   "USWNT player first goal 2015 World Cup semi-final",
+   "2015 FIFA Women's World Cup semi-final attendance",
+   "USWNT 2016 international match attendance"
+  ]
+ },
+ "When Taylor Swift first released her studio album \"1989,\" how many studio albums had Katy Perry already released? ": {
+  "objective": "Find the release date of Taylor Swift's album '1989' and count how many studio albums Katy Perry had released by that specific date.",
+  "search_queries": [
+   "Taylor Swift 1989 album release date",
+   "Katy Perry studio albums release dates list",
+   "Katy Perry discography before 2014"
+  ]
+ },
+ "What was the last album the Grateful Dead released prior to the death of Doors vocalist Jim Morrison?": {
+  "objective": "Find the release date of Jim Morrison's death and the release date of the last Grateful Dead album before that specific date to identify the correct album.",
+  "search_queries": [
+   "Jim Morrison death date",
+   "Grateful Dead album release dates",
+   "last Grateful Dead album before 1971"
+  ]
+ },
+ "How many of Mark Calaway's consecutive Wrestlemania wins occurred in matches that were longer than the final match result in the same year's competition, not including years where Calaway was part of the final result?": {
+  "objective": "Identify the duration of Mark Calaway's consecutive WrestleMania wins and the duration of the main event or final match of each corresponding year to determine if his match was longer, excluding years where he was in the final match.",
+  "search_queries": [
+   "Mark Calaway consecutive WrestleMania wins list",
+   "WrestleMania main event match time history",
+   "Mark Calaway WrestleMania match duration vs main event"
+  ]
+ },
+ "Since the turn of the 21st century, there has only been one year in which the Pulitzer Prize for Fiction has not been awarded. Among the finalists that year, one novel was published posthumously. The author of this posthumous publication is best known for a different novel published 15 years prior. The opening lines of this book later inspired a song by a band. The name of this band can be determined with the following calculation: find the age of the author on January 1 of the year the latter book was published, add four, and subtract the sum from the year this author was a Pulitzer Prize finalist. The name of this band was inspired by yet another book. What is the name of this book and its author?": {
+  "objective": "Identify the year the Pulitzer Prize for Fiction was not awarded, the posthumous finalist novel from that year, the author's earlier famous novel, and the band named after its opening lines to find the book that inspired the band's name.",
+  "search_queries": [
+   "Pulitzer Prize for Fiction not awarded year",
+   "posthumous Pulitzer finalist novel 21st century",
+   "band named after novel opening lines"
+  ]
+ },
+ "What was the age difference at their deaths (in years) between Edgar Allan Poe and his rival, Rufus Wilmot Griswold, multiplied by 100?": {
+  "objective": "Find the birth and death dates of Edgar Allan Poe and Rufus Wilmot Griswold to calculate their ages at death, then determine the difference in years and multiply by 100.",
+  "search_queries": [
+   "Edgar Allan Poe age at death",
+   "Rufus Wilmot Griswold age at death",
+   "Edgar Allan Poe vs Rufus Griswold rivalry"
+  ]
+ },
+ "How old was the first minister of the Ministry of Digital Affairs in Poland when Andrzej Halicki became minister?": {
+  "objective": "Find the name of the first Minister of Digital Affairs in Poland and their age when Andrzej Halicki assumed office in 2020.",
+  "search_queries": [
+   "Andrzej Halicki became minister date",
+   "first Minister of Digital Affairs Poland",
+   "Krzysztof Gawkowski birth date"
+  ]
+ },
+ "Which university did the actor who has appeared in the most movies in the American pie film series (including spinoffs, as of 2020) deliver a commencement address at in 2012?": {
+  "objective": "Identify the actor with the most appearances in the American Pie franchise by 2020 and find the university where they gave a commencement speech in 2012.",
+  "search_queries": [
+   "actor most American Pie movies",
+   "Jason Biggs 2012 commencement speech",
+   "who gave 2012 commencement address American Pie actor"
+  ]
+ },
+ "What is the name of the lead role of the play that Harry C. Bradley's second wife was in, in 1906?": {
+  "objective": "Identify Harry C. Bradley's second wife, find the play she performed in during 1906, and determine the name of the lead role she played in that production.",
+  "search_queries": [
+   "Harry C. Bradley second wife",
+   "Harry C. Bradley wife 1906 play",
+   "lead role play 1906 actress"
+  ]
+ },
+ "How old was Akira Toriyama when Pokemon Diamond and Pearl was released in America?": {
+  "objective": "Find Akira Toriyama's birth date and the US release date of Pokemon Diamond and Pearl to calculate his age at that time.",
+  "search_queries": [
+   "Akira Toriyama birth date",
+   "Pokemon Diamond Pearl US release date",
+   "Akira Toriyama age in 2007"
+  ]
+ },
+ "As of 2020, what was the population of the city where Dippin' Dots were founded?": {
+  "objective": "Identify the city where Dippin' Dots was founded and find its population statistics for the year 2020.",
+  "search_queries": [
+   "Dippin Dots founding city",
+   "population of Richardson Texas 2020"
+  ]
+ },
+ "What is the title of the book, written by Stephanie Meyer, in her vampire book series that was published in the same year that the first Black president of the United States was elected?": {
+  "objective": "Identify the Stephanie Meyer Twilight book published in 2008, the year Barack Obama was elected president.",
+  "search_queries": [
+   "Stephanie Meyer book published 2008",
+   "Twilight series book release dates",
+   "Stephanie Meyer vampire book 2008"
+  ]
+ },
+ "How many England caps were won by university rugby teammates Will Carling, Chris Oti, and Andy Mullins? Round your answer to the nearest ten.": {
+  "objective": "Find the total number of England rugby union caps earned by Will Carling, Chris Oti, and Andy Mullins to calculate the sum and round it to the nearest ten.",
+  "search_queries": [
+   "Will Carling England rugby caps",
+   "Chris Oti England rugby caps",
+   "Andy Mullins England rugby caps"
+  ]
+ },
+ "When Metallica released its album \"Master of Puppets,\" how old were founding members James Hetfield and Lars Ulrich?": {
+  "objective": "Find the release date of Metallica's 'Master of Puppets' and the birth dates of James Hetfield and Lars Ulrich to calculate their ages at that specific time.",
+  "search_queries": [
+   "Metallica Master of Puppets release date",
+   "James Hetfield birth date",
+   "Lars Ulrich birth date"
+  ]
+ },
+ "How many published literary works had 1998's Nobel Prize in Literatures' recipient have at the time they received the award? Only count publications in the author's native language.": {
+  "objective": "Identify the 1998 Nobel Prize in Literature winner and find the total count of their published literary works in their native language by 1998.",
+  "search_queries": [
+   "1998 Nobel Prize Literature winner",
+   "J.M. Coetzee bibliography count 1998",
+   "J.M. Coetzee published works before 1998"
+  ]
+ },
+ "Counting Crows burst onto the scene with hits like \"Mr. Jones,\" and \"Round Here.\" Which of their albums came out the same year as the first Atlanta Summer Olympics?": {
+  "objective": "Identify the release year of the first Atlanta Summer Olympics and find which Counting Crows album was released in that same year.",
+  "search_queries": [
+   "first Atlanta Summer Olympics year",
+   "Counting Crows albums release years",
+   "Counting Crows album released 1996"
+  ]
+ },
+ "What is the full name of the district where the Memory of Mankind project is located?": {
+  "objective": "Identify the specific district containing the Hall of ManKind repository in the Salzkammergut region of Austria and determine its official full name.",
+  "search_queries": [
+   "Memory of Mankind project location district",
+   "Hall of ManKind district Austria",
+   "Salzkammergut district name Memory of Mankind"
+  ]
+ },
+ "How many fewer races did Sebastian Vettel complete before he retired compared to his hero, Michael Schumacher? ": {
+  "objective": "Find the total number of Formula 1 races completed by Michael Schumacher and Sebastian Vettel to calculate the difference between their career race counts.",
+  "search_queries": [
+   "Michael Schumacher total F1 races completed",
+   "Sebastian Vettel total F1 races completed",
+   "difference in races Schumacher vs Vettel"
+  ]
+ },
+ "What is the name of the sequel to this comedy movie that shares a name with Obie Trice's fourth studio album?": {
+  "objective": "Identify Obie Trice's fourth studio album title, find the comedy movie with the same name, and determine the title of that movie's sequel.",
+  "search_queries": [
+   "Obie Trice fourth studio album name",
+   "comedy movie sequel to Scary Movie",
+   "Scary Movie sequel title"
+  ]
+ },
+ "As of 2024, what is the street address of the headquarters of the American online video sharing platform that was launched in the same year as the founding of the Vancouver Cherry Blossom festival?": {
+  "objective": "Identify the year the Vancouver Cherry Blossom Festival was founded to determine the launch year of the corresponding US video platform, then find that platform's 2024 headquarters street address.",
+  "search_queries": [
+   "Vancouver Cherry Blossom Festival founding year",
+   "US video platform launched same year as Vancouver Cherry Blossom Festival",
+   "YouTube headquarters street address 2024"
+  ]
+ },
+ "During which year did the actor who played George Falconer in the film A Single Man receive his first Academy Award? Include the name of the film for which he won.": {
+  "objective": "Identify the actor who played George Falconer in A Single Man and find the year and film for which he won his first Academy Award.",
+  "search_queries": [
+   "actor who played George Falconer A Single Man",
+   "Colin Firth first Academy Award win year film",
+   "Colin Firth Oscar win The King's Speech"
+  ]
+ },
+ "Who was number 3 on the 1976-77 NBA World Champions team?": {
+  "objective": "Identify the player who wore jersey number 3 for the 1976-77 Portland Trail Blazers, the NBA champions of that season.",
+  "search_queries": [
+   "1976-77 Portland Trail Blazers roster",
+   "who wore number 3 for 1977 Trail Blazers",
+   "1976-77 NBA champions team roster"
+  ]
+ },
+ "I am thinking of a movie where Hans Zimmer won a Grammy Award for his work. He won the Grammy award the same year that he did his first musical score for film director Michael Bay. Can you please tell me the name of that movie?": {
+  "objective": "Identify the film score for which Hans Zimmer won a Grammy in the same year he scored his first Michael Bay film.",
+  "search_queries": [
+   "Hans Zimmer first Michael Bay film",
+   "Hans Zimmer Grammy wins by year",
+   "Hans Zimmer Grammy same year Bad Boys"
+  ]
+ },
+ "How many votes did the opposition party get in the Brant riding the election before Justin Trudeau was elected Prime Minister?": {
+  "objective": "Find the number of votes received by the opposition party in the Brant federal riding during the 2015 Canadian federal election, which was the election before Justin Trudeau became Prime Minister.",
+  "search_queries": [
+   "Brant riding 2015 election results",
+   "2015 Canadian federal election Brant votes",
+   "opposition party votes Brant 2015"
+  ]
+ },
+ "Where was Robert Vesco living when Bank of Credit and Commerce International was formally liquidated?": {
+  "objective": "Determine Robert Vesco's location at the time of BCCI's formal liquidation in 1991 and identify the specific country or city he resided in during that period.",
+  "search_queries": [
+   "Robert Vesco location 1991",
+   "BCCI formal liquidation date",
+   "Robert Vesco exile Bahamas"
+  ]
+ },
+ "How many different Prime Ministers of the United Kingdom were there during the first term of Grover Cleveland's presidency, and who were they?": {
+  "objective": "Find the exact start and end dates of Grover Cleveland's first presidential term and identify all individuals who served as UK Prime Minister within that specific timeframe.",
+  "search_queries": [
+   "Grover Cleveland first term dates",
+   "UK Prime Ministers 1885 to 1889",
+   "British Prime Ministers during Cleveland presidency"
+  ]
+ },
+ "The Nintendo Entertainment System shipped with a main processor that was a derivative of the CPU in an Apple Computer that was released after the Apple 1 and before 1980. When was the original model Apple device I am referring to discontinued?": {
+  "objective": "Identify the specific Apple computer model released between the Apple 1 and 1980 that shares a CPU derivative with the NES, and find its discontinuation date.",
+  "search_queries": [
+   "NES CPU Apple computer derivative",
+   "Apple computer released before 1980 after Apple 1",
+   "Apple II discontinuation date"
+  ]
+ },
+ "Which British prime minister of the 1990s had the most children?": {
+  "objective": "Identify the British Prime Ministers who served in the 1990s and determine the number of children each had to find the one with the most.",
+  "search_queries": [
+   "British prime ministers 1990s list",
+   "John Major number of children",
+   "Tony Blair number of children"
+  ]
+ },
+ "If Anastasia Romanov had still been alive when the 90s cartoon movie based on her was released, how old would she be?": {
+  "objective": "Find the release year of the 1997 animated film Anastasia and calculate her age based on her birth year of 1901.",
+  "search_queries": [
+   "Anastasia animated movie release year",
+   "Anastasia Romanov birth year",
+   "Anastasia 1997 film release date"
+  ]
+ },
+ "How much larger was the concert capacity of the venue where Led Zeppelin recorded \"The Song Remains the Same\" than the venue where AC/DC recorded their first live album?": {
+  "objective": "Find the concert capacity of Madison Square Garden during Led Zeppelin's 1973 performance and the capacity of the venue where AC/DC recorded their first live album, then calculate the difference.",
+  "search_queries": [
+   "Madison Square Garden capacity 1973",
+   "AC/DC first live album venue",
+   "Let There Be Rock recording venue capacity"
+  ]
+ },
+ "Five Nights at Freddy's initial game release came one day short of the 19 year anniversary of the death of which Grateful Dead band member?": {
+  "objective": "Find the release date of the first Five Nights at Freddy's game and identify the Grateful Dead member who died exactly 19 years prior to that date.",
+  "search_queries": [
+   "Five Nights at Freddy's initial release date",
+   "Grateful Dead member death anniversary 19 years",
+   "Who died 19 years before FNAF 1"
+  ]
+ },
+ "How old was Joel McHale the first time the Philadelphia Waterdogs won the PLL Championship?": {
+  "objective": "Find the year the Philadelphia Waterdogs won their first PLL Championship and Joel McHale's birth date to calculate his age at that time.",
+  "search_queries": [
+   "Philadelphia Waterdogs first PLL Championship year",
+   "Joel McHale birth date"
+  ]
+ },
+ "What is the birth town of the absent athlete from the Victory Salute statue in San Jose, California?": {
+  "objective": "Identify the specific athlete missing from the Victory Salute statue in San Jose and find their birthplace.",
+  "search_queries": [
+   "Victory Salute statue San Jose absent athlete",
+   "Victory Salute statue San Jose history",
+   "who is missing from Victory Salute statue"
+  ]
+ },
+ "What is the name of the only Texan radio station on frequency 89.5 FM that is operated by a university, as of the death of Jerry West?": {
+  "objective": "Identify the university-operated radio station in Texas broadcasting on 89.5 FM and verify its status at the time of Jerry West's death in 2024.",
+  "search_queries": [
+   "Texas university radio station 89.5 FM",
+   "Jerry West death date June 2024",
+   "list of Texas college radio stations"
+  ]
+ },
+ "How many Red Hot Chili Peppers albums were released while Nelson Mandela was in prison?": {
+  "objective": "Find the exact dates of Nelson Mandela's imprisonment and the release dates of all Red Hot Chili Peppers studio albums to count how many fall within that timeframe.",
+  "search_queries": [
+   "Nelson Mandela imprisonment dates",
+   "Red Hot Chili Peppers discography release dates",
+   "RHCP albums released 1964 1990"
+  ]
+ },
+ "What is the country of origin of the football coach with the first initial \"P\" for the Thailand national men's football team who coached 54 years after the country's name officially changed?": {
+  "objective": "Identify the Thailand national men's football coach with first initial P appointed 54 years after the country's name changed from Siam (1949), and determine their country of origin.",
+  "search_queries": [
+   "Thailand national football team coaches list",
+   "Thailand football coach first initial P",
+   "Siam name change year 1949"
+  ]
+ },
+ "Gifts to children from Krampus are principally composed of what element?": {
+  "objective": "Identify the specific material or element that makes up the gifts Krampus traditionally gives to children, such as birch rods or coal, using folklore sources.",
+  "search_queries": [
+   "Krampus gifts to children material",
+   "what does Krampus give children",
+   "Krampus traditional gifts element"
+  ]
+ },
+ "Of the 6 main cast members of the series Friends, which have appeared in music videos?": {
+  "objective": "Identify which of the six main Friends cast members have appeared in music videos and find specific examples to confirm their participation.",
+  "search_queries": [
+   "Friends cast members music videos",
+   "Jennifer Aniston music video appearances",
+   "Courteney Cox music video appearances"
+  ]
+ },
+ "There is a famous Texas city where a Stadium built in 1930 hosted six games for the 1994 World Cup, but only after widening the field and permanently installing natural grass on the playing surface. What was the average (mean) number of attendance for these six games?": {
+  "objective": "Identify the specific Texas stadium built in 1930 that hosted six 1994 World Cup games after field modifications, and find the total or individual attendance figures for those six matches to calculate the mean.",
+  "search_queries": [
+   "Cotton Bowl 1994 World Cup attendance",
+   "1994 World Cup Dallas games attendance list",
+   "Cotton Bowl 1930 construction 1994 World Cup"
+  ]
+ },
+ "Tell me the name of the place I am thinking of based on these clues:  - I am a metropolitan borough in the West Midlands, UK - I am not a city - My boroughs name does not relate to a town": {
+  "objective": "Identify the metropolitan borough in the West Midlands, UK, that is not a city and whose name does not correspond to a specific town, by listing all West Midlands metropolitan boroughs and filtering them based on these criteria.",
+  "search_queries": [
+   "list of metropolitan boroughs in West Midlands",
+   "West Midlands boroughs that are not cities",
+   "West Midlands borough names not towns"
+  ]
+ },
+ "How many years apart were the Canadian Museum of History and the National Gallery of Canada established?": {
+  "objective": "Find the founding years of the Canadian Museum of History and the National Gallery of Canada to calculate the difference in years.",
+  "search_queries": [
+   "Canadian Museum of History founding year",
+   "National Gallery of Canada establishment year",
+   "Canadian Museum of History vs National Gallery founding dates"
+  ]
+ },
+ "What were the top 5 Billboard songs by musical groups in the year 1985?": {
+  "objective": "Identify the top 5 songs on the Billboard Hot 100 year-end chart for 1985 that were performed by musical groups rather than solo artists.",
+  "search_queries": [
+   "Billboard Hot 100 year end 1985",
+   "top songs by groups 1985",
+   "Billboard 1985 year end chart groups"
+  ]
+ },
+ "What do the inventor of the marine chronometer, the US president with the shortest tenure in history, and the president who was sworn in by Chief Justice Melville Fuller all have in common?": {
+  "objective": "Identify the shared characteristic or category linking John Harrison, William Henry Harrison, and Grover Cleveland.",
+  "search_queries": [
+   "John Harrison William Henry Harrison Grover Cleveland common",
+   "inventor marine chronometer shortest US president Melville Fuller",
+   "what do John Harrison and William Henry Harrison have in common"
+  ]
+ },
+ "As of August 04, 2024, what is the exact age difference between Daniel Radcliff and his current partner in days?": {
+  "objective": "Find Daniel Radcliffe's birth date and his current partner's birth date as of August 2024 to calculate the exact age difference in days.",
+  "search_queries": [
+   "Daniel Radcliffe current partner 2024",
+   "Daniel Radcliffe birth date",
+   "Erin Darke birth date"
+  ]
+ },
+ "During World War I, the French designed a new military decoration to recognize French and allied soldiers for their service. The sculptor who designed the medal also worked on two war monuments one year after WWI ended. What is the name of the monument that he began work on, but was completed by someone else?": {
+  "objective": "Identify the French sculptor who designed a WWI military decoration and worked on two monuments in 1919, then determine which of those monuments he started but did not finish.",
+  "search_queries": [
+   "French WWI medal sculptor 1919 monuments",
+   "sculptor designed Croix de Guerre 1919",
+   "French war monument unfinished by sculptor"
+  ]
+ },
+ "Of the three producers of the tv sitcom Friends, which two had ties to Philadelphia? ": {
+  "objective": "Identify the three executive producers of the TV sitcom Friends and determine which two of them have a biographical connection to Philadelphia.",
+  "search_queries": [
+   "Friends TV show executive producers",
+   "David Crane Philadelphia connection",
+   "Marta Kauffman Philadelphia background"
+  ]
+ },
+ "In what year did a great fire destroy over 100 buildings in the North American city which hosted the 2010 G20 summit?": {
+  "objective": "Identify the host city of the 2010 G20 summit and find the year a major fire destroyed over 100 buildings there.",
+  "search_queries": [
+   "2010 G20 summit host city",
+   "Toronto great fire 100 buildings",
+   "Toronto fire history 1849"
+  ]
+ },
+ "Of all states within New England in the United States, which had a population between 400,000 and 800,000 in 1920?": {
+  "objective": "Find the 1920 census population figures for each of the six New England states to identify which one falls between 400,000 and 800,000.",
+  "search_queries": [
+   "1920 census population New England states",
+   "Vermont population 1920 census",
+   "New Hampshire population 1920 census"
+  ]
+ },
+ "What was the difference in receiving yards from 2022 and 2023 for number 11 on the 49ers? Calculate the same 2022/2023 difference for the closest ranked WR for number 11's draft class and compare their numbers.": {
+  "objective": "Find the 2022 and 2023 receiving yards for 49ers WR #11 (Jauan Jennings) and identify the closest ranked WR from the 2021 NFL Draft class to calculate and compare their year-over-year yardage differences.",
+  "search_queries": [
+   "Jauan Jennings receiving yards 2022 2023",
+   "2021 NFL Draft WR rankings list",
+   "closest ranked WR to Jauan Jennings 2021 draft"
+  ]
+ },
+ "According to topographical summit prominence, how many years were there between the first ascent of the United State's second most prominent mountain and the first ascent of Russia's second most prominent mountain? ": {
+  "objective": "Identify the United States' and Russia's second most prominent mountains by topographical prominence, find the year of the first ascent for each, and calculate the difference in years between these two ascents.",
+  "search_queries": [
+   "US second most prominent mountain first ascent",
+   "Russia second most prominent mountain first ascent",
+   "list of mountains by prominence US Russia"
+  ]
+ },
+ "Who was the king of England when Isaac Newton first published his Principia?": {
+  "objective": "Identify the reigning monarch of England in 1687, the year Isaac Newton's Principia Mathematica was first published.",
+  "search_queries": [
+   "who was king of england 1687",
+   "monarch of england when principia published",
+   "isaac newton principia publication date king"
+  ]
+ },
+ "The flavored ice brand Slush Puppie is actually named after a food made from cornmeal-batter. That food was itself originally named after a fish native to South Carolina. What’s the genus name of the fish?": {
+  "objective": "Identify the cornmeal-batter food that inspired the name Slush Puppie and determine the South Carolina native fish that food was named after, specifically finding the fish's genus name.",
+  "search_queries": [
+   "Slush Puppie name origin cornmeal food",
+   "food named after South Carolina fish",
+   "genus name of fish cornmeal food named after"
+  ]
+ },
+ "In 1908 a fireboat operated by the Chicago Fire Department sank and was later refloated. When was the state that bears the same name as the fireboat founded?": {
+  "objective": "Identify the name of the Chicago Fire Department fireboat that sank in 1908 and was refloated, then determine the founding date of the U.S. state with that name.",
+  "search_queries": [
+   "Chicago Fire Department fireboat sank 1908",
+   "CFFD fireboat refloated after sinking 1908",
+   "US state founded date"
+  ]
+ },
+ "The founder of the eponymous music school at the University of Rochester held the patent for an item that later earned him a star on the Hollywood Walk of Fame. How many years passed between his initial patent and the placement of his star?": {
+  "objective": "Identify the founder of the Eastman School of Music at the University of Rochester, determine the patent for which he received a Hollywood Walk of Fame star, and find the dates of both the initial patent and the star's installation to calculate the time difference.",
+  "search_queries": [
+   "George Eastman patent year",
+   "George Eastman Hollywood Walk of Fame star date",
+   "Eastman School of Music founder patent"
+  ]
+ },
+ "On the same day Roald Dahl first published a work, a famous guitar player and singer was born. This person was once ranked 13th in Rolling Stone's \"100 Greatest Guitarists of All Time\" cover story. In the same year that this person was ranked 13th, who was ranked number 2 in Rolling Stone magazine's list of the 100 greatest guitarists of all time?": {
+  "objective": "Identify the year Roald Dahl first published a work to find the birth year of a guitarist ranked 13th in Rolling Stone's list, then determine who was ranked 2nd in that specific year's list.",
+  "search_queries": [
+   "Roald Dahl first published work year",
+   "Rolling Stone 100 Greatest Guitarists 2011",
+   "Rolling Stone 100 Greatest Guitarists 2003"
+  ]
+ },
+ "Who was the winner of Tour de France the same year that a major catastrophic crash happened at Circuit de la Sarthe in Le Mans, France?": {
+  "objective": "Identify the year of the major catastrophic crash at the Circuit de la Sarthe in Le Mans and find the winner of the Tour de France for that specific year.",
+  "search_queries": [
+   "major catastrophic crash Le Mans Circuit de la Sarthe year",
+   "Tour de France winner 1955",
+   "1955 Le Mans disaster Tour de France winner"
+  ]
+ }
+}

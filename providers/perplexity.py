@@ -6,6 +6,8 @@ import time
 
 import aiohttp
 
+from providers.common import timing_headers
+
 ENDPOINT = "https://api.perplexity.ai/search"
 RETRYABLE = {429, 500, 502, 503, 504}
 MODES = {"web", "fast"}
@@ -36,13 +38,13 @@ def validate_profile(profile):
 
 def build_request(question, profile):
     results = profile.get("max_results", 10)
-    per_page = math.ceil(profile.get("max_characters", 2000) / CHARS_PER_TOKEN)
+    per_page = profile.get("max_tokens_per_page") or math.ceil(profile.get("max_characters", 2000) / CHARS_PER_TOKEN)
     return {
         "query": question,
         "search_type": profile["mode"],
         "max_results": results,
         "max_tokens_per_page": per_page,
-        "max_tokens": per_page * results,
+        "max_tokens": profile.get("max_tokens") or per_page * results,
     }
 
 
@@ -83,6 +85,7 @@ async def search(session, question, profile, api_key):
             ) as response:
                 raw = await response.json(content_type=None)
                 status = response.status
+                result["server_headers"] = timing_headers(getattr(response, "headers", {}) or {})
             if status not in RETRYABLE or attempt == 3:
                 break
             await asyncio.sleep(2 ** (attempt + 1))
